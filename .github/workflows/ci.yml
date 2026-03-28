@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Build, lint & test
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: archipulse_test
+          POSTGRES_USER: archipulse
+          POSTGRES_PASSWORD: archipulse
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgres://archipulse:archipulse@localhost:5432/archipulse_test?sslmode=disable
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Verify dependencies
+        run: go mod verify
+
+      - name: Build
+        run: go build -o archipulse ./cmd/archipulse
+
+      - name: Format check
+        run: |
+          if [ -n "$(gofmt -l .)" ]; then
+            echo "The following files are not formatted:"
+            gofmt -l .
+            exit 1
+          fi
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: latest
+
+      - name: Run migrations
+        run: go run ./cmd/archipulse migrate
+
+      - name: Unit tests
+        run: go test ./internal/... -race -count=1
+
+      - name: Integration tests
+        run: go test ./tests/... -race -count=1
+
+      - name: Test coverage
+        run: |
+          go test -coverprofile=coverage.out ./internal/... ./tests/...
+          go tool cover -func=coverage.out

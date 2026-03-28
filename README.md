@@ -138,7 +138,7 @@ cp .env.example .env
 go run ./cmd/archipulse migrate
 
 # Build
-go build ./...
+go build -o archipulse ./cmd/archipulse
 
 # Run
 ./archipulse serve
@@ -216,14 +216,15 @@ archipulse/
 ## Roadmap
 
 ### v0.1 — Foundation _(current)_
-- [ ] AOEF parser and XSD validation
-- [ ] AJX parser
-- [ ] PostgreSQL schema (AOEF as tables)
-- [ ] Workspace CRUD API
-- [ ] Element, relationship, diagram CRUD API
-- [ ] Optimistic locking on all editable resources
-- [ ] AOEF and AJX export
-- [ ] CI pipeline and test suite
+- [x] AOEF parser
+- [x] AJX parser
+- [x] PostgreSQL schema (AOEF as tables)
+- [x] Workspace CRUD API
+- [x] Element, relationship, diagram CRUD API
+- [x] Optimistic locking on all editable resources
+- [x] AOEF and AJX export
+- [x] CI pipeline and test suite
+- [ ] AOEF XSD validation — deferred to v0.2 (see [#1](https://github.com/DisruptiveWorks/archipulse/issues/1))
 
 ### v0.2 — Viewer & Navigation
 - [ ] Static ArchiMate viewer

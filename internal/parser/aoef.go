@@ -1,0 +1,105 @@
+package parser
+
+import (
+	"encoding/xml"
+	"fmt"
+	"io"
+)
+
+// ParseAOEF parses an ArchiMate Open Exchange Format (XML) document
+// and returns a Model.
+func ParseAOEF(r io.Reader) (*Model, error) {
+	var raw aoefModel
+	if err := xml.NewDecoder(r).Decode(&raw); err != nil {
+		return nil, fmt.Errorf("aoef: decode xml: %w", err)
+	}
+	return raw.toModel(), nil
+}
+
+// ---- raw AOEF XML structs ----
+
+type aoefModel struct {
+	XMLName       xml.Name           `xml:"model"`
+	Name          string             `xml:"name"`
+	Elements      []aoefElement      `xml:"elements>element"`
+	Relationships []aoefRelationship `xml:"relationships>relationship"`
+	Views         []aoefView         `xml:"views>diagrams>view"`
+}
+
+type aoefElement struct {
+	ID            string `xml:"identifier,attr"`
+	Type          string `xml:"type,attr"`
+	Name          string `xml:"name"`
+	Documentation string `xml:"documentation"`
+}
+
+type aoefRelationship struct {
+	ID            string `xml:"identifier,attr"`
+	Type          string `xml:"type,attr"`
+	Source        string `xml:"source,attr"`
+	Target        string `xml:"target,attr"`
+	Name          string `xml:"name"`
+	Documentation string `xml:"documentation"`
+}
+
+type aoefView struct {
+	ID            string     `xml:"identifier,attr"`
+	Name          string     `xml:"name"`
+	Documentation string     `xml:"documentation"`
+	Nodes         []aoefNode `xml:"node"`
+	Connections   []aoefConn `xml:"connection"`
+}
+
+type aoefNode struct {
+	ElementRef string `xml:"elementRef,attr"`
+	X          int    `xml:"x,attr"`
+	Y          int    `xml:"y,attr"`
+	W          int    `xml:"w,attr"`
+	H          int    `xml:"h,attr"`
+}
+
+type aoefConn struct {
+	RelationshipRef string      `xml:"relationshipRef,attr"`
+	Bendpoints      []aoefPoint `xml:"bendpoint"`
+}
+
+type aoefPoint struct {
+	X int `xml:"x,attr"`
+	Y int `xml:"y,attr"`
+}
+
+func (m *aoefModel) toModel() *Model {
+	out := &Model{Name: m.Name}
+
+	for _, e := range m.Elements {
+		out.Elements = append(out.Elements, Element(e))
+	}
+
+	for _, r := range m.Relationships {
+		out.Relationships = append(out.Relationships, Relationship(r))
+	}
+
+	for _, v := range m.Views {
+		d := Diagram{
+			ID:            v.ID,
+			Name:          v.Name,
+			Documentation: v.Documentation,
+		}
+		for _, n := range v.Nodes {
+			d.Layout.Nodes = append(d.Layout.Nodes, NodeLayout{
+				ElementID: n.ElementRef,
+				X:         n.X, Y: n.Y, W: n.W, H: n.H,
+			})
+		}
+		for _, c := range v.Connections {
+			cl := ConnectionLayout{RelationshipID: c.RelationshipRef}
+			for _, bp := range c.Bendpoints {
+				cl.Bendpoints = append(cl.Bendpoints, Point(bp))
+			}
+			d.Layout.Connections = append(d.Layout.Connections, cl)
+		}
+		out.Diagrams = append(out.Diagrams, d)
+	}
+
+	return out
+}

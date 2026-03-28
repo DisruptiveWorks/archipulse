@@ -1,0 +1,138 @@
+package api
+
+import (
+	"database/sql"
+	"encoding/json"
+	"errors"
+	"net/http"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
+
+	"github.com/DisruptiveWorks/archipulse/internal/relationship"
+)
+
+type relationshipHandler struct {
+	store *relationship.Store
+}
+
+func (h *relationshipHandler) list(w http.ResponseWriter, r *http.Request) {
+	wsID, err := uuid.Parse(chi.URLParam(r, "wsID"))
+	if err != nil {
+		respondError(w, http.StatusBadRequest, err)
+		return
+	}
+	rels, err := h.store.List(wsID)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, err)
+		return
+	}
+	respondJSON(w, http.StatusOK, rels)
+}
+
+func (h *relationshipHandler) get(w http.ResponseWriter, r *http.Request) {
+	id, err := parseUUID(r, "id")
+	if err != nil {
+		respondError(w, http.StatusBadRequest, err)
+		return
+	}
+	rel, err := h.store.Get(id)
+	if errors.Is(err, relationship.ErrNotFound) {
+		respondError(w, http.StatusNotFound, err)
+		return
+	}
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, err)
+		return
+	}
+	respondJSON(w, http.StatusOK, rel)
+}
+
+func (h *relationshipHandler) create(w http.ResponseWriter, r *http.Request) {
+	wsID, err := uuid.Parse(chi.URLParam(r, "wsID"))
+	if err != nil {
+		respondError(w, http.StatusBadRequest, err)
+		return
+	}
+	var body struct {
+		SourceID      string `json:"source_id"`
+		Type          string `json:"type"`
+		SourceElement string `json:"source_element"`
+		TargetElement string `json:"target_element"`
+		Name          string `json:"name"`
+		Documentation string `json:"documentation"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		respondError(w, http.StatusBadRequest, err)
+		return
+	}
+	if body.SourceID == "" || body.Type == "" || body.SourceElement == "" || body.TargetElement == "" {
+		respondError(w, http.StatusBadRequest, errorf("source_id, type, source_element and target_element are required"))
+		return
+	}
+	rel, err := h.store.Create(wsID, body.SourceID, body.Type, body.SourceElement, body.TargetElement, body.Name, body.Documentation)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, err)
+		return
+	}
+	respondJSON(w, http.StatusCreated, rel)
+}
+
+func (h *relationshipHandler) update(w http.ResponseWriter, r *http.Request) {
+	id, err := parseUUID(r, "id")
+	if err != nil {
+		respondError(w, http.StatusBadRequest, err)
+		return
+	}
+	var body struct {
+		Type          string `json:"type"`
+		SourceElement string `json:"source_element"`
+		TargetElement string `json:"target_element"`
+		Name          string `json:"name"`
+		Documentation string `json:"documentation"`
+		Version       int    `json:"version"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		respondError(w, http.StatusBadRequest, err)
+		return
+	}
+	rel, err := h.store.Update(id, body.Type, body.SourceElement, body.TargetElement, body.Name, body.Documentation, body.Version)
+	if errors.Is(err, relationship.ErrNotFound) {
+		respondError(w, http.StatusNotFound, err)
+		return
+	}
+	if errors.Is(err, relationship.ErrConflict) {
+		respondError(w, http.StatusConflict, err)
+		return
+	}
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, err)
+		return
+	}
+	respondJSON(w, http.StatusOK, rel)
+}
+
+func (h *relationshipHandler) delete(w http.ResponseWriter, r *http.Request) {
+	id, err := parseUUID(r, "id")
+	if err != nil {
+		respondError(w, http.StatusBadRequest, err)
+		return
+	}
+	if err := h.store.Delete(id); errors.Is(err, relationship.ErrNotFound) {
+		respondError(w, http.StatusNotFound, err)
+		return
+	} else if err != nil {
+		respondError(w, http.StatusInternalServerError, err)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func registerRelationshipRoutes(r chi.Router, db *sql.DB) {
+	h := &relationshipHandler{store: relationship.NewStore(db)}
+	r.Get("/workspaces/{wsID}/relationships", h.list)
+	r.Post("/workspaces/{wsID}/relationships", h.create)
+	r.Get("/workspaces/{wsID}/relationships/{id}", h.get)
+	r.Put("/workspaces/{wsID}/relationships/{id}", h.update)
+	r.Delete("/workspaces/{wsID}/relationships/{id}", h.delete)
+}
