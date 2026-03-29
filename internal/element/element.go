@@ -18,6 +18,7 @@ type Element struct {
 	WorkspaceID   uuid.UUID
 	SourceID      string
 	Type          string
+	Layer         string
 	Name          string
 	Documentation string
 	Version       int
@@ -33,7 +34,7 @@ func NewStore(db *sql.DB) *Store { return &Store{db: db} }
 
 func (s *Store) List(workspaceID uuid.UUID) ([]Element, error) {
 	rows, err := s.db.Query(`
-		SELECT id, workspace_id, source_id, type, name, documentation, version, created_at, updated_at
+		SELECT id, workspace_id, source_id, type, layer, name, documentation, version, created_at, updated_at
 		FROM elements WHERE workspace_id = $1 ORDER BY name`, workspaceID)
 	if err != nil {
 		return nil, fmt.Errorf("list elements: %w", err)
@@ -43,7 +44,7 @@ func (s *Store) List(workspaceID uuid.UUID) ([]Element, error) {
 	var out []Element
 	for rows.Next() {
 		var e Element
-		if err := rows.Scan(&e.ID, &e.WorkspaceID, &e.SourceID, &e.Type, &e.Name,
+		if err := rows.Scan(&e.ID, &e.WorkspaceID, &e.SourceID, &e.Type, &e.Layer, &e.Name,
 			&e.Documentation, &e.Version, &e.CreatedAt, &e.UpdatedAt); err != nil {
 			return nil, err
 		}
@@ -55,9 +56,9 @@ func (s *Store) List(workspaceID uuid.UUID) ([]Element, error) {
 func (s *Store) Get(id uuid.UUID) (*Element, error) {
 	var e Element
 	err := s.db.QueryRow(`
-		SELECT id, workspace_id, source_id, type, name, documentation, version, created_at, updated_at
+		SELECT id, workspace_id, source_id, type, layer, name, documentation, version, created_at, updated_at
 		FROM elements WHERE id = $1`, id).
-		Scan(&e.ID, &e.WorkspaceID, &e.SourceID, &e.Type, &e.Name,
+		Scan(&e.ID, &e.WorkspaceID, &e.SourceID, &e.Type, &e.Layer, &e.Name,
 			&e.Documentation, &e.Version, &e.CreatedAt, &e.UpdatedAt)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, ErrNotFound
@@ -68,14 +69,14 @@ func (s *Store) Get(id uuid.UUID) (*Element, error) {
 	return &e, nil
 }
 
-func (s *Store) Create(workspaceID uuid.UUID, sourceID, typ, name, documentation string) (*Element, error) {
+func (s *Store) Create(workspaceID uuid.UUID, sourceID, typ, layer, name, documentation string) (*Element, error) {
 	var e Element
 	err := s.db.QueryRow(`
-		INSERT INTO elements (workspace_id, source_id, type, name, documentation)
-		VALUES ($1, $2, $3, $4, $5)
-		RETURNING id, workspace_id, source_id, type, name, documentation, version, created_at, updated_at`,
-		workspaceID, sourceID, typ, name, documentation).
-		Scan(&e.ID, &e.WorkspaceID, &e.SourceID, &e.Type, &e.Name,
+		INSERT INTO elements (workspace_id, source_id, type, layer, name, documentation)
+		VALUES ($1, $2, $3, $4, $5, $6)
+		RETURNING id, workspace_id, source_id, type, layer, name, documentation, version, created_at, updated_at`,
+		workspaceID, sourceID, typ, layer, name, documentation).
+		Scan(&e.ID, &e.WorkspaceID, &e.SourceID, &e.Type, &e.Layer, &e.Name,
 			&e.Documentation, &e.Version, &e.CreatedAt, &e.UpdatedAt)
 	if err != nil {
 		return nil, fmt.Errorf("create element: %w", err)
@@ -83,15 +84,15 @@ func (s *Store) Create(workspaceID uuid.UUID, sourceID, typ, name, documentation
 	return &e, nil
 }
 
-func (s *Store) Update(id uuid.UUID, typ, name, documentation string, version int) (*Element, error) {
+func (s *Store) Update(id uuid.UUID, typ, layer, name, documentation string, version int) (*Element, error) {
 	var e Element
 	err := s.db.QueryRow(`
 		UPDATE elements
-		SET type = $1, name = $2, documentation = $3, version = version + 1, updated_at = now()
-		WHERE id = $4 AND version = $5
-		RETURNING id, workspace_id, source_id, type, name, documentation, version, created_at, updated_at`,
-		typ, name, documentation, id, version).
-		Scan(&e.ID, &e.WorkspaceID, &e.SourceID, &e.Type, &e.Name,
+		SET type = $1, layer = $2, name = $3, documentation = $4, version = version + 1, updated_at = now()
+		WHERE id = $5 AND version = $6
+		RETURNING id, workspace_id, source_id, type, layer, name, documentation, version, created_at, updated_at`,
+		typ, layer, name, documentation, id, version).
+		Scan(&e.ID, &e.WorkspaceID, &e.SourceID, &e.Type, &e.Layer, &e.Name,
 			&e.Documentation, &e.Version, &e.CreatedAt, &e.UpdatedAt)
 	if errors.Is(err, sql.ErrNoRows) {
 		if _, err2 := s.Get(id); errors.Is(err2, ErrNotFound) {

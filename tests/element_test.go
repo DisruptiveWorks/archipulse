@@ -20,7 +20,7 @@ func TestElementStore_CRUD(t *testing.T) {
 	t.Cleanup(func() { _ = wsStore.Delete(ws.ID) })
 
 	// Create
-	e, err := eStore.Create(ws.ID, "src-001", "ApplicationComponent", "PaymentService", "docs")
+	e, err := eStore.Create(ws.ID, "src-001", "ApplicationComponent", "Application", "PaymentService", "docs")
 	if err != nil {
 		t.Fatalf("Create element: %v", err)
 	}
@@ -47,7 +47,7 @@ func TestElementStore_CRUD(t *testing.T) {
 	}
 
 	// Update
-	updated, err := eStore.Update(e.ID, "ApplicationComponent", "PaymentServiceV2", "updated", e.Version)
+	updated, err := eStore.Update(e.ID, "ApplicationComponent", "Application", "PaymentServiceV2", "updated", e.Version)
 	if err != nil {
 		t.Fatalf("Update element: %v", err)
 	}
@@ -56,7 +56,7 @@ func TestElementStore_CRUD(t *testing.T) {
 	}
 
 	// Optimistic lock conflict
-	_, err = eStore.Update(e.ID, "ApplicationComponent", "conflict", "", e.Version)
+	_, err = eStore.Update(e.ID, "ApplicationComponent", "Application", "conflict", "", e.Version)
 	if !errors.Is(err, element.ErrConflict) {
 		t.Errorf("expected ErrConflict, got %v", err)
 	}

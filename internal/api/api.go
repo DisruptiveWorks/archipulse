@@ -26,6 +26,8 @@ func NewRouter(db *sql.DB) http.Handler {
 		registerRelationshipRoutes(r, db)
 		registerDiagramRoutes(r, db)
 		registerExportRoutes(r, db)
+		registerImportRoutes(r, db)
+		registerViewerRoutes(r, db)
 	})
 
 	return r
