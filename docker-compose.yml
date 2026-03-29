@@ -1,0 +1,30 @@
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: archipulse
+      POSTGRES_USER: archipulse
+      POSTGRES_PASSWORD: archipulse
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U archipulse -d archipulse"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://archipulse:archipulse@db:5432/archipulse?sslmode=disable
+      PORT: 8080
+    ports:
+      - "8080:8080"
+
+volumes:
+  pgdata:

@@ -1,0 +1,9 @@
+.git
+.env
+*.md
+docs/
+website/
+examples/
+tests/
+archipulse
+/archipulse
