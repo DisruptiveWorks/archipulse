@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/DisruptiveWorks/archipulse/internal/element"
+	"github.com/DisruptiveWorks/archipulse/internal/parser"
 )
 
 type elementHandler struct {
@@ -68,7 +69,8 @@ func (h *elementHandler) create(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, errorf("source_id and type are required"))
 		return
 	}
-	e, err := h.store.Create(wsID, body.SourceID, body.Type, body.Name, body.Documentation)
+	layer := parser.ElementLayer(body.Type)
+	e, err := h.store.Create(wsID, body.SourceID, body.Type, layer, body.Name, body.Documentation)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, err)
 		return
@@ -92,7 +94,7 @@ func (h *elementHandler) update(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, err)
 		return
 	}
-	e, err := h.store.Update(id, body.Type, body.Name, body.Documentation, body.Version)
+	e, err := h.store.Update(id, body.Type, parser.ElementLayer(body.Type), body.Name, body.Documentation, body.Version)
 	if errors.Is(err, element.ErrNotFound) {
 		respondError(w, http.StatusNotFound, err)
 		return

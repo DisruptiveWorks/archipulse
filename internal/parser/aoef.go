@@ -51,11 +51,12 @@ type aoefView struct {
 }
 
 type aoefNode struct {
-	ElementRef string `xml:"elementRef,attr"`
-	X          int    `xml:"x,attr"`
-	Y          int    `xml:"y,attr"`
-	W          int    `xml:"w,attr"`
-	H          int    `xml:"h,attr"`
+	ElementRef string     `xml:"elementRef,attr"`
+	X          int        `xml:"x,attr"`
+	Y          int        `xml:"y,attr"`
+	W          int        `xml:"w,attr"`
+	H          int        `xml:"h,attr"`
+	Children   []aoefNode `xml:"node"` // nested nodes (Container, Group...)
 }
 
 type aoefConn struct {
@@ -85,12 +86,7 @@ func (m *aoefModel) toModel() *Model {
 			Name:          v.Name,
 			Documentation: v.Documentation,
 		}
-		for _, n := range v.Nodes {
-			d.Layout.Nodes = append(d.Layout.Nodes, NodeLayout{
-				ElementID: n.ElementRef,
-				X:         n.X, Y: n.Y, W: n.W, H: n.H,
-			})
-		}
+		collectNodes(v.Nodes, &d.Layout.Nodes)
 		for _, c := range v.Connections {
 			cl := ConnectionLayout{RelationshipID: c.RelationshipRef}
 			for _, bp := range c.Bendpoints {
@@ -102,4 +98,20 @@ func (m *aoefModel) toModel() *Model {
 	}
 
 	return out
+}
+
+// collectNodes recursively traverses nested AOEF nodes (Containers, Groups)
+// and collects only nodes that reference an element (elementRef != "").
+func collectNodes(nodes []aoefNode, out *[]NodeLayout) {
+	for _, n := range nodes {
+		if n.ElementRef != "" {
+			*out = append(*out, NodeLayout{
+				ElementID: n.ElementRef,
+				X:         n.X, Y: n.Y, W: n.W, H: n.H,
+			})
+		}
+		if len(n.Children) > 0 {
+			collectNodes(n.Children, out)
+		}
+	}
 }
