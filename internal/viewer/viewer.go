@@ -65,7 +65,11 @@ func (r *Registry) Execute(name string, workspaceID uuid.UUID) (*View, error) {
 	if !ok {
 		return nil, fmt.Errorf("unknown view: %q", name)
 	}
-	return fn(r.db, workspaceID)
+	v, err := fn(r.db, workspaceID)
+	if v != nil && v.Rows == nil {
+		v.Rows = [][]any{}
+	}
+	return v, err
 }
 
 // ApplicationDependencyGraph returns the graph data for the dependency viewer.

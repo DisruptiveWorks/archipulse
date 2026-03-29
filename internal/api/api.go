@@ -3,6 +3,7 @@ package api
 
 import (
 	"database/sql"
+	"embed"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -14,13 +15,14 @@ import (
 )
 
 // NewRouter builds and returns the root HTTP router with all routes registered.
-func NewRouter(db *sql.DB) http.Handler {
+// Pass an embed.FS as the optional second argument to also serve the frontend SPA.
+func NewRouter(db *sql.DB, static ...embed.FS) http.Handler {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
-	r.Use(middleware.SetHeader("Content-Type", "application/json"))
 
 	r.Route("/api/v1", func(r chi.Router) {
+		r.Use(middleware.SetHeader("Content-Type", "application/json"))
 		registerWorkspaceRoutes(r, workspace.NewStore(db))
 		registerElementRoutes(r, db)
 		registerRelationshipRoutes(r, db)
@@ -29,6 +31,10 @@ func NewRouter(db *sql.DB) http.Handler {
 		registerImportRoutes(r, db)
 		registerViewerRoutes(r, db)
 	})
+
+	if len(static) > 0 {
+		serveFrontend(r, static[0])
+	}
 
 	return r
 }

@@ -15,15 +15,15 @@ var ErrNotFound = errors.New("diagram not found")
 var ErrConflict = errors.New("diagram was modified by another request")
 
 type Diagram struct {
-	ID            uuid.UUID
-	WorkspaceID   uuid.UUID
-	SourceID      string
-	Name          string
-	Documentation string
-	Layout        json.RawMessage
-	Version       int
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
+	ID            uuid.UUID       `json:"id"`
+	WorkspaceID   uuid.UUID       `json:"workspace_id"`
+	SourceID      string          `json:"source_id"`
+	Name          string          `json:"name"`
+	Documentation string          `json:"documentation"`
+	Layout        json.RawMessage `json:"layout"`
+	Version       int             `json:"version"`
+	CreatedAt     time.Time       `json:"created_at"`
+	UpdatedAt     time.Time       `json:"updated_at"`
 }
 
 type Store struct {

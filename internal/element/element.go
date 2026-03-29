@@ -14,16 +14,16 @@ var ErrNotFound = errors.New("element not found")
 var ErrConflict = errors.New("element was modified by another request")
 
 type Element struct {
-	ID            uuid.UUID
-	WorkspaceID   uuid.UUID
-	SourceID      string
-	Type          string
-	Layer         string
-	Name          string
-	Documentation string
-	Version       int
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
+	ID            uuid.UUID `json:"id"`
+	WorkspaceID   uuid.UUID `json:"workspace_id"`
+	SourceID      string    `json:"source_id"`
+	Type          string    `json:"type"`
+	Layer         string    `json:"layer"`
+	Name          string    `json:"name"`
+	Documentation string    `json:"documentation"`
+	Version       int       `json:"version"`
+	CreatedAt     time.Time `json:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at"`
 }
 
 type Store struct {

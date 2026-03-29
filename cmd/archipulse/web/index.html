@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpolygon points='16,2 27,8 27,22 16,28 5,22 5,8' fill='%23E85D3A'/%3E%3Cpolygon points='16,9 22,13 22,21 16,25 10,21 10,13' fill='none' stroke='white' stroke-width='0.8' stroke-linejoin='round' opacity='0.4'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='white'/%3E%3Cline x1='16' y1='13.5' x2='16' y2='9' stroke='white' stroke-width='1' opacity='0.7'/%3E%3Cline x1='18' y1='14.5' x2='22' y2='13' stroke='white' stroke-width='1' opacity='0.7'/%3E%3Cline x1='18' y1='17.5' x2='22' y2='21' stroke='white' stroke-width='1' opacity='0.7'/%3E%3C/svg%3E" />
+  <title>ArchiPulse</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0f1117;
+      --surface:  #1a1d27;
+      --border:   #2a2d3e;
+      --accent:   #E85D3A;
+      --accent2:  #ff8c6b;
+      --text:     #e2e4f0;
+      --muted:    #8b8fa8;
+      --danger:   #f87171;
+      --success:  #4ade80;
+      --radius:   8px;
+      --font:     'Inter', system-ui, sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 14px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Nav ── */
+    nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    nav .logo {
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+    nav .logo svg { display: block; flex-shrink: 0; }
+    nav .logo .wordmark {
+      font-family: 'Trebuchet MS', Arial, sans-serif;
+      font-size: 17px;
+      letter-spacing: -0.8px;
+      line-height: 1;
+      display: flex;
+      align-items: baseline;
+    }
+    nav .logo .w-archi { font-weight: 300; color: var(--text); }
+    nav .logo .w-pulse { font-weight: 700; color: #E85D3A; }
+    nav .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    nav .breadcrumb a { color: var(--muted); text-decoration: none; }
+    nav .breadcrumb a:hover { color: var(--text); }
+    nav .breadcrumb .sep { color: var(--border); }
+
+    /* ── Layout ── */
+    main {
+      flex: 1;
+      padding: 32px 24px;
+      max-width: 1100px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* ── Page header ── */
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .page-header h1 {
+      font-size: 20px;
+      font-weight: 600;
+    }
+    .page-header p {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 2px;
+    }
+
+    /* ── Buttons ── */
+    button, .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: var(--radius);
+      border: none;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity .15s;
+      text-decoration: none;
+    }
+    button:hover, .btn:hover { opacity: .85; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { color: var(--text); border-color: var(--muted); }
+    .btn-danger { background: #7f1d1d; color: var(--danger); }
+    .btn-sm { padding: 4px 10px; font-size: 12px; }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+
+    /* ── Workspace grid ── */
+    .ws-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .ws-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      cursor: pointer;
+      transition: border-color .15s, transform .15s;
+    }
+    .ws-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+    .ws-card h2 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .ws-card .purpose {
+      display: inline-block;
+      background: #271810;
+      color: var(--accent);
+      border: 1px solid #4a2518;
+      border-radius: 4px;
+      padding: 1px 8px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .ws-card p { color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .ws-card .meta { color: var(--muted); font-size: 11px; margin-top: 12px; }
+
+    /* ── Create workspace form ── */
+    .form-grid { display: flex; flex-direction: column; gap: 14px; }
+    label { display: flex; flex-direction: column; gap: 5px; font-size: 13px; color: var(--muted); }
+    input, select, textarea {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 14px;
+      padding: 8px 12px;
+      font-family: var(--font);
+      outline: none;
+      transition: border-color .15s;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+    textarea { resize: vertical; min-height: 72px; }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.6);
+      backdrop-filter: blur(2px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 200;
+    }
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+      width: 440px;
+      max-width: 95vw;
+    }
+    .modal h2 { font-size: 16px; margin-bottom: 20px; }
+    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+
+    /* ── Views list ── */
+    .views-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 12px;
+    }
+    .view-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      cursor: pointer;
+      transition: border-color .15s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .view-card:hover { border-color: var(--accent); }
+    .view-card .icon {
+      width: 36px; height: 36px;
+      background: #1e2235;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .view-card h3 { font-size: 13px; font-weight: 600; }
+    .view-card p { color: var(--muted); font-size: 12px; margin-top: 2px; }
+
+    /* ── Workspace detail toolbar ── */
+    .ws-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    /* ── Import drop zone ── */
+    .drop-zone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      text-align: center;
+      color: var(--muted);
+      transition: border-color .15s, color .15s;
+      cursor: pointer;
+    }
+    .drop-zone:hover, .drop-zone.over {
+      border-color: var(--accent);
+      color: var(--text);
+    }
+    .drop-zone .icon { font-size: 32px; margin-bottom: 8px; }
+    .drop-zone p { font-size: 13px; }
+    .drop-zone .hint { font-size: 11px; margin-top: 4px; color: var(--muted); }
+
+    /* ── Table ── */
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead th {
+      background: #12151f;
+      color: var(--muted);
+      font-weight: 600;
+      text-align: left;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    tbody tr { border-bottom: 1px solid var(--border); }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #1e2235; }
+    tbody td { padding: 9px 14px; color: var(--text); }
+    tbody td:empty::after { content: '—'; color: var(--muted); }
+
+    /* ── Graph ── */
+    #cy {
+      width: 100%;
+      height: 560px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+    }
+
+    /* ── Alerts ── */
+    .alert {
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+    .alert-error { background: #2d1414; border: 1px solid #7f1d1d; color: var(--danger); }
+    .alert-success { background: #14271a; border: 1px solid #166534; color: var(--success); }
+    .alert-info { background: #1a1e35; border: 1px solid var(--border); color: var(--muted); }
+
+    /* ── Misc ── */
+    .section-title {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 48px;
+      color: var(--muted);
+    }
+    .empty-state .icon { font-size: 40px; margin-bottom: 12px; }
+    .empty-state p { font-size: 14px; }
+    .tag {
+      display: inline-block;
+      padding: 1px 7px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .tag-app { background: #1e2f55; color: #7aa2f7; }
+    .tag-biz { background: #2a2414; color: #e0af68; }
+    .tag-tech { background: #1a2a1a; color: #9ece6a; }
+    .tag-mot { background: #2a1a2a; color: #bb9af7; }
+    .spinner {
+      width: 20px; height: 20px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+      display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading { display: flex; align-items: center; gap: 10px; color: var(--muted); padding: 24px 0; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a class="logo" href="#/">
+      <svg width="22" height="22" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="16,2 27,8 27,22 16,28 5,22 5,8" fill="#E85D3A"/>
+        <polygon points="16,9 22,13 22,21 16,25 10,21 10,13" fill="none" stroke="white" stroke-width="0.8" stroke-linejoin="round" opacity="0.4"/>
+        <circle cx="16" cy="16" r="2.5" fill="white"/>
+        <line x1="16" y1="13.5" x2="16" y2="9" stroke="white" stroke-width="1" opacity="0.7"/>
+        <line x1="18" y1="14.5" x2="22" y2="13" stroke="white" stroke-width="1" opacity="0.7"/>
+        <line x1="18" y1="17.5" x2="22" y2="21" stroke="white" stroke-width="1" opacity="0.7"/>
+      </svg>
+      <div class="wordmark"><span class="w-archi">Archi</span><span class="w-pulse">Pulse</span></div>
+    </a>
+    <div class="breadcrumb" id="breadcrumb"></div>
+    <div style="flex:1"></div>
+    <button class="btn btn-ghost btn-sm" onclick="App.showCreateWs()">+ New workspace</button>
+  </nav>
+
+  <main id="app"></main>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="modal" style="display:none" onclick="if(event.target===this)App.closeModal()">
+    <div class="modal" id="modal-content"></div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.29.2/cytoscape.min.js"></script>
+  <script>
+  // ── API helpers ──────────────────────────────────────────────────────────────
+  const api = {
+    async get(path) {
+      const r = await fetch('/api/v1' + path);
+      if (!r.ok) throw new Error((await r.json()).error || r.statusText);
+      return r.json();
+    },
+    async post(path, body) {
+      const r = await fetch('/api/v1' + path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      if (!r.ok) throw new Error((await r.json()).error || r.statusText);
+      return r.json();
+    },
+    async upload(path, file) {
+      const fd = new FormData();
+      fd.append('file', file);
+      const r = await fetch('/api/v1' + path, { method: 'POST', body: fd });
+      if (!r.ok) {
+        const err = await r.json().catch(() => ({ error: r.statusText }));
+        throw new Error(err.error || r.statusText);
+      }
+      return r.json();
+    },
+    async del(path) {
+      const r = await fetch('/api/v1' + path, { method: 'DELETE' });
+      if (!r.ok) throw new Error((await r.json()).error || r.statusText);
+    },
+  };
+
+  // ── View metadata ────────────────────────────────────────────────────────────
+  const VIEW_META = {
+    'element-catalogue':       { icon: '📋', label: 'Element Catalogue',       desc: 'All elements across layers' },
+    'application-catalogue':   { icon: '🧩', label: 'Application Catalogue',   desc: 'Application layer components' },
+    'application-landscape':   { icon: '🗺️',  label: 'Application Landscape',   desc: 'Apps mapped to business processes' },
+    'capability-tree':         { icon: '🌳', label: 'Capability Tree',          desc: 'Business capability hierarchy' },
+    'technology-catalogue':    { icon: '⚙️',  label: 'Technology Catalogue',    desc: 'Infrastructure & technology elements' },
+    'application-dependency':  { icon: '🔗', label: 'Application Dependency',  desc: 'Interactive dependency graph' },
+  };
+
+  // ── Router ───────────────────────────────────────────────────────────────────
+  const Router = {
+    current: null,
+    go(hash) { location.hash = hash; },
+    parse() {
+      const h = location.hash.replace(/^#\/?/, '') || '';
+      const parts = h.split('/');
+      if (!parts[0]) return { page: 'home' };
+      if (parts[0] === 'ws' && parts[1]) {
+        if (parts[2] === 'view' && parts[3]) return { page: 'view', wsID: parts[1], view: parts.slice(3).join('/') };
+        return { page: 'workspace', wsID: parts[1] };
+      }
+      return { page: 'home' };
+    },
+  };
+
+  // ── App ──────────────────────────────────────────────────────────────────────
+  const App = {
+    el: null,
+    bc: null,
+
+    init() {
+      this.el = document.getElementById('app');
+      this.bc = document.getElementById('breadcrumb');
+      window.addEventListener('hashchange', () => this.render());
+      this.render();
+    },
+
+    async render() {
+      const route = Router.parse();
+      this.el.innerHTML = '<div class="loading"><div class="spinner"></div> Loading…</div>';
+      try {
+        if (route.page === 'home') await this.renderHome();
+        else if (route.page === 'workspace') await this.renderWorkspace(route.wsID);
+        else if (route.page === 'view') await this.renderView(route.wsID, route.view);
+      } catch (e) {
+        this.el.innerHTML = `<div class="alert alert-error">Error: ${e.message}</div>`;
+      }
+    },
+
+    setBreadcrumb(items) {
+      this.bc.innerHTML = items.map((item, i) => {
+        const sep = i > 0 ? '<span class="sep">/</span>' : '';
+        if (item.href) return `${sep}<a href="${item.href}">${item.label}</a>`;
+        return `${sep}<span>${item.label}</span>`;
+      }).join('');
+    },
+
+    // ── Home: workspace list ──────────────────────────────────────────────────
+    async renderHome() {
+      this.setBreadcrumb([{ label: 'Workspaces' }]);
+      const workspaces = await api.get('/workspaces');
+
+      if (!workspaces || workspaces.length === 0) {
+        this.el.innerHTML = `
+          <div class="page-header">
+            <div><h1>Workspaces</h1><p>Manage your ArchiMate models</p></div>
+          </div>
+          <div class="empty-state">
+            <div class="icon">🏛️</div>
+            <p>No workspaces yet.<br>Create one to import your first ArchiMate model.</p>
+            <br>
+            <button class="btn btn-primary" onclick="App.showCreateWs()">+ New workspace</button>
+          </div>`;
+        return;
+      }
+
+      this.el.innerHTML = `
+        <div class="page-header">
+          <div><h1>Workspaces</h1><p>${workspaces.length} workspace${workspaces.length !== 1 ? 's' : ''}</p></div>
+        </div>
+        <div class="ws-grid">
+          ${workspaces.map(ws => `
+            <div class="ws-card" onclick="Router.go('/ws/${ws.id}')">
+              <span class="purpose">${ws.purpose}</span>
+              <h2>${esc(ws.name)}</h2>
+              <p>${esc(ws.description || 'No description')}</p>
+              <div class="meta">ID: ${ws.id.slice(0,8)}…</div>
+            </div>
+          `).join('')}
+        </div>`;
+    },
+
+    // ── Workspace detail ──────────────────────────────────────────────────────
+    async renderWorkspace(wsID) {
+      const [ws, viewsResp] = await Promise.all([
+        api.get('/workspaces/' + wsID),
+        api.get('/workspaces/' + wsID + '/views'),
+      ]);
+
+      this.setBreadcrumb([
+        { label: 'Workspaces', href: '#/' },
+        { label: ws.name },
+      ]);
+
+      const views = viewsResp.views || [];
+
+      this.el.innerHTML = `
+        <div class="page-header">
+          <div>
+            <h1>${esc(ws.name)}</h1>
+            <p>${esc(ws.description || '')} <span class="purpose" style="font-size:11px">${ws.purpose}</span></p>
+          </div>
+        </div>
+
+        <div id="import-section" class="card" style="margin-bottom:28px">
+          <div class="section-title">Import model</div>
+          <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+            <div class="icon">📥</div>
+            <p>Drop an ArchiMate file here, or click to browse</p>
+            <div class="hint">Supports AOEF (.xml) and AJX (.ajx, .json)</div>
+          </div>
+          <input type="file" id="file-input" accept=".xml,.ajx,.json" style="display:none" onchange="App.handleImport('${wsID}', this)">
+          <div id="import-result"></div>
+        </div>
+
+        <div class="section-title">Views</div>
+        <div class="views-grid">
+          ${views.map(v => {
+            const m = VIEW_META[v] || { icon: '📄', label: v, desc: '' };
+            const isGraph = v === 'application-dependency';
+            const href = isGraph
+              ? `#/ws/${wsID}/view/${v}/graph`
+              : `#/ws/${wsID}/view/${v}`;
+            return `
+              <div class="view-card" onclick="Router.go('/ws/${wsID}/view/${isGraph ? v + '/graph' : v}')">
+                <div class="icon">${m.icon}</div>
+                <div>
+                  <h3>${m.label}</h3>
+                  <p>${m.desc}</p>
+                </div>
+              </div>`;
+          }).join('')}
+        </div>`;
+
+      this._setupDropZone(wsID);
+    },
+
+    _setupDropZone(wsID) {
+      const zone = document.getElementById('drop-zone');
+      if (!zone) return;
+      zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('over'); });
+      zone.addEventListener('dragleave', () => zone.classList.remove('over'));
+      zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.classList.remove('over');
+        const file = e.dataTransfer.files[0];
+        if (file) this._doImport(wsID, file);
+      });
+    },
+
+    handleImport(wsID, input) {
+      const file = input.files[0];
+      if (file) this._doImport(wsID, file);
+    },
+
+    async _doImport(wsID, file) {
+      const result = document.getElementById('import-result');
+      result.innerHTML = '<div class="loading" style="margin-top:12px"><div class="spinner"></div> Importing…</div>';
+      try {
+        const data = await api.upload('/workspaces/' + wsID + '/import', file);
+        result.innerHTML = `
+          <div class="alert alert-success" style="margin-top:12px">
+            ✓ Imported <strong>${data.elements}</strong> elements,
+            <strong>${data.relationships}</strong> relationships,
+            <strong>${data.diagrams}</strong> diagrams
+          </div>`;
+        // Reload views list after import
+        setTimeout(() => this.renderWorkspace(wsID), 1200);
+      } catch (e) {
+        result.innerHTML = `<div class="alert alert-error" style="margin-top:12px">✗ ${e.message}</div>`;
+      }
+    },
+
+    // ── View: table or graph ──────────────────────────────────────────────────
+    async renderView(wsID, viewPath) {
+      const ws = await api.get('/workspaces/' + wsID);
+      const isGraph = viewPath.endsWith('/graph');
+      const viewName = isGraph ? viewPath.replace('/graph', '') : viewPath;
+      const meta = VIEW_META[viewName] || { icon: '📄', label: viewName, desc: '' };
+
+      this.setBreadcrumb([
+        { label: 'Workspaces', href: '#/' },
+        { label: ws.name, href: `#/ws/${wsID}` },
+        { label: meta.label },
+      ]);
+
+      if (isGraph) {
+        await this.renderGraph(wsID, viewName, meta);
+      } else {
+        await this.renderTable(wsID, viewName, meta);
+      }
+    },
+
+    async renderTable(wsID, viewName, meta) {
+      const data = await api.get('/workspaces/' + wsID + '/views/' + viewName);
+
+      const layerTag = (val) => {
+        const map = { Application: 'tag-app', Business: 'tag-biz', Technology: 'tag-tech', Motivation: 'tag-mot' };
+        const cls = map[val] || '';
+        return cls ? `<span class="tag ${cls}">${val}</span>` : esc(val);
+      };
+
+      const layerCols = new Set(['Layer', 'layer']);
+      const rows = data.rows || [];
+      const columns = data.columns || [];
+
+      this.el.innerHTML = `
+        <div class="page-header">
+          <div><h1>${meta.icon} ${meta.label}</h1><p>${rows.length} rows</p></div>
+          <button class="btn btn-ghost btn-sm" onclick="App.exportCSV('${viewName}', ${JSON.stringify(columns)}, ${JSON.stringify(rows)})">
+            ↓ Export CSV
+          </button>
+        </div>
+        ${rows.length === 0 ? `<div class="empty-state"><div class="icon">📭</div><p>No data — import a model first.</p></div>` : `
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>${columns.map(c => `<th>${esc(c)}</th>`).join('')}</tr>
+            </thead>
+            <tbody>
+              ${rows.map(row => `
+                <tr>${row.map((cell, i) => {
+                  const col = columns[i];
+                  const val = cell == null ? '' : String(cell);
+                  return `<td>${layerCols.has(col) ? layerTag(val) : esc(val)}</td>`;
+                }).join('')}</tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>`}`;
+    },
+
+    async renderGraph(wsID, viewName, meta) {
+      this.el.innerHTML = `
+        <div class="page-header">
+          <div><h1>${meta.icon} ${meta.label}</h1><p>Interactive dependency graph</p></div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-ghost btn-sm" id="btn-fit">⊡ Fit</button>
+            <button class="btn btn-ghost btn-sm" id="btn-layout">↺ Re-layout</button>
+          </div>
+        </div>
+        <div id="cy"></div>
+        <div style="margin-top:12px;color:var(--muted);font-size:12px">
+          Scroll to zoom · Drag to pan · Click a node to highlight its connections
+        </div>`;
+
+      const data = await api.get('/workspaces/' + wsID + '/views/' + viewName + '/graph');
+
+      const cy = cytoscape({
+        container: document.getElementById('cy'),
+        elements: [
+          ...(data.nodes || []).map(n => ({
+            data: { id: n.id, label: n.label, layer: n.layer, type: n.type },
+          })),
+          ...(data.edges || []).map(e => ({
+            data: { id: e.id, source: e.source, target: e.target, label: e.label },
+          })),
+        ],
+        style: [
+          {
+            selector: 'node',
+            style: {
+              label: 'data(label)',
+              'text-valign': 'bottom',
+              'text-halign': 'center',
+              'font-size': '10px',
+              'color': '#e2e4f0',
+              'text-margin-y': '4px',
+              width: 36,
+              height: 36,
+              'background-color': '#6c8aff',
+              'border-width': 2,
+              'border-color': '#2a2d3e',
+            },
+          },
+          {
+            selector: 'node[layer="Application"]',
+            style: { 'background-color': '#7aa2f7', 'border-color': '#3d59a1' },
+          },
+          {
+            selector: 'node[layer="Business"]',
+            style: { 'background-color': '#e0af68', 'border-color': '#a87c36' },
+          },
+          {
+            selector: 'node[layer="Technology"]',
+            style: { 'background-color': '#9ece6a', 'border-color': '#5a8a2a' },
+          },
+          {
+            selector: 'node[layer="Motivation"]',
+            style: { 'background-color': '#bb9af7', 'border-color': '#7555a0' },
+          },
+          {
+            selector: 'edge',
+            style: {
+              width: 1.5,
+              'line-color': '#3a3d55',
+              'target-arrow-color': '#3a3d55',
+              'target-arrow-shape': 'triangle',
+              'curve-style': 'bezier',
+              'font-size': '9px',
+              'color': '#8b8fa8',
+              label: 'data(label)',
+              'text-rotation': 'autorotate',
+              'text-margin-y': '-6px',
+            },
+          },
+          {
+            selector: ':selected',
+            style: { 'border-color': '#fff', 'border-width': 3 },
+          },
+          {
+            selector: '.faded',
+            style: { opacity: 0.2 },
+          },
+        ],
+        layout: { name: 'cose', animate: false, padding: 40, nodeRepulsion: 8000 },
+      });
+
+      // Highlight on click
+      cy.on('tap', 'node', function(evt) {
+        const node = evt.target;
+        cy.elements().addClass('faded');
+        node.removeClass('faded');
+        node.neighborhood().removeClass('faded');
+      });
+      cy.on('tap', function(evt) {
+        if (evt.target === cy) cy.elements().removeClass('faded');
+      });
+
+      document.getElementById('btn-fit').onclick = () => cy.fit(undefined, 40);
+      document.getElementById('btn-layout').onclick = () => cy.layout({ name: 'cose', animate: true, padding: 40, nodeRepulsion: 8000 }).run();
+    },
+
+    // ── CSV export ────────────────────────────────────────────────────────────
+    exportCSV(name, columns, rows) {
+      const lines = [columns.join(',')];
+      rows.forEach(r => lines.push(r.map(c => '"' + String(c ?? '').replace(/"/g, '""') + '"').join(',')));
+      const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = name + '.csv';
+      a.click();
+    },
+
+    // ── Create workspace modal ────────────────────────────────────────────────
+    showCreateWs() {
+      document.getElementById('modal-content').innerHTML = `
+        <h2>New workspace</h2>
+        <div class="form-grid">
+          <label>Name <input id="ws-name" placeholder="My Architecture" /></label>
+          <label>Purpose
+            <select id="ws-purpose">
+              <option value="as-is">as-is</option>
+              <option value="to-be">to-be</option>
+              <option value="migration">migration</option>
+            </select>
+          </label>
+          <label>Description <textarea id="ws-desc" placeholder="Optional description"></textarea></label>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="App.closeModal()">Cancel</button>
+          <button class="btn btn-primary" onclick="App.createWs()">Create</button>
+        </div>
+        <div id="modal-err"></div>`;
+      document.getElementById('modal').style.display = 'flex';
+      document.getElementById('ws-name').focus();
+    },
+
+    async createWs() {
+      const name = document.getElementById('ws-name').value.trim();
+      const purpose = document.getElementById('ws-purpose').value;
+      const description = document.getElementById('ws-desc').value.trim();
+      if (!name) { document.getElementById('modal-err').innerHTML = '<div class="alert alert-error" style="margin-top:12px">Name is required</div>'; return; }
+      try {
+        const ws = await api.post('/workspaces', { name, purpose, description });
+        this.closeModal();
+        Router.go('/ws/' + ws.id);
+      } catch (e) {
+        document.getElementById('modal-err').innerHTML = `<div class="alert alert-error" style="margin-top:12px">${e.message}</div>`;
+      }
+    },
+
+    closeModal() {
+      document.getElementById('modal').style.display = 'none';
+    },
+  };
+
+  // ── Utils ────────────────────────────────────────────────────────────────────
+  function esc(s) {
+    return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  App.init();
+  </script>
+</body>
+</html>

@@ -53,7 +53,7 @@ func runServe() error {
 
 	addr := ":" + port
 	fmt.Printf("listening on %s\n", addr)
-	return http.ListenAndServe(addr, api.NewRouter(conn))
+	return http.ListenAndServe(addr, api.NewRouter(conn, staticFiles))
 }
 
 func runMigrate() error {

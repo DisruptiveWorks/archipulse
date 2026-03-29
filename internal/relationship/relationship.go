@@ -14,17 +14,17 @@ var ErrNotFound = errors.New("relationship not found")
 var ErrConflict = errors.New("relationship was modified by another request")
 
 type Relationship struct {
-	ID            uuid.UUID
-	WorkspaceID   uuid.UUID
-	SourceID      string
-	Type          string
-	SourceElement string
-	TargetElement string
-	Name          string
-	Documentation string
-	Version       int
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
+	ID            uuid.UUID `json:"id"`
+	WorkspaceID   uuid.UUID `json:"workspace_id"`
+	SourceID      string    `json:"source_id"`
+	Type          string    `json:"type"`
+	SourceElement string    `json:"source_element"`
+	TargetElement string    `json:"target_element"`
+	Name          string    `json:"name"`
+	Documentation string    `json:"documentation"`
+	Version       int       `json:"version"`
+	CreatedAt     time.Time `json:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at"`
 }
 
 type Store struct {
