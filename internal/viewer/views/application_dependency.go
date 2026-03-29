@@ -43,7 +43,10 @@ func ApplicationDependency(db *sql.DB, workspaceID uuid.UUID) (*ApplicationDepen
 	}
 	defer func() { _ = nodeRows.Close() }()
 
-	graph := &ApplicationDependencyGraph{}
+	graph := &ApplicationDependencyGraph{
+		Nodes: []ApplicationDependencyNode{},
+		Edges: []ApplicationDependencyEdge{},
+	}
 	for nodeRows.Next() {
 		var n ApplicationDependencyNode
 		if err := nodeRows.Scan(&n.ID, &n.Name, &n.Type); err != nil {

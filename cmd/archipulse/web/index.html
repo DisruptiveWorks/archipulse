@@ -588,30 +588,33 @@
       };
 
       const layerCols = new Set(['Layer', 'layer']);
+      const rows = data.rows || [];
+      const columns = data.columns || [];
 
       this.el.innerHTML = `
         <div class="page-header">
-          <div><h1>${meta.icon} ${meta.label}</h1><p>${data.rows.length} rows</p></div>
-          <button class="btn btn-ghost btn-sm" onclick="App.exportCSV('${viewName}', ${JSON.stringify(data.columns)}, ${JSON.stringify(data.rows)})">
+          <div><h1>${meta.icon} ${meta.label}</h1><p>${rows.length} rows</p></div>
+          <button class="btn btn-ghost btn-sm" onclick="App.exportCSV('${viewName}', ${JSON.stringify(columns)}, ${JSON.stringify(rows)})">
             ↓ Export CSV
           </button>
         </div>
+        ${rows.length === 0 ? `<div class="empty-state"><div class="icon">📭</div><p>No data — import a model first.</p></div>` : `
         <div class="table-wrap">
           <table>
             <thead>
-              <tr>${data.columns.map(c => `<th>${esc(c)}</th>`).join('')}</tr>
+              <tr>${columns.map(c => `<th>${esc(c)}</th>`).join('')}</tr>
             </thead>
             <tbody>
-              ${data.rows.map(row => `
+              ${rows.map(row => `
                 <tr>${row.map((cell, i) => {
-                  const col = data.columns[i];
+                  const col = columns[i];
                   const val = cell == null ? '' : String(cell);
                   return `<td>${layerCols.has(col) ? layerTag(val) : esc(val)}</td>`;
                 }).join('')}</tr>
               `).join('')}
             </tbody>
           </table>
-        </div>`;
+        </div>`}`;
     },
 
     async renderGraph(wsID, viewName, meta) {
@@ -633,10 +636,10 @@
       const cy = cytoscape({
         container: document.getElementById('cy'),
         elements: [
-          ...data.nodes.map(n => ({
+          ...(data.nodes || []).map(n => ({
             data: { id: n.id, label: n.label, layer: n.layer, type: n.type },
           })),
-          ...data.edges.map(e => ({
+          ...(data.edges || []).map(e => ({
             data: { id: e.id, source: e.source, target: e.target, label: e.label },
           })),
         ],

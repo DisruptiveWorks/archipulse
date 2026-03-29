@@ -18,13 +18,13 @@ var ErrConflict = errors.New("workspace was modified by another request")
 
 // Workspace is an ArchiMate baseline (e.g. "Q1-2026-AS-IS").
 type Workspace struct {
-	ID          uuid.UUID
-	Name        string
-	Purpose     string
-	Description string
-	Version     int
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	ID          uuid.UUID `json:"id"`
+	Name        string    `json:"name"`
+	Purpose     string    `json:"purpose"`
+	Description string    `json:"description"`
+	Version     int       `json:"version"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }
 
 // Store provides CRUD operations for workspaces.
