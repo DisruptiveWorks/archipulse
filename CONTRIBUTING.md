@@ -168,10 +168,10 @@ Documentation lives in `docs/` and `README.md`. No full dev environment needed �
 
 ### Prerequisites
 
-- [Go](https://go.dev/dl/) 1.22 or higher
-- [PostgreSQL](https://www.postgresql.org/download/) 16 or higher
+- [Go](https://go.dev/dl/) 1.24 or higher
+- [Node.js](https://nodejs.org/) 22 or higher
+- [PostgreSQL](https://www.postgresql.org/download/) 17 or higher
 - Git
-- Make (optional)
 
 ### Steps
 
@@ -187,7 +187,10 @@ git remote add upstream https://github.com/DisruptiveWorks/archipulse.git
 cp .env.example .env
 # Edit .env — set DATABASE_URL
 
-# Install dependencies
+# Build the frontend
+cd cmd/archipulse/ui && npm install && npm run build && cd ../../..
+
+# Install Go dependencies
 go mod download
 
 # Run migrations
@@ -222,21 +225,21 @@ curl -X POST http://localhost:8080/api/v1/workspaces/{id}/import \
 
 ```
 archipulse/
-├── cmd/                  # CLI entrypoints
+├── cmd/
+│   └── archipulse/
+│       ├── ui/           # Svelte 5 + Vite 6 frontend
+│       │   └── src/      # Components, routes, lib
+│       ├── embed.go      # //go:embed ui/dist
+│       └── main.go
 ├── internal/
-│   ├── parser/           # AOEF and AJX parsers (Go, against official XSD)
+│   ├── parser/           # AOEF and AJX parsers
 │   ├── workspace/        # Workspace manager and CRUD operations
-│   ├── catalog/          # Catalog storage and API
-│   ├── pipeline/         # Extraction engine
-│   │   ├── extractor/    # Source-specific data collectors
-│   │   └── mapper/       # ArchiMate type mapping engine
 │   ├── viewer/           # EAM view generation
-│   │   └── views/        # SQL view definitions
+│   │   └── views/        # Individual view implementations
 │   └── api/              # REST API handlers
-├── web/                  # Web frontend (Cytoscape.js)
 ├── migrations/           # PostgreSQL migrations (one file per version)
 ├── examples/             # Sample ArchiMate models (ArchiSurance, etc.)
-└── docs/                 # Documentation and architecture decisions
+└── tests/                # Integration tests
 ```
 
 For the full design rationale see [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md). Read it before opening proposals that affect the schema, API, or core architecture.
