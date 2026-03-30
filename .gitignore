@@ -31,3 +31,7 @@ go.work.sum
 # Editor/IDE
 # .idea/
 # .vscode/
+
+# UI build artifacts
+cmd/archipulse/ui/dist/
+cmd/archipulse/ui/node_modules/

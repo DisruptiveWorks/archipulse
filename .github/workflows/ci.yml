@@ -33,6 +33,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: cmd/archipulse/ui/package-lock.json
+
+      - name: Install UI dependencies
+        run: npm ci --prefix cmd/archipulse/ui
+
+      - name: Build UI
+        run: npm run build --prefix cmd/archipulse/ui
+
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
