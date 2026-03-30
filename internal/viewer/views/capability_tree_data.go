@@ -38,12 +38,8 @@ func CapabilityTreeData(db *sql.DB, workspaceID uuid.UUID) ([]CapabilityNode, er
 			ON  r.workspace_id    = e.workspace_id
 			AND r.target_element  = e.source_id
 			AND r.type IN ('CompositionRelationship', 'AggregationRelationship', 'Composition', 'Aggregation')
-		LEFT JOIN elements p
-			ON  p.workspace_id = e.workspace_id
-			AND p.source_id    = r.source_element
-			AND p.type IN ('Capability', 'BusinessFunction', 'BusinessProcess')
 		WHERE e.workspace_id = $1
-		  AND e.type IN ('Capability', 'BusinessFunction', 'BusinessProcess')
+		  AND e.type = 'Capability'
 		ORDER BY parent_id, e.name`, workspaceID)
 	if err != nil {
 		return nil, fmt.Errorf("capability tree nodes: %w", err)
@@ -85,7 +81,7 @@ func CapabilityTreeData(db *sql.DB, workspaceID uuid.UUID) ([]CapabilityNode, er
 		JOIN elements cap
 			ON  cap.workspace_id = r.workspace_id
 			AND cap.source_id    = r.target_element
-			AND cap.type IN ('Capability', 'BusinessFunction', 'BusinessProcess')
+			AND cap.type = 'Capability'
 		WHERE r.workspace_id = $1
 		  AND r.type IN ('ServingRelationship', 'Serving', 'AssociationRelationship', 'Association')
 		ORDER BY cap_id, a.name`, workspaceID)

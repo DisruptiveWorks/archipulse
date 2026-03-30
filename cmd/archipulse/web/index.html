@@ -401,104 +401,39 @@
     input:focus, select:focus, textarea:focus { border-color: var(--accent); }
     textarea { resize: vertical; min-height: 72px; }
 
-    /* ── Capability Tree ─────────────────────────────────────────────────────── */
-    .cap-tree { font-size: 13px; user-select: none; }
-    .cap-node { margin-bottom: 4px; }
-
-    .cap-row {
-      display: flex;
-      align-items: flex-start;
-      gap: 6px;
+    /* ── Capability Tree (Cytoscape) ─────────────────────────────────────────── */
+    .cap-cy-wrap { position: relative; width: 100%; height: calc(100vh - 140px); min-height: 400px; }
+    #cap-cy { width: 100%; height: 100%; background: var(--bg); }
+    .cap-cy-controls {
+      position: absolute; bottom: 16px; right: 16px;
+      display: flex; flex-direction: column; gap: 6px; z-index: 10;
     }
-    .cap-toggle {
-      width: 22px; height: 22px;
-      margin-top: 10px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 12px; color: var(--muted);
-      flex-shrink: 0;
-      cursor: pointer;
-      font-family: monospace;
-      line-height: 1;
-      transition: background .12s, border-color .12s;
+    .cap-cy-controls button {
+      width: 32px; height: 32px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 6px; color: var(--muted); font-size: 16px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: border-color .15s, color .15s;
     }
-    .cap-toggle:hover { background: #1e2235; border-color: var(--accent); color: var(--text); }
-    .cap-toggle-spacer { width: 22px; flex-shrink: 0; }
-
-    .cap-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 10px 14px;
-      flex: 1;
-      min-width: 0;
-      transition: border-color .15s;
+    .cap-cy-controls button:hover { border-color: var(--accent); color: var(--accent); }
+    .cap-cy-legend {
+      position: absolute; bottom: 16px; left: 16px;
+      display: flex; gap: 12px; z-index: 10;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 6px; padding: 8px 12px; font-size: 11px; color: var(--muted);
     }
-    .cap-card:hover { border-color: #3a3d55; }
-    .cap-card.has-children { border-left: 3px solid #2a2d3e; }
-    .cap-card.has-children:hover { border-left-color: var(--accent); }
-
-    .cap-card-top {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
+    .cap-cy-legend span { display: flex; align-items: center; gap: 5px; }
+    .cap-cy-legend i { display: inline-block; width: 14px; height: 14px; border-radius: 3px; }
+    #cap-tooltip {
+      position: fixed; display: none; z-index: 200; pointer-events: none;
+      background: #1a1f2e; border: 1px solid #2d3748;
+      border-radius: 8px; padding: 12px 14px; max-width: 260px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.4);
     }
-    .cap-name { font-weight: 500; color: var(--text); font-size: 13px; }
-    .cap-type-badge {
-      font-size: 10px;
-      padding: 2px 7px;
-      border-radius: 3px;
-      background: #2a2414;
-      color: #e0af68;
-      font-weight: 600;
-      letter-spacing: .2px;
-    }
-    .cap-type-badge.process  { background: #1a2540; color: #7aa2f7; }
-    .cap-type-badge.function { background: #1a2a1a; color: #9ece6a; }
-    .cap-child-count {
-      margin-left: auto;
-      font-size: 11px;
-      color: var(--muted);
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1px 8px;
-    }
-
-    .cap-apps {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 5px;
-      margin-top: 8px;
-      padding-top: 8px;
-      border-top: 1px solid var(--border);
-    }
-    .cap-apps-label {
-      font-size: 10px;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: .4px;
-      margin-right: 2px;
-      flex-shrink: 0;
-    }
-    .cap-app-chip {
-      font-size: 11px;
-      padding: 2px 9px;
-      border-radius: 3px;
-      background: #1a2540;
-      color: #7aa2f7;
-      border: 1px solid #2d3f6e;
-    }
-    .cap-children {
-      padding-left: 28px;
-      margin-top: 4px;
-      border-left: 1px solid var(--border);
-      margin-left: 11px;
-    }
+    #cap-tooltip .tt-name { font-weight: 600; color: var(--text); font-size: 13px; margin-bottom: 3px; }
+    #cap-tooltip .tt-type { font-size: 11px; color: #e0af68; margin-bottom: 8px; }
+    #cap-tooltip .tt-apps-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 5px; }
+    #cap-tooltip .tt-app { font-size: 11px; color: #7aa2f7; padding: 2px 0; }
 
     /* ── Misc ────────────────────────────────────────────────────────────────── */
     .section-label {
@@ -558,7 +493,15 @@
     <div class="modal" id="modal-content"></div>
   </div>
 
+  <!-- Cytoscape tooltip (shared) -->
+  <div id="cap-tooltip">
+    <div class="tt-name"></div>
+    <div class="tt-type"></div>
+  </div>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.29.2/cytoscape.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dagre/0.8.5/dagre.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/cytoscape-dagre@2.5.0/cytoscape-dagre.min.js"></script>
   <script>
   // ── API ──────────────────────────────────────────────────────────────────────
   const api = {
@@ -596,6 +539,7 @@
     'application-catalogue':  { icon: '◈', label: 'Application Catalogue',  desc: 'Application components',                 layer: 'application' },
     'application-landscape':  { icon: '◈', label: 'Application Landscape',  desc: 'Apps mapped to business processes',      layer: 'application' },
     'application-dependency': { icon: '◈', label: 'Dependency Graph',       desc: 'Interactive dependency graph',           layer: 'application', graph: true },
+    'integration-map':        { icon: '⇄', label: 'Integration Map',        desc: 'Integration topology — services, components and data flows', layer: 'application', graph: true },
     'technology-catalogue':   { icon: '◈', label: 'Technology Catalogue',   desc: 'Infrastructure & technology elements',   layer: 'technology' },
   };
 
@@ -902,13 +846,9 @@
                     : viewPath;
       const meta = VIEWS[viewKey] || { label: viewKey, desc: '' };
 
-      if (isGraph) {
-        await this.renderGraph(el, wsID, viewKey, meta);
-      } else if (isTree) {
-        await this.renderTree(el, wsID, viewKey, meta);
-      } else {
-        await this.renderTable(el, wsID, viewKey, meta);
-      }
+      if (isGraph)     await this.renderGraph(el, wsID, viewKey, meta);
+      else if (isTree) await this.renderTree(el, wsID, viewKey, meta);
+      else             await this.renderTable(el, wsID, viewKey, meta);
     },
 
     async renderTable(el, wsID, viewKey, meta) {
@@ -974,30 +914,49 @@
         return;
       }
 
+      const relColor = rel => {
+        const r = (rel || '').toLowerCase();
+        if (r.includes('serving'))     return '#7aa2f7';
+        if (r.includes('triggering'))  return '#E85D3A';
+        if (r.includes('flow'))        return '#9ece6a';
+        if (r.includes('access'))      return '#bb9af7';
+        if (r.includes('assignment'))  return '#e0af68';
+        if (r.includes('association')) return '#6b7280';
+        return '#3a3d55';
+      };
+
       const cy = cytoscape({
         container: document.getElementById('cy'),
         elements: [
-          ...(data.nodes || []).map(n => ({ data: { id: n.id, label: n.label || n.name, layer: n.layer, type: n.type } })),
-          ...(data.edges || []).map(e => ({ data: { id: e.id, source: e.source, target: e.target, label: e.label || e.relationship } })),
+          ...(data.nodes || []).map(n => ({ data: { id: n.id, label: n.label || n.name, layer: n.layer, nodeType: n.type } })),
+          ...(data.edges || []).map(e => ({ data: { id: e.id, source: e.source, target: e.target, label: e.label || e.relationship, relColor: relColor(e.relationship) } })),
         ],
         style: [
           { selector: 'node', style: {
             label: 'data(label)', 'text-valign': 'bottom', 'text-halign': 'center',
             'font-size': '10px', color: '#e2e4f0', 'text-margin-y': '4px',
             width: 34, height: 34, 'background-color': '#555', 'border-width': 2, 'border-color': '#2a2d3e',
+            'text-wrap': 'wrap', 'text-max-width': '100px',
           }},
+          // Layer base colors
           { selector: 'node[layer="Application"]', style: { 'background-color': '#7aa2f7', 'border-color': '#3d59a1' }},
           { selector: 'node[layer="Business"]',    style: { 'background-color': '#e0af68', 'border-color': '#a87c36' }},
           { selector: 'node[layer="Technology"]',  style: { 'background-color': '#9ece6a', 'border-color': '#5a8a2a' }},
           { selector: 'node[layer="Motivation"]',  style: { 'background-color': '#bb9af7', 'border-color': '#7555a0' }},
+          // Application sub-type overrides
+          { selector: 'node[nodeType="ApplicationService"]',   style: { 'background-color': '#4a9eff', 'border-color': '#2a6abf', 'border-style': 'dashed' }},
+          { selector: 'node[nodeType="ApplicationFunction"]',  style: { 'background-color': '#3a5a80', 'border-color': '#2a3a50' }},
+          { selector: 'node[nodeType="ApplicationInterface"]', style: { 'background-color': '#3a9a9a', 'border-color': '#1a6a6a' }},
+          { selector: 'node[nodeType="DataObject"]',           style: { 'background-color': '#7c5cbf', 'border-color': '#4a2a8a', width: 28, height: 28 }},
           { selector: 'edge', style: {
-            width: 1.5, 'line-color': '#3a3d55', 'target-arrow-color': '#3a3d55',
+            width: 1.5, 'line-color': 'data(relColor)', 'target-arrow-color': 'data(relColor)',
             'target-arrow-shape': 'triangle', 'curve-style': 'bezier',
             'font-size': '9px', color: '#8b8fa8', label: 'data(label)',
             'text-rotation': 'autorotate', 'text-margin-y': '-6px',
+            opacity: 0.8,
           }},
           { selector: ':selected', style: { 'border-color': '#fff', 'border-width': 3 }},
-          { selector: '.faded',    style: { opacity: 0.15 }},
+          { selector: '.faded',    style: { opacity: 0.12 }},
         ],
         layout: { name: 'cose', animate: false, padding: 40, nodeRepulsion: 8000 },
       });
@@ -1014,17 +973,13 @@
       document.getElementById('btn-layout').onclick = () => cy.layout({ name: 'cose', animate: true, padding: 40, nodeRepulsion: 8000 }).run();
     },
 
-    // ── Capability Tree renderer ──────────────────────────────────────────────
+    // ── Capability Tree renderer (Cytoscape + dagre) ─────────────────────────
     async renderTree(el, wsID, viewKey, meta) {
       el.innerHTML = `
         <div class="page-header">
           <div>
             <h1>${esc(meta.label)}</h1>
             <div class="sub">${esc(meta.desc)}</div>
-          </div>
-          <div style="display:flex;gap:8px">
-            <button class="btn btn-ghost btn-sm" onclick="App.treeExpandAll()">+ Expand all</button>
-            <button class="btn btn-ghost btn-sm" onclick="App.treeCollapseAll()">− Collapse all</button>
           </div>
         </div>
         <div class="loading"><div class="spinner"></div> Loading…</div>`;
@@ -1033,105 +988,192 @@
       const nodes = data.nodes || [];
 
       if (nodes.length === 0) {
-        el.querySelector('.loading').outerHTML = `<div class="empty-state"><div class="es-icon">📭</div><p>No capability or business process elements found.<br>Import a model with Capability or BusinessProcess types.</p></div>`;
+        el.querySelector('.loading').outerHTML = `<div class="empty-state"><div class="es-icon">◈</div><p>No Capability elements found.<br>Import or create elements with type <strong>Capability</strong>.</p></div>`;
         return;
       }
 
-      // Build index and children map
-      const index = {};
-      nodes.forEach(n => { index[n.id] = n; n._children = []; });
-      const roots = [];
-      nodes.forEach(n => {
-        if (n.parent_id && index[n.parent_id]) {
-          index[n.parent_id]._children.push(n);
-        } else {
-          roots.push(n);
-        }
-      });
-
-      // Store for expand/collapse all
-      this._treeEl = el;
-      this._treeRoots = roots;
-
-      const container = document.createElement('div');
-      container.className = 'cap-tree';
-      this._renderTreeNodes(roots, container, true);
-      el.querySelector('.loading').replaceWith(container);
-    },
-
-    _renderTreeNodes(nodes, container, expanded) {
-      nodes.forEach(n => {
-        const hasChildren = n._children.length > 0;
-        const apps        = n.supporting_apps || [];
-        const typeLower   = n.type.toLowerCase();
-        const typeCls     = typeLower.includes('process') ? 'process'
-                          : typeLower.includes('function') ? 'function' : '';
-        const typeLabel   = n.type.replace('BusinessProcess', 'Process')
-                                  .replace('BusinessFunction', 'Function')
-                                  .replace('Capability', 'Capability');
-
-        const nodeEl = document.createElement('div');
-        nodeEl.className = 'cap-node';
-        nodeEl.dataset.id = n.id;
-
-        const appsHtml = apps.length > 0
-          ? `<div class="cap-apps">
-               <span class="cap-apps-label">Supported by</span>
-               ${apps.map(a => `<span class="cap-app-chip" title="${esc(a.type)}">${esc(a.name)}</span>`).join('')}
-             </div>`
-          : '';
-
-        const toggleHtml = hasChildren
-          ? `<button class="cap-toggle" onclick="App._toggleNode(this)" data-open="${expanded}">${expanded ? '−' : '+'}</button>`
-          : `<span class="cap-toggle-spacer"></span>`;
-
-        nodeEl.innerHTML = `
-          <div class="cap-row">
-            ${toggleHtml}
-            <div class="cap-card ${hasChildren ? 'has-children' : ''}">
-              <div class="cap-card-top">
-                <span class="cap-name">${esc(n.name)}</span>
-                <span class="cap-type-badge ${typeCls}">${typeLabel}</span>
-                ${hasChildren ? `<span class="cap-child-count">${n._children.length}</span>` : ''}
-              </div>
-              ${appsHtml}
-            </div>
+      el.querySelector('.loading').outerHTML = `
+        <div class="cap-cy-wrap">
+          <div id="cap-cy"></div>
+          <div class="cap-cy-controls">
+            <button id="cap-btn-fit" title="Fit">⊡</button>
+            <button id="cap-btn-zoom-in" title="Zoom in">+</button>
+            <button id="cap-btn-zoom-out" title="Zoom out">−</button>
           </div>
-          ${hasChildren ? `<div class="cap-children" style="display:${expanded ? 'block' : 'none'}"></div>` : ''}`;
+          <div class="cap-cy-legend">
+            <span><i style="background:#2a2010;border:2px solid #e0af68"></i> Capability</span>
+            <span><i style="background:#0d1f2e;border:2px solid #7aa2f7"></i> Component</span>
+            <span><i style="background:#0d1a28;border:2px solid #4a9eff;border-style:dashed"></i> Service</span>
+            <span><i style="background:#0d1520;border:1px solid #3a5a80"></i> Function</span>
+          </div>
+        </div>`;
 
-        if (hasChildren) {
-          const childContainer = nodeEl.querySelector('.cap-children');
-          this._renderTreeNodes(n._children, childContainer, false);
+      // Map ArchiMate app type → visual subtype
+      const appSubtype = t => {
+        if (!t) return 'other';
+        if (t === 'ApplicationComponent') return 'component';
+        if (t === 'ApplicationService')   return 'service';
+        if (t === 'ApplicationFunction')  return 'function';
+        if (t === 'ApplicationInterface') return 'interface';
+        return 'other';
+      };
+      const appShortType = t => {
+        if (!t) return '';
+        return t.replace('Application', '').replace('Composite', '');
+      };
+
+      // Build Cytoscape elements
+      const elems = [];
+      const appNodesSeen = new Set();
+
+      nodes.forEach(n => {
+        elems.push({ data: { id: n.id, label: n.name, kind: 'capability', apps: n.supporting_apps || [] } });
+        if (n.parent_id) {
+          elems.push({ data: { id: 'e-' + n.parent_id + '-' + n.id, source: n.parent_id, target: n.id, kind: 'composition' } });
         }
-        container.appendChild(nodeEl);
+        (n.supporting_apps || []).forEach(a => {
+          if (!appNodesSeen.has(a.id)) {
+            appNodesSeen.add(a.id);
+            const sub = appSubtype(a.type);
+            elems.push({ data: {
+              id: 'app-' + a.id,
+              label: a.name + '\n' + appShortType(a.type),
+              kind: 'app', appType: a.type, appSub: sub,
+            }});
+          }
+          elems.push({ data: { id: 'srv-' + n.id + '-' + a.id, source: 'app-' + a.id, target: n.id, kind: 'serving' } });
+        });
       });
-    },
 
-    _toggleNode(btn) {
-      const open = btn.dataset.open === 'true';
-      const children = btn.closest('.cap-card').closest('.cap-row').parentElement.querySelector('.cap-children');
-      if (!children) return;
-      btn.dataset.open = !open;
-      btn.textContent = open ? '+' : '−';
-      children.style.display = open ? 'none' : 'block';
-    },
-
-    treeExpandAll() {
-      if (!this._treeEl) return;
-      this._treeEl.querySelectorAll('.cap-toggle').forEach(btn => {
-        btn.dataset.open = 'true';
-        btn.textContent = '−';
+      const cy = cytoscape({
+        container: document.getElementById('cap-cy'),
+        elements: elems,
+        style: [
+          { selector: 'node', style: {
+            shape: 'round-rectangle',
+            label: 'data(label)',
+            'text-valign': 'center', 'text-halign': 'center',
+            'font-size': '12px', 'font-family': 'system-ui, sans-serif',
+            color: '#e2e8f0',
+            'text-wrap': 'wrap', 'text-max-width': '150px',
+            width: 160, height: 44,
+            padding: '10px',
+          }},
+          { selector: 'node[kind="capability"]', style: {
+            'background-color': '#2a2010',
+            'border-color': '#e0af68', 'border-width': 2,
+            color: '#e0af68',
+          }},
+          // ApplicationComponent — primary, full-weight
+          { selector: 'node[kind="app"][appSub="component"]', style: {
+            'background-color': '#0d1f2e',
+            'border-color': '#7aa2f7', 'border-width': 2,
+            color: '#7aa2f7',
+            width: 150, height: 44,
+            'font-size': '11px',
+          }},
+          // ApplicationService — exposed service, lighter blue
+          { selector: 'node[kind="app"][appSub="service"]', style: {
+            'background-color': '#0d1a28',
+            'border-color': '#4a9eff', 'border-width': 1.5,
+            color: '#4a9eff',
+            width: 140, height: 40,
+            'font-size': '11px',
+            'border-style': 'dashed',
+          }},
+          // ApplicationFunction — internal function, muted
+          { selector: 'node[kind="app"][appSub="function"]', style: {
+            'background-color': '#0d1520',
+            'border-color': '#3a5a80', 'border-width': 1,
+            color: '#5a80a8',
+            width: 130, height: 38,
+            'font-size': '10px',
+          }},
+          // ApplicationInterface — access point, teal-ish
+          { selector: 'node[kind="app"][appSub="interface"]', style: {
+            'background-color': '#0a1e20',
+            'border-color': '#3a9a9a', 'border-width': 1.5,
+            color: '#3a9a9a',
+            width: 130, height: 38,
+            'font-size': '10px',
+          }},
+          // Fallback for other app types
+          { selector: 'node[kind="app"][appSub="other"]', style: {
+            'background-color': '#111827',
+            'border-color': '#4b5563', 'border-width': 1,
+            color: '#6b7280',
+            width: 130, height: 38,
+            'font-size': '10px',
+          }},
+          { selector: 'node:selected', style: {
+            'border-width': 3, 'border-color': '#fff',
+          }},
+          { selector: 'edge', style: {
+            'curve-style': 'taxi',
+            'taxi-direction': 'horizontal',
+            width: 1.5, opacity: 0.6,
+          }},
+          { selector: 'edge[kind="composition"]', style: {
+            'line-color': '#a87c36',
+            'target-arrow-color': '#a87c36', 'target-arrow-shape': 'triangle',
+          }},
+          { selector: 'edge[kind="serving"]', style: {
+            'line-color': '#4a6fa5',
+            'line-style': 'dashed', 'line-dash-pattern': [5, 3],
+            'target-arrow-color': '#4a6fa5', 'target-arrow-shape': 'triangle',
+          }},
+          { selector: '.faded', style: { opacity: 0.15 } },
+        ],
+        layout: {
+          name: 'dagre',
+          rankDir: 'LR',
+          nodeSep: 30,
+          rankSep: 100,
+          align: 'UL',
+          animate: false,
+          padding: 40,
+        },
+        userZoomingEnabled: true,
+        userPanningEnabled: true,
+        boxSelectionEnabled: false,
       });
-      this._treeEl.querySelectorAll('.cap-children').forEach(c => c.style.display = 'block');
-    },
 
-    treeCollapseAll() {
-      if (!this._treeEl) return;
-      this._treeEl.querySelectorAll('.cap-toggle').forEach(btn => {
-        btn.dataset.open = 'false';
-        btn.textContent = '+';
+      // Tooltip
+      const tt = document.getElementById('cap-tooltip');
+      cy.on('mouseover', 'node', e => {
+        const d = e.target.data();
+        const apps = d.apps || [];
+        const displayName = d.kind === 'app' ? d.label.split('\n')[0] : d.label;
+        const typeColor = d.kind === 'capability' ? '#e0af68'
+          : d.appSub === 'component' ? '#7aa2f7'
+          : d.appSub === 'service'   ? '#4a9eff'
+          : d.appSub === 'function'  ? '#5a80a8'
+          : '#6b7280';
+        tt.innerHTML = `
+          <div class="tt-name">${esc(displayName)}</div>
+          <div class="tt-type" style="color:${typeColor}">${d.kind === 'app' ? (d.appType || 'Application') : 'Capability'}</div>
+          ${apps.length ? `<div class="tt-apps-label">Supported by</div>${apps.map(a => `<div class="tt-app">· ${esc(a.name)}</div>`).join('')}` : ''}`;
+        tt.style.display = 'block';
       });
-      this._treeEl.querySelectorAll('.cap-children').forEach(c => c.style.display = 'none');
+      cy.on('mousemove', e => {
+        if (tt.style.display === 'none') return;
+        tt.style.left = (e.originalEvent.clientX + 14) + 'px';
+        tt.style.top  = (e.originalEvent.clientY - 10) + 'px';
+      });
+      cy.on('mouseout', 'node', () => { tt.style.display = 'none'; });
+
+      // Highlight on click
+      cy.on('tap', 'node', e => {
+        cy.elements().addClass('faded');
+        e.target.removeClass('faded');
+        e.target.neighborhood().removeClass('faded');
+      });
+      cy.on('tap', e => { if (e.target === cy) cy.elements().removeClass('faded'); });
+
+      // Controls
+      document.getElementById('cap-btn-fit').onclick     = () => cy.fit(undefined, 40);
+      document.getElementById('cap-btn-zoom-in').onclick  = () => cy.zoom({ level: cy.zoom() * 1.2, renderedPosition: { x: cy.width()/2, y: cy.height()/2 } });
+      document.getElementById('cap-btn-zoom-out').onclick = () => cy.zoom({ level: cy.zoom() / 1.2, renderedPosition: { x: cy.width()/2, y: cy.height()/2 } });
     },
 
     // ── CSV export ────────────────────────────────────────────────────────────

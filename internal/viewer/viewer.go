@@ -82,6 +82,11 @@ func (r *Registry) CapabilityTreeData(workspaceID uuid.UUID) ([]views.Capability
 	return views.CapabilityTreeData(r.db, workspaceID)
 }
 
+// IntegrationMap returns the application integration topology graph.
+func (r *Registry) IntegrationMap(workspaceID uuid.UUID) (*views.IntegrationGraph, error) {
+	return views.IntegrationMap(r.db, workspaceID)
+}
+
 // List returns the names of all registered tabular views, sorted.
 func (r *Registry) List() []string {
 	names := make([]string, 0, len(r.views))
