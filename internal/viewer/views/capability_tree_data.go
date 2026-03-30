@@ -9,11 +9,11 @@ import (
 
 // CapabilityNode is a single node in the capability tree.
 type CapabilityNode struct {
-	ID             string               `json:"id"`
-	Name           string               `json:"name"`
-	Type           string               `json:"type"`
-	ParentID       string               `json:"parent_id"`
-	SupportingApps []CapabilitySuppApp  `json:"supporting_apps"`
+	ID             string              `json:"id"`
+	Name           string              `json:"name"`
+	Type           string              `json:"type"`
+	ParentID       string              `json:"parent_id"`
+	SupportingApps []CapabilitySuppApp `json:"supporting_apps"`
 }
 
 // CapabilitySuppApp is an application element that serves a capability or process.
