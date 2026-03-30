@@ -77,6 +77,11 @@ func (r *Registry) ApplicationDependencyGraph(workspaceID uuid.UUID) (*views.App
 	return views.ApplicationDependency(r.db, workspaceID)
 }
 
+// CapabilityTreeData returns the hierarchical capability tree nodes.
+func (r *Registry) CapabilityTreeData(workspaceID uuid.UUID) ([]views.CapabilityNode, error) {
+	return views.CapabilityTreeData(r.db, workspaceID)
+}
+
 // List returns the names of all registered tabular views, sorted.
 func (r *Registry) List() []string {
 	names := make([]string, 0, len(r.views))

@@ -56,9 +56,25 @@ func (h *viewerHandler) getDependencyGraph(w http.ResponseWriter, r *http.Reques
 	respondJSON(w, http.StatusOK, graph)
 }
 
+// getCapabilityTree returns the hierarchical capability tree data.
+func (h *viewerHandler) getCapabilityTree(w http.ResponseWriter, r *http.Request) {
+	wsID, err := uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		respondError(w, http.StatusBadRequest, err)
+		return
+	}
+	nodes, err := h.registry.CapabilityTreeData(wsID)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, err)
+		return
+	}
+	respondJSON(w, http.StatusOK, map[string]any{"nodes": nodes})
+}
+
 func registerViewerRoutes(r chi.Router, db *sql.DB) {
 	h := &viewerHandler{registry: viewer.NewRegistry(db)}
 	r.Get("/workspaces/{id}/views", h.listViews)
-	r.Get("/workspaces/{id}/views/{view}", h.getView)
+	r.Get("/workspaces/{id}/views/capability-tree/tree", h.getCapabilityTree)
 	r.Get("/workspaces/{id}/views/application-dependency/graph", h.getDependencyGraph)
+	r.Get("/workspaces/{id}/views/{view}", h.getView)
 }

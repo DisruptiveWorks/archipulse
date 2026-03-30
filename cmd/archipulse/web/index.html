@@ -9,17 +9,19 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:       #0f1117;
-      --surface:  #1a1d27;
-      --border:   #2a2d3e;
-      --accent:   #E85D3A;
-      --accent2:  #ff8c6b;
-      --text:     #e2e4f0;
-      --muted:    #8b8fa8;
-      --danger:   #f87171;
-      --success:  #4ade80;
-      --radius:   8px;
-      --font:     'Inter', system-ui, sans-serif;
+      --bg:        #0f1117;
+      --surface:   #1a1d27;
+      --surface2:  #13151f;
+      --border:    #2a2d3e;
+      --accent:    #E85D3A;
+      --accent2:   #ff8c6b;
+      --text:      #e2e4f0;
+      --muted:     #8b8fa8;
+      --danger:    #f87171;
+      --success:   #4ade80;
+      --sidebar-w: 240px;
+      --nav-h:     52px;
+      --font:      'Inter', system-ui, sans-serif;
     }
 
     body {
@@ -32,27 +34,28 @@
       flex-direction: column;
     }
 
-    /* ── Nav ── */
+    /* ── Nav ─────────────────────────────────────────────────────────────────── */
     nav {
-      background: var(--surface);
+      background: var(--surface2);
       border-bottom: 1px solid var(--border);
-      padding: 0 24px;
-      height: 52px;
+      padding: 0 20px;
+      height: var(--nav-h);
       display: flex;
       align-items: center;
       gap: 12px;
-      position: sticky;
-      top: 0;
+      position: fixed;
+      top: 0; left: 0; right: 0;
       z-index: 100;
     }
-    nav .logo {
+    .nav-logo {
       text-decoration: none;
       display: flex;
       align-items: center;
       gap: 9px;
+      flex-shrink: 0;
     }
-    nav .logo svg { display: block; flex-shrink: 0; }
-    nav .logo .wordmark {
+    .nav-logo svg { display: block; }
+    .nav-wordmark {
       font-family: 'Trebuchet MS', Arial, sans-serif;
       font-size: 17px;
       letter-spacing: -0.8px;
@@ -60,58 +63,156 @@
       display: flex;
       align-items: baseline;
     }
-    nav .logo .w-archi { font-weight: 300; color: var(--text); }
-    nav .logo .w-pulse { font-weight: 700; color: #E85D3A; }
-    nav .breadcrumb {
+    .w-archi { font-weight: 300; color: var(--text); }
+    .w-pulse  { font-weight: 700; color: #E85D3A; }
+
+    .nav-sep { width: 1px; height: 20px; background: var(--border); margin: 0 4px; }
+
+    .breadcrumb {
       display: flex;
       align-items: center;
       gap: 6px;
       color: var(--muted);
       font-size: 13px;
+      overflow: hidden;
     }
-    nav .breadcrumb a { color: var(--muted); text-decoration: none; }
-    nav .breadcrumb a:hover { color: var(--text); }
-    nav .breadcrumb .sep { color: var(--border); }
+    .breadcrumb a { color: var(--muted); text-decoration: none; white-space: nowrap; }
+    .breadcrumb a:hover { color: var(--text); }
+    .breadcrumb .sep { color: var(--border); }
+    .breadcrumb .current { color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    /* ── Layout ── */
-    main {
+    .nav-spacer { flex: 1; }
+
+    /* ── App shell ───────────────────────────────────────────────────────────── */
+    .app-shell {
+      display: flex;
       flex: 1;
-      padding: 32px 24px;
-      max-width: 1100px;
-      width: 100%;
-      margin: 0 auto;
+      margin-top: var(--nav-h);
+      min-height: calc(100vh - var(--nav-h));
     }
 
-    /* ── Page header ── */
-    .page-header {
+    /* ── Sidebar ─────────────────────────────────────────────────────────────── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--surface2);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: var(--nav-h);
+      bottom: 0;
+      left: 0;
+      overflow-y: auto;
+      z-index: 90;
+    }
+
+    .sidebar-ws-header {
+      padding: 16px 16px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-ws-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 4px;
+    }
+    .purpose-badge {
+      display: inline-block;
+      background: #271810;
+      color: var(--accent);
+      border: 1px solid #4a2518;
+      border-radius: 3px;
+      padding: 1px 7px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .3px;
+      text-transform: uppercase;
+    }
+
+    .sidebar-section {
+      padding: 12px 8px 4px;
+    }
+    .sidebar-section-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .8px;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 0 8px;
+      margin-bottom: 4px;
+    }
+
+    .sidebar-item {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      margin-bottom: 24px;
-    }
-    .page-header h1 {
-      font-size: 20px;
-      font-weight: 600;
-    }
-    .page-header p {
+      gap: 9px;
+      padding: 7px 8px;
+      border-radius: 6px;
+      cursor: pointer;
       color: var(--muted);
       font-size: 13px;
-      margin-top: 2px;
+      transition: background .12s, color .12s;
+      text-decoration: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .sidebar-item:hover { background: #1e2235; color: var(--text); }
+    .sidebar-item.active {
+      background: #2a1810;
+      color: var(--accent);
+      font-weight: 500;
+    }
+    .sidebar-item .si-icon { font-size: 14px; flex-shrink: 0; width: 18px; text-align: center; }
+
+    .sidebar-layer-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .dot-biz   { background: #e0af68; }
+    .dot-app   { background: #7aa2f7; }
+    .dot-tech  { background: #9ece6a; }
+    .dot-cross { background: #8b8fa8; }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 12px 8px;
+      border-top: 1px solid var(--border);
     }
 
-    /* ── Buttons ── */
+    /* ── Content area ────────────────────────────────────────────────────────── */
+    .content {
+      flex: 1;
+      margin-left: var(--sidebar-w);
+      padding: 28px 32px;
+      min-width: 0;
+    }
+    .content-full {
+      flex: 1;
+      padding: 32px 28px;
+      max-width: 1080px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* ── Buttons ─────────────────────────────────────────────────────────────── */
     button, .btn {
       display: inline-flex;
       align-items: center;
       gap: 6px;
       padding: 7px 14px;
-      border-radius: var(--radius);
+      border-radius: 6px;
       border: none;
       font-size: 13px;
       font-weight: 500;
       cursor: pointer;
       transition: opacity .15s;
       text-decoration: none;
+      font-family: var(--font);
     }
     button:hover, .btn:hover { opacity: .85; }
     .btn-primary { background: var(--accent); color: #fff; }
@@ -121,48 +222,169 @@
       border: 1px solid var(--border);
     }
     .btn-ghost:hover { color: var(--text); border-color: var(--muted); }
-    .btn-danger { background: #7f1d1d; color: var(--danger); }
     .btn-sm { padding: 4px 10px; font-size: 12px; }
-
-    /* ── Cards ── */
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 20px;
+    .btn-sidebar {
+      width: 100%;
+      justify-content: center;
+      background: #271810;
+      color: var(--accent);
+      border: 1px solid #4a2518;
+      border-radius: 6px;
+      font-size: 12px;
     }
+    .btn-sidebar:hover { background: #3a2015; opacity: 1; }
 
-    /* ── Workspace grid ── */
+    /* ── Workspace home grid ─────────────────────────────────────────────────── */
     .ws-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 16px;
+      margin-top: 24px;
     }
     .ws-card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: var(--radius);
+      border-radius: 8px;
       padding: 20px;
       cursor: pointer;
       transition: border-color .15s, transform .15s;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
     .ws-card:hover { border-color: var(--accent); transform: translateY(-1px); }
-    .ws-card h2 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
-    .ws-card .purpose {
+    .ws-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+    .ws-card h2 { font-size: 15px; font-weight: 600; }
+    .ws-card .desc { color: var(--muted); font-size: 13px; line-height: 1.5; flex: 1; }
+    .ws-card .meta { color: var(--muted); font-size: 11px; padding-top: 8px; border-top: 1px solid var(--border); }
+
+    /* ── Page header ─────────────────────────────────────────────────────────── */
+    .page-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      gap: 16px;
+    }
+    .page-header h1 { font-size: 18px; font-weight: 600; }
+    .page-header .sub { color: var(--muted); font-size: 13px; margin-top: 3px; }
+
+    /* ── Import drop zone ────────────────────────────────────────────────────── */
+    .drop-zone {
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 20px 16px;
+      text-align: center;
+      color: var(--muted);
+      transition: border-color .15s, color .15s;
+      cursor: pointer;
+    }
+    .drop-zone:hover, .drop-zone.over {
+      border-color: var(--accent);
+      color: var(--text);
+    }
+    .drop-zone .dz-icon { font-size: 24px; margin-bottom: 6px; }
+    .drop-zone p { font-size: 12px; }
+    .drop-zone .hint { font-size: 11px; margin-top: 3px; color: var(--muted); opacity: .7; }
+
+    /* ── Overview cards (workspace home panel) ───────────────────────────────── */
+    .overview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .overview-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .overview-card .ov-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+    .overview-card .ov-value { font-size: 24px; font-weight: 700; color: var(--text); }
+    .overview-card .ov-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    /* ── Table ───────────────────────────────────────────────────────────────── */
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead th {
+      background: var(--surface2);
+      color: var(--muted);
+      font-weight: 600;
+      text-align: left;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+      position: sticky;
+      top: 0;
+    }
+    tbody tr { border-bottom: 1px solid var(--border); }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #1e2235; }
+    tbody td { padding: 8px 14px; color: var(--text); }
+    tbody td:empty::after { content: '—'; color: var(--muted); }
+
+    /* ── Graph ───────────────────────────────────────────────────────────────── */
+    #cy {
+      width: 100%;
+      height: calc(100vh - var(--nav-h) - 120px);
+      min-height: 400px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+
+    /* ── Tags ────────────────────────────────────────────────────────────────── */
+    .tag {
       display: inline-block;
-      background: #271810;
-      color: var(--accent);
-      border: 1px solid #4a2518;
+      padding: 1px 7px;
       border-radius: 4px;
-      padding: 1px 8px;
       font-size: 11px;
       font-weight: 600;
-      margin-bottom: 8px;
     }
-    .ws-card p { color: var(--muted); font-size: 13px; line-height: 1.5; }
-    .ws-card .meta { color: var(--muted); font-size: 11px; margin-top: 12px; }
+    .tag-app  { background: #1e2f55; color: #7aa2f7; }
+    .tag-biz  { background: #2a2414; color: #e0af68; }
+    .tag-tech { background: #1a2a1a; color: #9ece6a; }
+    .tag-mot  { background: #2a1a2a; color: #bb9af7; }
 
-    /* ── Create workspace form ── */
+    /* ── Alerts ──────────────────────────────────────────────────────────────── */
+    .alert { padding: 10px 14px; border-radius: 6px; font-size: 13px; }
+    .alert-error   { background: #2d1414; border: 1px solid #7f1d1d; color: var(--danger); }
+    .alert-success { background: #14271a; border: 1px solid #166534; color: var(--success); }
+
+    /* ── Empty state ─────────────────────────────────────────────────────────── */
+    .empty-state {
+      text-align: center;
+      padding: 64px 24px;
+      color: var(--muted);
+    }
+    .empty-state .es-icon { font-size: 40px; margin-bottom: 14px; }
+    .empty-state p { font-size: 14px; line-height: 1.6; }
+
+    /* ── Modal ───────────────────────────────────────────────────────────────── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.65);
+      backdrop-filter: blur(3px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 200;
+    }
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+      width: 440px;
+      max-width: 95vw;
+    }
+    .modal h2 { font-size: 16px; margin-bottom: 20px; }
+    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+
+    /* ── Form ────────────────────────────────────────────────────────────────── */
     .form-grid { display: flex; flex-direction: column; gap: 14px; }
     label { display: flex; flex-direction: column; gap: 5px; font-size: 13px; color: var(--muted); }
     input, select, textarea {
@@ -179,165 +401,132 @@
     input:focus, select:focus, textarea:focus { border-color: var(--accent); }
     textarea { resize: vertical; min-height: 72px; }
 
-    /* ── Modal ── */
-    .modal-overlay {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,.6);
-      backdrop-filter: blur(2px);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 200;
-    }
-    .modal {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 28px;
-      width: 440px;
-      max-width: 95vw;
-    }
-    .modal h2 { font-size: 16px; margin-bottom: 20px; }
-    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+    /* ── Capability Tree ─────────────────────────────────────────────────────── */
+    .cap-tree { font-size: 13px; user-select: none; }
+    .cap-node { margin-bottom: 4px; }
 
-    /* ── Views list ── */
-    .views-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 12px;
-    }
-    .view-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px;
-      cursor: pointer;
-      transition: border-color .15s;
+    .cap-row {
       display: flex;
-      align-items: center;
-      gap: 12px;
+      align-items: flex-start;
+      gap: 6px;
     }
-    .view-card:hover { border-color: var(--accent); }
-    .view-card .icon {
-      width: 36px; height: 36px;
-      background: #1e2235;
-      border-radius: 8px;
+    .cap-toggle {
+      width: 22px; height: 22px;
+      margin-top: 10px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 18px;
+      font-size: 12px; color: var(--muted);
       flex-shrink: 0;
+      cursor: pointer;
+      font-family: monospace;
+      line-height: 1;
+      transition: background .12s, border-color .12s;
     }
-    .view-card h3 { font-size: 13px; font-weight: 600; }
-    .view-card p { color: var(--muted); font-size: 12px; margin-top: 2px; }
+    .cap-toggle:hover { background: #1e2235; border-color: var(--accent); color: var(--text); }
+    .cap-toggle-spacer { width: 22px; flex-shrink: 0; }
 
-    /* ── Workspace detail toolbar ── */
-    .ws-toolbar {
+    .cap-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 14px;
+      flex: 1;
+      min-width: 0;
+      transition: border-color .15s;
+    }
+    .cap-card:hover { border-color: #3a3d55; }
+    .cap-card.has-children { border-left: 3px solid #2a2d3e; }
+    .cap-card.has-children:hover { border-left-color: var(--accent); }
+
+    .cap-card-top {
       display: flex;
       align-items: center;
       gap: 8px;
-      margin-bottom: 24px;
       flex-wrap: wrap;
     }
-
-    /* ── Import drop zone ── */
-    .drop-zone {
-      border: 2px dashed var(--border);
-      border-radius: var(--radius);
-      padding: 32px;
-      text-align: center;
-      color: var(--muted);
-      transition: border-color .15s, color .15s;
-      cursor: pointer;
-    }
-    .drop-zone:hover, .drop-zone.over {
-      border-color: var(--accent);
-      color: var(--text);
-    }
-    .drop-zone .icon { font-size: 32px; margin-bottom: 8px; }
-    .drop-zone p { font-size: 13px; }
-    .drop-zone .hint { font-size: 11px; margin-top: 4px; color: var(--muted); }
-
-    /* ── Table ── */
-    .table-wrap {
-      overflow-x: auto;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-    }
-    table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    thead th {
-      background: #12151f;
-      color: var(--muted);
+    .cap-name { font-weight: 500; color: var(--text); font-size: 13px; }
+    .cap-type-badge {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 3px;
+      background: #2a2414;
+      color: #e0af68;
       font-weight: 600;
-      text-align: left;
-      padding: 10px 14px;
-      border-bottom: 1px solid var(--border);
-      white-space: nowrap;
+      letter-spacing: .2px;
     }
-    tbody tr { border-bottom: 1px solid var(--border); }
-    tbody tr:last-child { border-bottom: none; }
-    tbody tr:hover { background: #1e2235; }
-    tbody td { padding: 9px 14px; color: var(--text); }
-    tbody td:empty::after { content: '—'; color: var(--muted); }
-
-    /* ── Graph ── */
-    #cy {
-      width: 100%;
-      height: 560px;
+    .cap-type-badge.process  { background: #1a2540; color: #7aa2f7; }
+    .cap-type-badge.function { background: #1a2a1a; color: #9ece6a; }
+    .cap-child-count {
+      margin-left: auto;
+      font-size: 11px;
+      color: var(--muted);
+      background: var(--surface2);
       border: 1px solid var(--border);
-      border-radius: var(--radius);
-      background: var(--surface);
+      border-radius: 10px;
+      padding: 1px 8px;
     }
 
-    /* ── Alerts ── */
-    .alert {
-      padding: 12px 16px;
-      border-radius: var(--radius);
-      font-size: 13px;
-      margin-bottom: 16px;
+    .cap-apps {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
     }
-    .alert-error { background: #2d1414; border: 1px solid #7f1d1d; color: var(--danger); }
-    .alert-success { background: #14271a; border: 1px solid #166534; color: var(--success); }
-    .alert-info { background: #1a1e35; border: 1px solid var(--border); color: var(--muted); }
-
-    /* ── Misc ── */
-    .section-title {
-      font-size: 12px;
-      font-weight: 600;
+    .cap-apps-label {
+      font-size: 10px;
+      color: var(--muted);
       text-transform: uppercase;
+      letter-spacing: .4px;
+      margin-right: 2px;
+      flex-shrink: 0;
+    }
+    .cap-app-chip {
+      font-size: 11px;
+      padding: 2px 9px;
+      border-radius: 3px;
+      background: #1a2540;
+      color: #7aa2f7;
+      border: 1px solid #2d3f6e;
+    }
+    .cap-children {
+      padding-left: 28px;
+      margin-top: 4px;
+      border-left: 1px solid var(--border);
+      margin-left: 11px;
+    }
+
+    /* ── Misc ────────────────────────────────────────────────────────────────── */
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
       letter-spacing: .6px;
+      text-transform: uppercase;
       color: var(--muted);
       margin-bottom: 12px;
     }
-    .empty-state {
-      text-align: center;
-      padding: 48px;
-      color: var(--muted);
-    }
-    .empty-state .icon { font-size: 40px; margin-bottom: 12px; }
-    .empty-state p { font-size: 14px; }
-    .tag {
-      display: inline-block;
-      padding: 1px 7px;
-      border-radius: 4px;
-      font-size: 11px;
-      font-weight: 600;
-    }
-    .tag-app { background: #1e2f55; color: #7aa2f7; }
-    .tag-biz { background: #2a2414; color: #e0af68; }
-    .tag-tech { background: #1a2a1a; color: #9ece6a; }
-    .tag-mot { background: #2a1a2a; color: #bb9af7; }
     .spinner {
-      width: 20px; height: 20px;
+      width: 18px; height: 18px;
       border: 2px solid var(--border);
       border-top-color: var(--accent);
       border-radius: 50%;
       animation: spin .6s linear infinite;
       display: inline-block;
+      flex-shrink: 0;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
     .loading { display: flex; align-items: center; gap: 10px; color: var(--muted); padding: 24px 0; }
+    .divider { height: 1px; background: var(--border); margin: 8px 0; }
   </style>
 </head>
 <body>
+  <!-- Nav -->
   <nav>
-    <a class="logo" href="#/">
+    <a class="nav-logo" href="#/">
       <svg width="22" height="22" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
         <polygon points="16,2 27,8 27,22 16,28 5,22 5,8" fill="#E85D3A"/>
         <polygon points="16,9 22,13 22,21 16,25 10,21 10,13" fill="none" stroke="white" stroke-width="0.8" stroke-linejoin="round" opacity="0.4"/>
@@ -346,14 +535,23 @@
         <line x1="18" y1="14.5" x2="22" y2="13" stroke="white" stroke-width="1" opacity="0.7"/>
         <line x1="18" y1="17.5" x2="22" y2="21" stroke="white" stroke-width="1" opacity="0.7"/>
       </svg>
-      <div class="wordmark"><span class="w-archi">Archi</span><span class="w-pulse">Pulse</span></div>
+      <div class="nav-wordmark"><span class="w-archi">Archi</span><span class="w-pulse">Pulse</span></div>
     </a>
+    <div class="nav-sep"></div>
     <div class="breadcrumb" id="breadcrumb"></div>
-    <div style="flex:1"></div>
-    <button class="btn btn-ghost btn-sm" onclick="App.showCreateWs()">+ New workspace</button>
+    <div class="nav-spacer"></div>
+    <button class="btn btn-primary btn-sm" onclick="App.showCreateWs()">+ New workspace</button>
   </nav>
 
-  <main id="app"></main>
+  <!-- App shell -->
+  <div class="app-shell" id="shell">
+    <!-- sidebar injected here when in workspace context -->
+    <div id="content-wrap" style="flex:1;display:flex;flex-direction:column;">
+      <div id="app" class="content-full">
+        <div class="loading"><div class="spinner"></div> Loading…</div>
+      </div>
+    </div>
+  </div>
 
   <!-- Modal -->
   <div class="modal-overlay" id="modal" style="display:none" onclick="if(event.target===this)App.closeModal()">
@@ -362,7 +560,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.29.2/cytoscape.min.js"></script>
   <script>
-  // ── API helpers ──────────────────────────────────────────────────────────────
+  // ── API ──────────────────────────────────────────────────────────────────────
   const api = {
     async get(path) {
       const r = await fetch('/api/v1' + path);
@@ -388,32 +586,37 @@
       }
       return r.json();
     },
-    async del(path) {
-      const r = await fetch('/api/v1' + path, { method: 'DELETE' });
-      if (!r.ok) throw new Error((await r.json()).error || r.statusText);
-    },
   };
 
-  // ── View metadata ────────────────────────────────────────────────────────────
-  const VIEW_META = {
-    'element-catalogue':       { icon: '📋', label: 'Element Catalogue',       desc: 'All elements across layers' },
-    'application-catalogue':   { icon: '🧩', label: 'Application Catalogue',   desc: 'Application layer components' },
-    'application-landscape':   { icon: '🗺️',  label: 'Application Landscape',   desc: 'Apps mapped to business processes' },
-    'capability-tree':         { icon: '🌳', label: 'Capability Tree',          desc: 'Business capability hierarchy' },
-    'technology-catalogue':    { icon: '⚙️',  label: 'Technology Catalogue',    desc: 'Infrastructure & technology elements' },
-    'application-dependency':  { icon: '🔗', label: 'Application Dependency',  desc: 'Interactive dependency graph' },
+  // ── View registry ────────────────────────────────────────────────────────────
+  // Each view: { icon, label, desc, layer, graph? }
+  const VIEWS = {
+    'element-catalogue':      { icon: '◈', label: 'Element Catalogue',     desc: 'All elements across layers',             layer: 'cross' },
+    'capability-tree':        { icon: '◈', label: 'Capability Tree',        desc: 'Business capability hierarchy',          layer: 'business', tree: true },
+    'application-catalogue':  { icon: '◈', label: 'Application Catalogue',  desc: 'Application components',                 layer: 'application' },
+    'application-landscape':  { icon: '◈', label: 'Application Landscape',  desc: 'Apps mapped to business processes',      layer: 'application' },
+    'application-dependency': { icon: '◈', label: 'Dependency Graph',       desc: 'Interactive dependency graph',           layer: 'application', graph: true },
+    'technology-catalogue':   { icon: '◈', label: 'Technology Catalogue',   desc: 'Infrastructure & technology elements',   layer: 'technology' },
   };
+
+  const LAYER_GROUPS = [
+    { key: 'cross',       label: 'Cross-cutting', dot: 'dot-cross' },
+    { key: 'business',    label: 'Business',      dot: 'dot-biz'   },
+    { key: 'application', label: 'Application',   dot: 'dot-app'   },
+    { key: 'technology',  label: 'Technology',    dot: 'dot-tech'  },
+  ];
 
   // ── Router ───────────────────────────────────────────────────────────────────
   const Router = {
-    current: null,
     go(hash) { location.hash = hash; },
     parse() {
       const h = location.hash.replace(/^#\/?/, '') || '';
       const parts = h.split('/');
       if (!parts[0]) return { page: 'home' };
       if (parts[0] === 'ws' && parts[1]) {
-        if (parts[2] === 'view' && parts[3]) return { page: 'view', wsID: parts[1], view: parts.slice(3).join('/') };
+        if (parts[2] === 'view' && parts[3]) {
+          return { page: 'view', wsID: parts[1], view: parts.slice(3).join('/') };
+        }
         return { page: 'workspace', wsID: parts[1] };
       }
       return { page: 'home' };
@@ -422,128 +625,103 @@
 
   // ── App ──────────────────────────────────────────────────────────────────────
   const App = {
-    el: null,
-    bc: null,
-
     init() {
-      this.el = document.getElementById('app');
-      this.bc = document.getElementById('breadcrumb');
       window.addEventListener('hashchange', () => this.render());
       this.render();
     },
 
     async render() {
       const route = Router.parse();
-      this.el.innerHTML = '<div class="loading"><div class="spinner"></div> Loading…</div>';
+      const app = document.getElementById('app');
+      app.innerHTML = '<div class="loading"><div class="spinner"></div> Loading…</div>';
+
       try {
-        if (route.page === 'home') await this.renderHome();
-        else if (route.page === 'workspace') await this.renderWorkspace(route.wsID);
-        else if (route.page === 'view') await this.renderView(route.wsID, route.view);
+        if (route.page === 'home') {
+          this.removeSidebar();
+          app.className = 'content-full';
+          await this.renderHome(app);
+        } else if (route.page === 'workspace') {
+          app.className = 'content';
+          const ws = await api.get('/workspaces/' + route.wsID);
+          await this.ensureSidebar(ws, route.wsID, null);
+          await this.renderWorkspace(app, ws, route.wsID);
+        } else if (route.page === 'view') {
+          app.className = 'content';
+          const ws = await api.get('/workspaces/' + route.wsID);
+          await this.ensureSidebar(ws, route.wsID, route.view);
+          await this.renderView(app, ws, route.wsID, route.view);
+        }
       } catch (e) {
-        this.el.innerHTML = `<div class="alert alert-error">Error: ${e.message}</div>`;
+        app.innerHTML = `<div class="alert alert-error" style="margin-top:24px">Error: ${esc(e.message)}</div>`;
       }
     },
 
-    setBreadcrumb(items) {
-      this.bc.innerHTML = items.map((item, i) => {
-        const sep = i > 0 ? '<span class="sep">/</span>' : '';
-        if (item.href) return `${sep}<a href="${item.href}">${item.label}</a>`;
-        return `${sep}<span>${item.label}</span>`;
-      }).join('');
+    // ── Sidebar ───────────────────────────────────────────────────────────────
+    removeSidebar() {
+      const sb = document.getElementById('sidebar');
+      if (sb) sb.remove();
+      this.setBreadcrumb([]);
     },
 
-    // ── Home: workspace list ──────────────────────────────────────────────────
-    async renderHome() {
-      this.setBreadcrumb([{ label: 'Workspaces' }]);
-      const workspaces = await api.get('/workspaces');
+    async ensureSidebar(ws, wsID, activeView) {
+      let sb = document.getElementById('sidebar');
+      const shell = document.getElementById('shell');
 
-      if (!workspaces || workspaces.length === 0) {
-        this.el.innerHTML = `
-          <div class="page-header">
-            <div><h1>Workspaces</h1><p>Manage your ArchiMate models</p></div>
-          </div>
-          <div class="empty-state">
-            <div class="icon">🏛️</div>
-            <p>No workspaces yet.<br>Create one to import your first ArchiMate model.</p>
-            <br>
-            <button class="btn btn-primary" onclick="App.showCreateWs()">+ New workspace</button>
-          </div>`;
-        return;
+      if (!sb) {
+        sb = document.createElement('aside');
+        sb.id = 'sidebar';
+        sb.className = 'sidebar';
+        shell.insertBefore(sb, document.getElementById('content-wrap'));
       }
 
-      this.el.innerHTML = `
-        <div class="page-header">
-          <div><h1>Workspaces</h1><p>${workspaces.length} workspace${workspaces.length !== 1 ? 's' : ''}</p></div>
-        </div>
-        <div class="ws-grid">
-          ${workspaces.map(ws => `
-            <div class="ws-card" onclick="Router.go('/ws/${ws.id}')">
-              <span class="purpose">${ws.purpose}</span>
-              <h2>${esc(ws.name)}</h2>
-              <p>${esc(ws.description || 'No description')}</p>
-              <div class="meta">ID: ${ws.id.slice(0,8)}…</div>
-            </div>
-          `).join('')}
+      // Build grouped view items
+      const viewsHtml = LAYER_GROUPS.map(group => {
+        const items = Object.entries(VIEWS)
+          .filter(([, v]) => v.layer === group.key)
+          .map(([key, v]) => {
+            const target = v.graph ? `${key}/graph` : v.tree ? `${key}/tree` : key;
+            const isActive = activeView === target || activeView === key;
+            return `<div class="sidebar-item ${isActive ? 'active' : ''}"
+              onclick="Router.go('/ws/${wsID}/view/${target}')">
+              <span class="sidebar-layer-dot ${group.dot}"></span>
+              ${esc(v.label)}
+            </div>`;
+          }).join('');
+        if (!items) return '';
+        return `<div class="sidebar-section">
+          <div class="sidebar-section-label">${group.label}</div>
+          ${items}
         </div>`;
-    },
+      }).join('');
 
-    // ── Workspace detail ──────────────────────────────────────────────────────
-    async renderWorkspace(wsID) {
-      const [ws, viewsResp] = await Promise.all([
-        api.get('/workspaces/' + wsID),
-        api.get('/workspaces/' + wsID + '/views'),
-      ]);
-
-      this.setBreadcrumb([
-        { label: 'Workspaces', href: '#/' },
-        { label: ws.name },
-      ]);
-
-      const views = viewsResp.views || [];
-
-      this.el.innerHTML = `
-        <div class="page-header">
-          <div>
-            <h1>${esc(ws.name)}</h1>
-            <p>${esc(ws.description || '')} <span class="purpose" style="font-size:11px">${ws.purpose}</span></p>
-          </div>
+      sb.innerHTML = `
+        <div class="sidebar-ws-header">
+          <div class="sidebar-ws-name">${esc(ws.name)}</div>
+          <span class="purpose-badge">${esc(ws.purpose)}</span>
         </div>
-
-        <div id="import-section" class="card" style="margin-bottom:28px">
-          <div class="section-title">Import model</div>
-          <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
-            <div class="icon">📥</div>
-            <p>Drop an ArchiMate file here, or click to browse</p>
-            <div class="hint">Supports AOEF (.xml) and AJX (.ajx, .json)</div>
-          </div>
-          <input type="file" id="file-input" accept=".xml,.ajx,.json" style="display:none" onchange="App.handleImport('${wsID}', this)">
-          <div id="import-result"></div>
+        <div class="sidebar-item ${!activeView ? 'active' : ''}" style="margin:8px 8px 0"
+          onclick="Router.go('/ws/${wsID}')">
+          <span class="si-icon">⌂</span> Overview
         </div>
-
-        <div class="section-title">Views</div>
-        <div class="views-grid">
-          ${views.map(v => {
-            const m = VIEW_META[v] || { icon: '📄', label: v, desc: '' };
-            const isGraph = v === 'application-dependency';
-            const href = isGraph
-              ? `#/ws/${wsID}/view/${v}/graph`
-              : `#/ws/${wsID}/view/${v}`;
-            return `
-              <div class="view-card" onclick="Router.go('/ws/${wsID}/view/${isGraph ? v + '/graph' : v}')">
-                <div class="icon">${m.icon}</div>
-                <div>
-                  <h3>${m.label}</h3>
-                  <p>${m.desc}</p>
-                </div>
-              </div>`;
-          }).join('')}
+        <div class="divider" style="margin:8px 8px 0"></div>
+        ${viewsHtml}
+        <div class="sidebar-footer">
+          <div class="drop-zone" id="sb-drop-zone" onclick="document.getElementById('sb-file-input').click()" style="padding:14px">
+            <div class="dz-icon">↑</div>
+            <p>Import model</p>
+            <div class="hint">.xml · .ajx · .json</div>
+          </div>
+          <input type="file" id="sb-file-input" accept=".xml,.ajx,.json" style="display:none"
+            onchange="App.handleImport('${wsID}', this)">
+          <div id="sb-import-result" style="margin-top:8px"></div>
         </div>`;
 
       this._setupDropZone(wsID);
+      this.setBreadcrumb(ws, wsID, activeView);
     },
 
     _setupDropZone(wsID) {
-      const zone = document.getElementById('drop-zone');
+      const zone = document.getElementById('sb-drop-zone');
       if (!zone) return;
       zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('over'); });
       zone.addEventListener('dragleave', () => zone.classList.remove('over'));
@@ -561,181 +739,399 @@
     },
 
     async _doImport(wsID, file) {
-      const result = document.getElementById('import-result');
-      result.innerHTML = '<div class="loading" style="margin-top:12px"><div class="spinner"></div> Importing…</div>';
+      const result = document.getElementById('sb-import-result');
+      if (result) result.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
       try {
         const data = await api.upload('/workspaces/' + wsID + '/import', file);
-        result.innerHTML = `
-          <div class="alert alert-success" style="margin-top:12px">
-            ✓ Imported <strong>${data.elements}</strong> elements,
-            <strong>${data.relationships}</strong> relationships,
-            <strong>${data.diagrams}</strong> diagrams
-          </div>`;
-        // Reload views list after import
-        setTimeout(() => this.renderWorkspace(wsID), 1200);
+        if (result) result.innerHTML = `<div class="alert alert-success" style="font-size:12px">
+          ✓ ${data.elements} elements · ${data.relationships} relationships</div>`;
+        setTimeout(() => this.render(), 1400);
       } catch (e) {
-        result.innerHTML = `<div class="alert alert-error" style="margin-top:12px">✗ ${e.message}</div>`;
+        if (result) result.innerHTML = `<div class="alert alert-error" style="font-size:12px">✗ ${esc(e.message)}</div>`;
       }
     },
 
-    // ── View: table or graph ──────────────────────────────────────────────────
-    async renderView(wsID, viewPath) {
-      const ws = await api.get('/workspaces/' + wsID);
-      const isGraph = viewPath.endsWith('/graph');
-      const viewName = isGraph ? viewPath.replace('/graph', '') : viewPath;
-      const meta = VIEW_META[viewName] || { icon: '📄', label: viewName, desc: '' };
+    setBreadcrumb(ws, wsID, activeView) {
+      const bc = document.getElementById('breadcrumb');
+      if (!ws) { bc.innerHTML = ''; return; }
+      const parts = [
+        `<a href="#/">Workspaces</a>`,
+        `<span class="sep">/</span>`,
+      ];
+      if (activeView) {
+        const viewKey = activeView.replace('/graph', '');
+        const meta = VIEWS[viewKey];
+        parts.push(`<a href="#/ws/${wsID}">${esc(ws.name)}</a>`);
+        parts.push(`<span class="sep">/</span>`);
+        parts.push(`<span class="current">${meta ? esc(meta.label) : esc(activeView)}</span>`);
+      } else {
+        parts.push(`<span class="current">${esc(ws.name)}</span>`);
+      }
+      bc.innerHTML = parts.join('');
+    },
 
-      this.setBreadcrumb([
-        { label: 'Workspaces', href: '#/' },
-        { label: ws.name, href: `#/ws/${wsID}` },
-        { label: meta.label },
-      ]);
+    // ── Home ──────────────────────────────────────────────────────────────────
+    async renderHome(el) {
+      this.setBreadcrumb(null);
+      document.getElementById('breadcrumb').innerHTML = '<span style="color:var(--muted)">Workspaces</span>';
+      const workspaces = await api.get('/workspaces');
+
+      if (!workspaces || workspaces.length === 0) {
+        el.innerHTML = `
+          <div style="margin-bottom:28px">
+            <h1 style="font-size:20px;font-weight:600">Workspaces</h1>
+            <p style="color:var(--muted);margin-top:4px;font-size:13px">Your ArchiMate baselines</p>
+          </div>
+          <div class="empty-state">
+            <div class="es-icon">🏛️</div>
+            <p>No workspaces yet.<br>Create one and import your first ArchiMate model.</p>
+            <br>
+            <button class="btn btn-primary" onclick="App.showCreateWs()">+ New workspace</button>
+          </div>`;
+        return;
+      }
+
+      el.innerHTML = `
+        <div class="page-header">
+          <div>
+            <h1>Workspaces</h1>
+            <div class="sub">${workspaces.length} baseline${workspaces.length !== 1 ? 's' : ''}</div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="App.showCreateWs()">+ New workspace</button>
+        </div>
+        <div class="ws-grid">
+          ${workspaces.map(ws => `
+            <div class="ws-card" onclick="Router.go('/ws/${ws.id}')">
+              <div class="ws-card-top">
+                <h2>${esc(ws.name)}</h2>
+                <span class="purpose-badge">${esc(ws.purpose)}</span>
+              </div>
+              <div class="desc">${esc(ws.description || 'No description')}</div>
+              <div class="meta">
+                Updated ${new Date(ws.updated_at).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'})}
+              </div>
+            </div>
+          `).join('')}
+        </div>`;
+    },
+
+    // ── Workspace overview ────────────────────────────────────────────────────
+    async renderWorkspace(el, ws, wsID) {
+      el.innerHTML = `
+        <div class="page-header">
+          <div>
+            <h1>${esc(ws.name)}</h1>
+            <div class="sub">${esc(ws.description || 'No description')}</div>
+          </div>
+        </div>
+        <div class="loading"><div class="spinner"></div> Loading model stats…</div>`;
+
+      // Fetch element catalogue to get counts
+      let elements = 0, biz = 0, app = 0, tech = 0, mot = 0;
+      try {
+        const cat = await api.get('/workspaces/' + wsID + '/views/element-catalogue');
+        const rows = cat.rows || [];
+        elements = rows.length;
+        rows.forEach(r => {
+          const layer = r[0];
+          if (layer === 'Business') biz++;
+          else if (layer === 'Application') app++;
+          else if (layer === 'Technology') tech++;
+          else if (layer === 'Motivation') mot++;
+        });
+      } catch(_) {}
+
+      el.innerHTML = `
+        <div class="page-header">
+          <div>
+            <h1>${esc(ws.name)}</h1>
+            <div class="sub">${esc(ws.description || 'No description')}</div>
+          </div>
+        </div>
+
+        ${elements === 0 ? `
+        <div class="empty-state">
+          <div class="es-icon">📭</div>
+          <p>No model imported yet.<br>Use the import panel on the left to upload an AOEF or AJX file.</p>
+        </div>` : `
+        <div class="section-label">Model overview</div>
+        <div class="overview-grid">
+          <div class="overview-card">
+            <div class="ov-label">Total elements</div>
+            <div class="ov-value">${elements}</div>
+          </div>
+          <div class="overview-card">
+            <div class="ov-label">Business</div>
+            <div class="ov-value" style="color:#e0af68">${biz}</div>
+          </div>
+          <div class="overview-card">
+            <div class="ov-label">Application</div>
+            <div class="ov-value" style="color:#7aa2f7">${app}</div>
+          </div>
+          <div class="overview-card">
+            <div class="ov-label">Technology</div>
+            <div class="ov-value" style="color:#9ece6a">${tech}</div>
+          </div>
+          ${mot > 0 ? `<div class="overview-card">
+            <div class="ov-label">Motivation</div>
+            <div class="ov-value" style="color:#bb9af7">${mot}</div>
+          </div>` : ''}
+        </div>
+        <div class="section-label" style="margin-top:8px">Available views</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px">
+          ${Object.entries(VIEWS).map(([key, v]) => {
+            const target = v.graph ? key + '/graph' : v.tree ? key + '/tree' : key;
+            return `<div onclick="Router.go('/ws/${wsID}/view/${target}')"
+              style="background:var(--surface);border:1px solid var(--border);border-radius:8px;
+                     padding:14px 16px;cursor:pointer;transition:border-color .15s"
+              onmouseover="this.style.borderColor='var(--accent)'"
+              onmouseout="this.style.borderColor='var(--border)'">
+              <div style="font-size:13px;font-weight:600;margin-bottom:3px">${esc(v.label)}</div>
+              <div style="font-size:12px;color:var(--muted)">${esc(v.desc)}</div>
+            </div>`;
+          }).join('')}
+        </div>`}`;
+    },
+
+    // ── View (table or graph) ─────────────────────────────────────────────────
+    async renderView(el, ws, wsID, viewPath) {
+      const isGraph = viewPath.endsWith('/graph');
+      const isTree  = viewPath.endsWith('/tree');
+      const viewKey = isGraph ? viewPath.replace('/graph', '')
+                    : isTree  ? viewPath.replace('/tree', '')
+                    : viewPath;
+      const meta = VIEWS[viewKey] || { label: viewKey, desc: '' };
 
       if (isGraph) {
-        await this.renderGraph(wsID, viewName, meta);
+        await this.renderGraph(el, wsID, viewKey, meta);
+      } else if (isTree) {
+        await this.renderTree(el, wsID, viewKey, meta);
       } else {
-        await this.renderTable(wsID, viewName, meta);
+        await this.renderTable(el, wsID, viewKey, meta);
       }
     },
 
-    async renderTable(wsID, viewName, meta) {
-      const data = await api.get('/workspaces/' + wsID + '/views/' + viewName);
+    async renderTable(el, wsID, viewKey, meta) {
+      const data = await api.get('/workspaces/' + wsID + '/views/' + viewKey);
+      const rows = data.rows || [];
+      const columns = data.columns || [];
 
-      const layerTag = (val) => {
+      const layerTag = val => {
         const map = { Application: 'tag-app', Business: 'tag-biz', Technology: 'tag-tech', Motivation: 'tag-mot' };
         const cls = map[val] || '';
         return cls ? `<span class="tag ${cls}">${val}</span>` : esc(val);
       };
-
       const layerCols = new Set(['Layer', 'layer']);
-      const rows = data.rows || [];
-      const columns = data.columns || [];
 
-      this.el.innerHTML = `
+      el.innerHTML = `
         <div class="page-header">
-          <div><h1>${meta.icon} ${meta.label}</h1><p>${rows.length} rows</p></div>
-          <button class="btn btn-ghost btn-sm" onclick="App.exportCSV('${viewName}', ${JSON.stringify(columns)}, ${JSON.stringify(rows)})">
+          <div>
+            <h1>${esc(meta.label)}</h1>
+            <div class="sub">${rows.length} rows · ${esc(meta.desc)}</div>
+          </div>
+          <button class="btn btn-ghost btn-sm"
+            onclick="App.exportCSV('${viewKey}', ${JSON.stringify(columns)}, ${JSON.stringify(rows)})">
             ↓ Export CSV
           </button>
         </div>
-        ${rows.length === 0 ? `<div class="empty-state"><div class="icon">📭</div><p>No data — import a model first.</p></div>` : `
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>${columns.map(c => `<th>${esc(c)}</th>`).join('')}</tr>
-            </thead>
-            <tbody>
-              ${rows.map(row => `
-                <tr>${row.map((cell, i) => {
-                  const col = columns[i];
-                  const val = cell == null ? '' : String(cell);
-                  return `<td>${layerCols.has(col) ? layerTag(val) : esc(val)}</td>`;
-                }).join('')}</tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>`}`;
+        ${rows.length === 0
+          ? `<div class="empty-state"><div class="es-icon">📭</div><p>No data — import a model first.</p></div>`
+          : `<div class="table-wrap">
+              <table>
+                <thead><tr>${columns.map(c => `<th>${esc(c)}</th>`).join('')}</tr></thead>
+                <tbody>
+                  ${rows.map(row => `<tr>${row.map((cell, i) => {
+                    const col = columns[i];
+                    const val = cell == null ? '' : String(cell);
+                    return `<td>${layerCols.has(col) ? layerTag(val) : esc(val)}</td>`;
+                  }).join('')}</tr>`).join('')}
+                </tbody>
+              </table>
+            </div>`}`;
     },
 
-    async renderGraph(wsID, viewName, meta) {
-      this.el.innerHTML = `
+    async renderGraph(el, wsID, viewKey, meta) {
+      el.innerHTML = `
         <div class="page-header">
-          <div><h1>${meta.icon} ${meta.label}</h1><p>Interactive dependency graph</p></div>
+          <div>
+            <h1>${esc(meta.label)}</h1>
+            <div class="sub">${esc(meta.desc)}</div>
+          </div>
           <div style="display:flex;gap:8px">
             <button class="btn btn-ghost btn-sm" id="btn-fit">⊡ Fit</button>
             <button class="btn btn-ghost btn-sm" id="btn-layout">↺ Re-layout</button>
           </div>
         </div>
         <div id="cy"></div>
-        <div style="margin-top:12px;color:var(--muted);font-size:12px">
-          Scroll to zoom · Drag to pan · Click a node to highlight its connections
+        <div style="margin-top:10px;color:var(--muted);font-size:11px">
+          Scroll to zoom · Drag to pan · Click a node to highlight connections
         </div>`;
 
-      const data = await api.get('/workspaces/' + wsID + '/views/' + viewName + '/graph');
+      const data = await api.get('/workspaces/' + wsID + '/views/' + viewKey + '/graph');
+
+      if ((data.nodes || []).length === 0) {
+        el.querySelector('#cy').outerHTML = `<div class="empty-state"><div class="es-icon">📭</div><p>No application elements — import a model first.</p></div>`;
+        return;
+      }
 
       const cy = cytoscape({
         container: document.getElementById('cy'),
         elements: [
-          ...(data.nodes || []).map(n => ({
-            data: { id: n.id, label: n.label, layer: n.layer, type: n.type },
-          })),
-          ...(data.edges || []).map(e => ({
-            data: { id: e.id, source: e.source, target: e.target, label: e.label },
-          })),
+          ...(data.nodes || []).map(n => ({ data: { id: n.id, label: n.label || n.name, layer: n.layer, type: n.type } })),
+          ...(data.edges || []).map(e => ({ data: { id: e.id, source: e.source, target: e.target, label: e.label || e.relationship } })),
         ],
         style: [
-          {
-            selector: 'node',
-            style: {
-              label: 'data(label)',
-              'text-valign': 'bottom',
-              'text-halign': 'center',
-              'font-size': '10px',
-              'color': '#e2e4f0',
-              'text-margin-y': '4px',
-              width: 36,
-              height: 36,
-              'background-color': '#6c8aff',
-              'border-width': 2,
-              'border-color': '#2a2d3e',
-            },
-          },
-          {
-            selector: 'node[layer="Application"]',
-            style: { 'background-color': '#7aa2f7', 'border-color': '#3d59a1' },
-          },
-          {
-            selector: 'node[layer="Business"]',
-            style: { 'background-color': '#e0af68', 'border-color': '#a87c36' },
-          },
-          {
-            selector: 'node[layer="Technology"]',
-            style: { 'background-color': '#9ece6a', 'border-color': '#5a8a2a' },
-          },
-          {
-            selector: 'node[layer="Motivation"]',
-            style: { 'background-color': '#bb9af7', 'border-color': '#7555a0' },
-          },
-          {
-            selector: 'edge',
-            style: {
-              width: 1.5,
-              'line-color': '#3a3d55',
-              'target-arrow-color': '#3a3d55',
-              'target-arrow-shape': 'triangle',
-              'curve-style': 'bezier',
-              'font-size': '9px',
-              'color': '#8b8fa8',
-              label: 'data(label)',
-              'text-rotation': 'autorotate',
-              'text-margin-y': '-6px',
-            },
-          },
-          {
-            selector: ':selected',
-            style: { 'border-color': '#fff', 'border-width': 3 },
-          },
-          {
-            selector: '.faded',
-            style: { opacity: 0.2 },
-          },
+          { selector: 'node', style: {
+            label: 'data(label)', 'text-valign': 'bottom', 'text-halign': 'center',
+            'font-size': '10px', color: '#e2e4f0', 'text-margin-y': '4px',
+            width: 34, height: 34, 'background-color': '#555', 'border-width': 2, 'border-color': '#2a2d3e',
+          }},
+          { selector: 'node[layer="Application"]', style: { 'background-color': '#7aa2f7', 'border-color': '#3d59a1' }},
+          { selector: 'node[layer="Business"]',    style: { 'background-color': '#e0af68', 'border-color': '#a87c36' }},
+          { selector: 'node[layer="Technology"]',  style: { 'background-color': '#9ece6a', 'border-color': '#5a8a2a' }},
+          { selector: 'node[layer="Motivation"]',  style: { 'background-color': '#bb9af7', 'border-color': '#7555a0' }},
+          { selector: 'edge', style: {
+            width: 1.5, 'line-color': '#3a3d55', 'target-arrow-color': '#3a3d55',
+            'target-arrow-shape': 'triangle', 'curve-style': 'bezier',
+            'font-size': '9px', color: '#8b8fa8', label: 'data(label)',
+            'text-rotation': 'autorotate', 'text-margin-y': '-6px',
+          }},
+          { selector: ':selected', style: { 'border-color': '#fff', 'border-width': 3 }},
+          { selector: '.faded',    style: { opacity: 0.15 }},
         ],
         layout: { name: 'cose', animate: false, padding: 40, nodeRepulsion: 8000 },
       });
 
-      // Highlight on click
-      cy.on('tap', 'node', function(evt) {
-        const node = evt.target;
+      cy.on('tap', 'node', evt => {
+        const n = evt.target;
         cy.elements().addClass('faded');
-        node.removeClass('faded');
-        node.neighborhood().removeClass('faded');
+        n.removeClass('faded');
+        n.neighborhood().removeClass('faded');
       });
-      cy.on('tap', function(evt) {
-        if (evt.target === cy) cy.elements().removeClass('faded');
+      cy.on('tap', evt => { if (evt.target === cy) cy.elements().removeClass('faded'); });
+
+      document.getElementById('btn-fit').onclick    = () => cy.fit(undefined, 40);
+      document.getElementById('btn-layout').onclick = () => cy.layout({ name: 'cose', animate: true, padding: 40, nodeRepulsion: 8000 }).run();
+    },
+
+    // ── Capability Tree renderer ──────────────────────────────────────────────
+    async renderTree(el, wsID, viewKey, meta) {
+      el.innerHTML = `
+        <div class="page-header">
+          <div>
+            <h1>${esc(meta.label)}</h1>
+            <div class="sub">${esc(meta.desc)}</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-ghost btn-sm" onclick="App.treeExpandAll()">+ Expand all</button>
+            <button class="btn btn-ghost btn-sm" onclick="App.treeCollapseAll()">− Collapse all</button>
+          </div>
+        </div>
+        <div class="loading"><div class="spinner"></div> Loading…</div>`;
+
+      const data = await api.get('/workspaces/' + wsID + '/views/capability-tree/tree');
+      const nodes = data.nodes || [];
+
+      if (nodes.length === 0) {
+        el.querySelector('.loading').outerHTML = `<div class="empty-state"><div class="es-icon">📭</div><p>No capability or business process elements found.<br>Import a model with Capability or BusinessProcess types.</p></div>`;
+        return;
+      }
+
+      // Build index and children map
+      const index = {};
+      nodes.forEach(n => { index[n.id] = n; n._children = []; });
+      const roots = [];
+      nodes.forEach(n => {
+        if (n.parent_id && index[n.parent_id]) {
+          index[n.parent_id]._children.push(n);
+        } else {
+          roots.push(n);
+        }
       });
 
-      document.getElementById('btn-fit').onclick = () => cy.fit(undefined, 40);
-      document.getElementById('btn-layout').onclick = () => cy.layout({ name: 'cose', animate: true, padding: 40, nodeRepulsion: 8000 }).run();
+      // Store for expand/collapse all
+      this._treeEl = el;
+      this._treeRoots = roots;
+
+      const container = document.createElement('div');
+      container.className = 'cap-tree';
+      this._renderTreeNodes(roots, container, true);
+      el.querySelector('.loading').replaceWith(container);
+    },
+
+    _renderTreeNodes(nodes, container, expanded) {
+      nodes.forEach(n => {
+        const hasChildren = n._children.length > 0;
+        const apps        = n.supporting_apps || [];
+        const typeLower   = n.type.toLowerCase();
+        const typeCls     = typeLower.includes('process') ? 'process'
+                          : typeLower.includes('function') ? 'function' : '';
+        const typeLabel   = n.type.replace('BusinessProcess', 'Process')
+                                  .replace('BusinessFunction', 'Function')
+                                  .replace('Capability', 'Capability');
+
+        const nodeEl = document.createElement('div');
+        nodeEl.className = 'cap-node';
+        nodeEl.dataset.id = n.id;
+
+        const appsHtml = apps.length > 0
+          ? `<div class="cap-apps">
+               <span class="cap-apps-label">Supported by</span>
+               ${apps.map(a => `<span class="cap-app-chip" title="${esc(a.type)}">${esc(a.name)}</span>`).join('')}
+             </div>`
+          : '';
+
+        const toggleHtml = hasChildren
+          ? `<button class="cap-toggle" onclick="App._toggleNode(this)" data-open="${expanded}">${expanded ? '−' : '+'}</button>`
+          : `<span class="cap-toggle-spacer"></span>`;
+
+        nodeEl.innerHTML = `
+          <div class="cap-row">
+            ${toggleHtml}
+            <div class="cap-card ${hasChildren ? 'has-children' : ''}">
+              <div class="cap-card-top">
+                <span class="cap-name">${esc(n.name)}</span>
+                <span class="cap-type-badge ${typeCls}">${typeLabel}</span>
+                ${hasChildren ? `<span class="cap-child-count">${n._children.length}</span>` : ''}
+              </div>
+              ${appsHtml}
+            </div>
+          </div>
+          ${hasChildren ? `<div class="cap-children" style="display:${expanded ? 'block' : 'none'}"></div>` : ''}`;
+
+        if (hasChildren) {
+          const childContainer = nodeEl.querySelector('.cap-children');
+          this._renderTreeNodes(n._children, childContainer, false);
+        }
+        container.appendChild(nodeEl);
+      });
+    },
+
+    _toggleNode(btn) {
+      const open = btn.dataset.open === 'true';
+      const children = btn.closest('.cap-card').closest('.cap-row').parentElement.querySelector('.cap-children');
+      if (!children) return;
+      btn.dataset.open = !open;
+      btn.textContent = open ? '+' : '−';
+      children.style.display = open ? 'none' : 'block';
+    },
+
+    treeExpandAll() {
+      if (!this._treeEl) return;
+      this._treeEl.querySelectorAll('.cap-toggle').forEach(btn => {
+        btn.dataset.open = 'true';
+        btn.textContent = '−';
+      });
+      this._treeEl.querySelectorAll('.cap-children').forEach(c => c.style.display = 'block');
+    },
+
+    treeCollapseAll() {
+      if (!this._treeEl) return;
+      this._treeEl.querySelectorAll('.cap-toggle').forEach(btn => {
+        btn.dataset.open = 'false';
+        btn.textContent = '+';
+      });
+      this._treeEl.querySelectorAll('.cap-children').forEach(c => c.style.display = 'none');
     },
 
     // ── CSV export ────────────────────────────────────────────────────────────
@@ -754,7 +1150,7 @@
       document.getElementById('modal-content').innerHTML = `
         <h2>New workspace</h2>
         <div class="form-grid">
-          <label>Name <input id="ws-name" placeholder="My Architecture" /></label>
+          <label>Name <input id="ws-name" placeholder="Q1-2026-AS-IS" /></label>
           <label>Purpose
             <select id="ws-purpose">
               <option value="as-is">as-is</option>
@@ -770,20 +1166,23 @@
         </div>
         <div id="modal-err"></div>`;
       document.getElementById('modal').style.display = 'flex';
-      document.getElementById('ws-name').focus();
+      setTimeout(() => document.getElementById('ws-name').focus(), 50);
     },
 
     async createWs() {
       const name = document.getElementById('ws-name').value.trim();
       const purpose = document.getElementById('ws-purpose').value;
       const description = document.getElementById('ws-desc').value.trim();
-      if (!name) { document.getElementById('modal-err').innerHTML = '<div class="alert alert-error" style="margin-top:12px">Name is required</div>'; return; }
+      if (!name) {
+        document.getElementById('modal-err').innerHTML = '<div class="alert alert-error" style="margin-top:12px">Name is required</div>';
+        return;
+      }
       try {
         const ws = await api.post('/workspaces', { name, purpose, description });
         this.closeModal();
         Router.go('/ws/' + ws.id);
       } catch (e) {
-        document.getElementById('modal-err').innerHTML = `<div class="alert alert-error" style="margin-top:12px">${e.message}</div>`;
+        document.getElementById('modal-err').innerHTML = `<div class="alert alert-error" style="margin-top:12px">${esc(e.message)}</div>`;
       }
     },
 
@@ -792,7 +1191,6 @@
     },
   };
 
-  // ── Utils ────────────────────────────────────────────────────────────────────
   function esc(s) {
     return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
