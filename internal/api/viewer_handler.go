@@ -94,4 +94,3 @@ func registerViewerRoutes(r chi.Router, db *sql.DB) {
 	r.Get("/workspaces/{id}/views/integration-map/graph", h.getIntegrationMap)
 	r.Get("/workspaces/{id}/views/{view}", h.getView)
 }
-
