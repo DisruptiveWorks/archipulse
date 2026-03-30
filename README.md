@@ -9,8 +9,8 @@ Built on ArchiMate · Powered by Go · PostgreSQL · Open Source
 
 [![Build](https://img.shields.io/github/actions/workflow/status/DisruptiveWorks/archipulse/ci.yml?branch=main&style=flat-square)](https://github.com/DisruptiveWorks/archipulse/actions)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue?style=flat-square)](./LICENSE)
-[![Go Version](https://img.shields.io/badge/go-1.22%2B-00ADD8?style=flat-square&logo=go)](https://go.dev)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16%2B-336791?style=flat-square&logo=postgresql)](https://www.postgresql.org)
+[![Go Version](https://img.shields.io/badge/go-1.24%2B-00ADD8?style=flat-square&logo=go)](https://go.dev)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17%2B-336791?style=flat-square&logo=postgresql)](https://www.postgresql.org)
 [![ArchiMate](https://img.shields.io/badge/ArchiMate-3.2-orange?style=flat-square)](https://www.opengroup.org/archimate-forum)
 [![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen?style=flat-square)](./CONTRIBUTING.md)
 
@@ -111,7 +111,7 @@ flowchart TD
 
 ## Screenshots
 
-> Screenshots and demo coming in v0.2. Follow the project or join the [Discussions](https://github.com/DisruptiveWorks/archipulse/discussions) to get notified.
+> Full screenshots coming soon. Follow the project or join the [Discussions](https://github.com/DisruptiveWorks/archipulse/discussions) to get notified.
 
 ---
 
@@ -119,32 +119,40 @@ flowchart TD
 
 ### Prerequisites
 
-- [Go](https://go.dev/dl/) 1.22 or higher
-- [PostgreSQL](https://www.postgresql.org/download/) 16 or higher
-- Git
+- [Docker](https://docs.docker.com/get-docker/) and Docker Compose — recommended
+- Or: [Go](https://go.dev/dl/) 1.24+, [Node.js](https://nodejs.org/) 22+, [PostgreSQL](https://www.postgresql.org/download/) 17+
 
-### Installation
+### Docker (recommended)
+
+```bash
+git clone https://github.com/DisruptiveWorks/archipulse.git
+cd archipulse
+docker compose up
+```
+
+The web interface will be available at `http://localhost:8080`.
+
+### Manual Installation
 
 ```bash
 # Clone the repository
 git clone https://github.com/DisruptiveWorks/archipulse.git
 cd archipulse
 
-# Copy and configure environment
+# Build the frontend
+cd cmd/archipulse/ui && npm install && npm run build && cd ../../..
+
+# Configure environment
 cp .env.example .env
-# Edit .env — set DATABASE_URL and other settings
+# Edit .env — set DATABASE_URL
 
 # Run database migrations
 go run ./cmd/archipulse migrate
 
-# Build
+# Build and run
 go build -o archipulse ./cmd/archipulse
-
-# Run
 ./archipulse serve
 ```
-
-The web interface will be available at `http://localhost:8080`.
 
 ### Quick Start
 
@@ -154,7 +162,7 @@ curl -X POST http://localhost:8080/api/v1/workspaces \
   -H "Content-Type: application/json" \
   -d '{"name": "Q1-2026-AS-IS", "purpose": "as-is"}'
 
-# Import an ArchiMate model (AOEF format)
+# Import an ArchiMate model
 curl -X POST http://localhost:8080/api/v1/workspaces/{id}/import \
   -F "file=@examples/archisurance.xml"
 
@@ -163,12 +171,6 @@ open http://localhost:8080
 ```
 
 ArchiPulse ships with the **ArchiSurance** example model from The Open Group so you can explore the viewer immediately.
-
-#### Docker (coming in v0.2)
-
-```bash
-docker compose up
-```
 
 ---
 
@@ -189,62 +191,59 @@ ArchiPulse is built around a single core insight: **the ArchiMate Open Exchange 
 
 This means export is a SELECT, import is an INSERT, and collaboration is database-native. No custom metamodel, no graph database, no vendor lock-in.
 
-For the full design rationale, schema, API design, and decision log see [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md).
-
 **Repository structure:**
 
 ```
 archipulse/
-├── cmd/                  # CLI entrypoints
+├── cmd/
+│   └── archipulse/
+│       ├── ui/           # Svelte 5 + Vite 6 frontend
+│       │   └── src/      # Components, routes, lib
+│       ├── embed.go      # //go:embed ui/dist
+│       └── main.go
 ├── internal/
 │   ├── parser/           # AOEF and AJX parsers
 │   ├── workspace/        # Workspace manager and CRUD
-│   ├── catalog/          # Catalog storage and API
-│   ├── pipeline/         # Extraction engine
-│   │   ├── extractor/    # Source-specific collectors
-│   │   └── mapper/       # ArchiMate type mapping engine
 │   ├── viewer/           # EAM view generation (SQL queries)
+│   │   └── views/        # Individual view implementations
 │   └── api/              # REST API handlers
-├── web/                  # Web frontend (Cytoscape.js)
 ├── migrations/           # PostgreSQL migrations
-├── examples/             # Sample ArchiMate models
-└── docs/                 # Documentation and architecture decisions
+├── examples/             # Sample ArchiMate models (ArchiSurance)
+└── tests/                # Integration tests
 ```
 
 ---
 
 ## Roadmap
 
-### v0.1 — Foundation _(current)_
-- [x] AOEF parser
-- [x] AJX parser
+### v0.1 — Foundation ✅
+- [x] AOEF and AJX parser with semantic validation
 - [x] PostgreSQL schema (AOEF as tables)
-- [x] Workspace CRUD API
-- [x] Element, relationship, diagram CRUD API
+- [x] Workspace, element, relationship, diagram CRUD API
 - [x] Optimistic locking on all editable resources
 - [x] AOEF and AJX export
 - [x] CI pipeline and test suite
-- [ ] AOEF XSD validation — deferred to v0.2 (see [#1](https://github.com/DisruptiveWorks/archipulse/issues/1))
 
-### v0.2 — Viewer & Navigation
-- [ ] Static ArchiMate viewer
-- [ ] Basic EAM views (capability map, application landscape)
-- [ ] Graph explorer with Cytoscape.js
-- [ ] Docker Compose setup
-- [ ] Screenshots and demo
+### v0.2 — Viewer & Navigation ✅
+- [x] Embedded SPA frontend (single binary, no runtime deps)
+- [x] EAM views: Element Catalogue, Application Catalogue, Application Landscape, Technology Catalogue
+- [x] Application Dependency Graph (Cytoscape.js)
+- [x] Capability Tree view
+- [x] Docker Compose setup
 
-### v0.3 — Enrichment Pipeline
-- [ ] Catalog storage and API
-- [ ] Extractor plugin system
-- [ ] Mapper engine with field mapping rules
-- [ ] First-party extractors: AWS Lambda, CSV/Excel
-- [ ] Semantic diff UI for AOEF uploads
+### v0.3 — EAM Views ✅
+- [x] Integration Map view (application integration topology)
+- [x] Capability Tree rebuilt with Cytoscape dagre LR + tooltips
+- [x] Application node sub-type differentiation
 
-### v0.4 — Analysis & Collaboration
-- [ ] Full EAM view suite
-- [ ] Overlap visibility (elements touched by multiple architects)
-- [ ] Dependency analysis and gap detection
-- [ ] Report generation
+### v0.4 — Frontend ✅
+- [x] Svelte 5 + Vite 6 component-based frontend
+- [x] Cytoscape as npm dependency
+
+### v0.5 — Analysis _(in progress)_
+- [ ] Capability Gap Analysis (coverage heatmap)
+- [ ] Technology Stack view (app → infrastructure mapping)
+- [ ] Interface Catalogue
 
 ### v1.0 — Stable Platform
 - [ ] Stable REST API
