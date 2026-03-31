@@ -21,75 +21,116 @@
   --color-border:               var(--border);
   --color-input:                var(--input);
   --color-ring:                 var(--ring);
+  --color-success:              var(--success);
   --radius-sm:  calc(var(--radius) - 4px);
   --radius-md:  calc(var(--radius) - 2px);
   --radius-lg:  var(--radius);
   --radius-xl:  calc(var(--radius) + 4px);
 }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 :root {
   /* ── ArchiPulse design tokens ──────────────────────────────────────────── */
   --bg:         #0f1117;
   --surface:    #1a1d27;
   --surface2:   #13151f;
-  --brand:      #E85D3A;   /* primary orange — was --accent */
-  --brand-light:#ff8c6b;   /* was --accent2  */
+  --brand:      #E85D3A;
+  --brand-light:#ff8c6b;
   --text:       #e2e4f0;
-  --text-muted: #8b8fa8;   /* muted text color — was --muted */
+  --text-muted: #8b8fa8;
   --danger:     #f87171;
   --success:    #4ade80;
   --sidebar-w:  240px;
   --nav-h:      52px;
   --font:       'Inter', system-ui, sans-serif;
 
-  /* ── shadcn-svelte tokens (mapped to ArchiPulse palette) ──────────────── */
-  --background:           var(--bg);
-  --foreground:           var(--text);
-  --card:                 var(--surface);
-  --card-foreground:      var(--text);
-  --popover:              var(--surface);
-  --popover-foreground:   var(--text);
-  --primary:              var(--brand);
-  --primary-foreground:   #ffffff;
-  --secondary:            var(--surface2);
-  --secondary-foreground: var(--text);
-  --muted:                var(--surface2);
-  --muted-foreground:     var(--text-muted);
-  --accent:               var(--surface2);
-  --accent-foreground:    var(--brand);
-  --destructive:          var(--danger);
+  /* ── shadcn-svelte tokens ─────────────────────────────────────────────── */
+  --background:             var(--bg);
+  --foreground:             var(--text);
+  --card:                   var(--surface);
+  --card-foreground:        var(--text);
+  --popover:                var(--surface);
+  --popover-foreground:     var(--text);
+  --primary:                var(--brand);
+  --primary-foreground:     #ffffff;
+  --secondary:              var(--surface2);
+  --secondary-foreground:   var(--text);
+  --muted:                  var(--surface2);
+  --muted-foreground:       var(--text-muted);
+  --accent:                 var(--surface2);
+  --accent-foreground:      var(--brand);
+  --destructive:            var(--danger);
   --destructive-foreground: #ffffff;
-  --border:               #2a2d3e;
-  --input:                #2a2d3e;
-  --ring:                 var(--brand);
-  --radius:               0.375rem;
+  --border:                 #2a2d3e;
+  --input:                  #2a2d3e;
+  --ring:                   var(--brand);
+  --radius:                 0.375rem;
 }
 
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font);
-  font-size: 14px;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+@layer base {
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 14px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Nav ──────────────────────────────────────────────────────────────── */
+  nav {
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+    height: var(--nav-h);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+  }
+
+  /* ── App shell ────────────────────────────────────────────────────────── */
+  .app-shell {
+    display: flex;
+    flex: 1;
+    margin-top: var(--nav-h);
+    min-height: calc(100vh - var(--nav-h));
+  }
+
+  /* ── Sidebar ──────────────────────────────────────────────────────────── */
+  .sidebar {
+    width: var(--sidebar-w);
+    background: var(--surface2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: var(--nav-h);
+    bottom: 0;
+    left: 0;
+    overflow-y: auto;
+    z-index: 90;
+  }
+
+  /* ── Content areas ────────────────────────────────────────────────────── */
+  .content {
+    flex: 1;
+    margin-left: var(--sidebar-w);
+    padding: 28px 32px;
+    min-width: 0;
+  }
+  .content-full {
+    flex: 1;
+    padding: 32px 28px;
+    max-width: 1080px;
+    margin: 0 auto;
+    width: 100%;
+  }
 }
 
-/* ── Nav ─────────────────────────────────────────────────────────────────── */
-nav {
-  background: var(--surface2);
-  border-bottom: 1px solid var(--border);
-  padding: 0 20px;
-  height: var(--nav-h);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 100;
-}
+/* ── Nav classes (not reset-sensitive, fine outside layer) ──────────────── */
 .nav-logo {
   text-decoration: none;
   display: flex;
@@ -108,8 +149,8 @@ nav {
 }
 .w-archi { font-weight: 300; color: var(--text); }
 .w-pulse  { font-weight: 700; color: var(--brand); }
-
-.nav-sep { width: 1px; height: 20px; background: var(--border); margin: 0 4px; }
+.nav-sep  { width: 1px; height: 20px; background: var(--border); margin: 0 4px; }
+.nav-spacer { flex: 1; }
 
 .breadcrumb {
   display: flex;
@@ -123,46 +164,6 @@ nav {
 .breadcrumb a:hover { color: var(--text); }
 .breadcrumb .sep { color: var(--border); }
 .breadcrumb .current { color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-.nav-spacer { flex: 1; }
-
-/* ── App shell ───────────────────────────────────────────────────────────── */
-.app-shell {
-  display: flex;
-  flex: 1;
-  margin-top: var(--nav-h);
-  min-height: calc(100vh - var(--nav-h));
-}
-
-/* ── Sidebar ─────────────────────────────────────────────────────────────── */
-.sidebar {
-  width: var(--sidebar-w);
-  background: var(--surface2);
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  position: fixed;
-  top: var(--nav-h);
-  bottom: 0;
-  left: 0;
-  overflow-y: auto;
-  z-index: 90;
-}
-
-/* ── Content area ────────────────────────────────────────────────────────── */
-.content {
-  flex: 1;
-  margin-left: var(--sidebar-w);
-  padding: 28px 32px;
-  min-width: 0;
-}
-.content-full {
-  flex: 1;
-  padding: 32px 28px;
-  max-width: 1080px;
-  margin: 0 auto;
-  width: 100%;
-}
 
 /* ── Graph ───────────────────────────────────────────────────────────────── */
 .cy-container {
