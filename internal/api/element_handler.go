@@ -46,7 +46,23 @@ func (h *elementHandler) get(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusInternalServerError, err)
 		return
 	}
-	respondJSON(w, http.StatusOK, e)
+
+	props, err := h.store.ListProperties(id)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	// Group properties by source.
+	bySource := make(map[string][]element.Property)
+	for _, p := range props {
+		bySource[p.Source] = append(bySource[p.Source], p)
+	}
+
+	respondJSON(w, http.StatusOK, map[string]any{
+		"element":    e,
+		"properties": bySource,
+	})
 }
 
 func (h *elementHandler) create(w http.ResponseWriter, r *http.Request) {
