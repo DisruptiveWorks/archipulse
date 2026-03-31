@@ -8,10 +8,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tailwindcss/vite": "^4.2.2",
+    "bits-ui": "^2.16.5",
+    "clsx": "^2.1.1",
     "cytoscape": "^3.29.2",
     "cytoscape-dagre": "^2.5.0",
     "dagre": "^0.8.5",
-    "svelte-spa-router": "^4.0.1"
+    "svelte-spa-router": "^4.0.1",
+    "tailwind-merge": "^3.5.0",
+    "tailwindcss": "^4.2.2"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^5.0.3",

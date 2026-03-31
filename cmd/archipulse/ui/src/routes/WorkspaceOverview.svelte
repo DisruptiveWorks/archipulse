@@ -106,16 +106,16 @@
           <div
             style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 16px;cursor:pointer;transition:border-color .15s"
             on:click={() => push('/ws/' + wsId + '/view/' + target)}
-            on:mouseover={e => e.currentTarget.style.borderColor='var(--accent)'}
+            on:mouseover={e => e.currentTarget.style.borderColor='var(--brand)'}
             on:mouseout={e => e.currentTarget.style.borderColor='var(--border)'}
-            on:focus={e => e.currentTarget.style.borderColor='var(--accent)'}
+            on:focus={e => e.currentTarget.style.borderColor='var(--brand)'}
             on:blur={e => e.currentTarget.style.borderColor='var(--border)'}
             role="button"
             tabindex="0"
             on:keydown={e => e.key === 'Enter' && push('/ws/' + wsId + '/view/' + target)}
           >
             <div style="font-size:13px;font-weight:600;margin-bottom:3px">{v.label}</div>
-            <div style="font-size:12px;color:var(--muted)">{v.desc}</div>
+            <div style="font-size:12px;color:var(--text-muted)">{v.desc}</div>
           </div>
         {/each}
       </div>
