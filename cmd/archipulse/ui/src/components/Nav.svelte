@@ -23,7 +23,7 @@
   <div class="nav-sep"></div>
   <div class="breadcrumb">
     {#if !wsId}
-      <span style="color:var(--muted)">Workspaces</span>
+      <span style="color:var(--text-muted)">Workspaces</span>
     {:else if !viewLabel}
       <a href="#/">Workspaces</a>
       <span class="sep">/</span>

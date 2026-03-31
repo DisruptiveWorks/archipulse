@@ -1,5 +1,5 @@
 # ── UI build stage ──────────────────────────────────────────────────────────────
-FROM node:22-alpine AS ui-builder
+FROM node:24-alpine AS ui-builder
 
 WORKDIR /src
 

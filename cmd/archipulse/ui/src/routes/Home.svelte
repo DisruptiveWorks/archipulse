@@ -85,7 +85,7 @@
   {:else if workspaces.length === 0}
     <div style="margin-bottom:28px">
       <h1 style="font-size:20px;font-weight:600">Workspaces</h1>
-      <p style="color:var(--muted);margin-top:4px;font-size:13px">Your ArchiMate baselines</p>
+      <p style="color:var(--text-muted);margin-top:4px;font-size:13px">Your ArchiMate baselines</p>
     </div>
     <div class="empty-state">
       <div class="es-icon">🏛️</div>

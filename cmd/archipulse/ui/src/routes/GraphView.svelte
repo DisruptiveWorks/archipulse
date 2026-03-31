@@ -77,7 +77,7 @@
     </div>
   {:else}
     <div class="cy-container" bind:this={container}></div>
-    <div style="margin-top:10px;color:var(--muted);font-size:11px">
+    <div style="margin-top:10px;color:var(--text-muted);font-size:11px">
       Scroll to zoom · Drag to pan · Click a node to highlight connections
     </div>
   {/if}
