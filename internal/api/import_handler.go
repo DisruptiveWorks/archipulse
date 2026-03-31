@@ -10,6 +10,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 
+	"github.com/DisruptiveWorks/archipulse/internal/element"
 	"github.com/DisruptiveWorks/archipulse/internal/parser"
 	"github.com/DisruptiveWorks/archipulse/internal/workspace"
 )
@@ -110,18 +111,34 @@ func importInTx(db *sql.DB, wsID uuid.UUID, m *parser.Model) (*ImportResult, err
 
 	for _, e := range m.Elements {
 		layer := parser.ElementLayer(e.Type)
-		_, err := tx.Exec(`
+		var elemID uuid.UUID
+		err := tx.QueryRow(`
 			INSERT INTO elements (workspace_id, source_id, type, layer, name, documentation)
 			VALUES ($1, $2, $3, $4, $5, $6)
 			ON CONFLICT (workspace_id, source_id) DO UPDATE
 			  SET type = EXCLUDED.type, layer = EXCLUDED.layer,
 			      name = EXCLUDED.name, documentation = EXCLUDED.documentation,
-			      version = elements.version + 1, updated_at = now()`,
-			wsID, e.ID, e.Type, layer, e.Name, e.Documentation)
+			      version = elements.version + 1, updated_at = now()
+			RETURNING id`,
+			wsID, e.ID, e.Type, layer, e.Name, e.Documentation).Scan(&elemID)
 		if err != nil {
 			return nil, errorf("upsert element %q: %w", e.ID, err)
 		}
 		result.Elements++
+
+		if len(e.Properties) > 0 {
+			// Remove existing model properties so a re-import stays clean.
+			if _, err := tx.Exec(`DELETE FROM element_properties WHERE element_id = $1 AND source = 'model'`, elemID); err != nil {
+				return nil, errorf("clear model properties for element %q: %w", e.ID, err)
+			}
+			props := make([]struct{ Key, Value string }, len(e.Properties))
+			for i, p := range e.Properties {
+				props[i] = struct{ Key, Value string }{p.Key, p.Value}
+			}
+			if err := element.InsertProperties(tx, elemID, props, "model", nil); err != nil {
+				return nil, err
+			}
+		}
 	}
 
 	for _, r := range m.Relationships {

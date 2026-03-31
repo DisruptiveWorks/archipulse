@@ -21,16 +21,28 @@ func ParseAOEF(r io.Reader) (*Model, error) {
 type aoefModel struct {
 	XMLName       xml.Name           `xml:"model"`
 	Name          string             `xml:"name"`
+	PropertyDefs  []aoefPropertyDef  `xml:"propertyDefinitions>propertyDefinition"`
 	Elements      []aoefElement      `xml:"elements>element"`
 	Relationships []aoefRelationship `xml:"relationships>relationship"`
 	Views         []aoefView         `xml:"views>diagrams>view"`
 }
 
+type aoefPropertyDef struct {
+	ID   string `xml:"identifier,attr"`
+	Name string `xml:"name"`
+}
+
 type aoefElement struct {
-	ID            string `xml:"identifier,attr"`
-	Type          string `xml:"type,attr"`
-	Name          string `xml:"name"`
-	Documentation string `xml:"documentation"`
+	ID            string         `xml:"identifier,attr"`
+	Type          string         `xml:"type,attr"`
+	Name          string         `xml:"name"`
+	Documentation string         `xml:"documentation"`
+	Properties    []aoefProperty `xml:"properties>property"`
+}
+
+type aoefProperty struct {
+	DefinitionRef string `xml:"propertyDefinitionRef,attr"`
+	Value         string `xml:"value"`
 }
 
 type aoefRelationship struct {
@@ -72,8 +84,29 @@ type aoefPoint struct {
 func (m *aoefModel) toModel() *Model {
 	out := &Model{Name: m.Name}
 
+	// Build property definition ID → name lookup.
+	propNames := make(map[string]string, len(m.PropertyDefs))
+	for _, pd := range m.PropertyDefs {
+		propNames[pd.ID] = pd.Name
+	}
+
 	for _, e := range m.Elements {
-		out.Elements = append(out.Elements, Element(e))
+		elem := Element{
+			ID:            e.ID,
+			Type:          e.Type,
+			Name:          e.Name,
+			Documentation: e.Documentation,
+		}
+		for _, p := range e.Properties {
+			key := propNames[p.DefinitionRef]
+			if key == "" {
+				key = p.DefinitionRef
+			}
+			if key != "" && p.Value != "" {
+				elem.Properties = append(elem.Properties, Property{Key: key, Value: p.Value})
+			}
+		}
+		out.Elements = append(out.Elements, elem)
 	}
 
 	for _, r := range m.Relationships {

@@ -15,6 +15,13 @@ type Element struct {
 	Type          string
 	Name          string
 	Documentation string
+	Properties    []Property
+}
+
+// Property is a key/value pair attached to an element, sourced from the model file.
+type Property struct {
+	Key   string
+	Value string
 }
 
 // Relationship represents an ArchiMate relationship (AOEF <relationship>).

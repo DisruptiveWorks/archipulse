@@ -10,6 +10,17 @@ import (
 	"github.com/google/uuid"
 )
 
+// Property is a key/value pair stored in element_properties.
+type Property struct {
+	ID          uuid.UUID  `json:"id"`
+	ElementID   uuid.UUID  `json:"element_id"`
+	Key         string     `json:"key"`
+	Value       string     `json:"value"`
+	Source      string     `json:"source"`
+	CollectedAt *time.Time `json:"collected_at,omitempty"`
+	CreatedAt   time.Time  `json:"created_at"`
+}
+
 var ErrNotFound = errors.New("element not found")
 var ErrConflict = errors.New("element was modified by another request")
 
@@ -116,4 +127,45 @@ func (s *Store) Delete(id uuid.UUID) error {
 		return ErrNotFound
 	}
 	return nil
+}
+
+// InsertProperties bulk-inserts properties for an element using the provided executor
+// (either *sql.DB or *sql.Tx). source is the extractor name or "model".
+// collectedAt may be nil when source is "model".
+func InsertProperties(exec interface {
+	Exec(query string, args ...any) (sql.Result, error)
+}, elementID uuid.UUID, props []struct{ Key, Value string }, source string, collectedAt *time.Time) error {
+	for _, p := range props {
+		_, err := exec.Exec(`
+			INSERT INTO element_properties (element_id, key, value, source, collected_at)
+			VALUES ($1, $2, $3, $4, $5)`,
+			elementID, p.Key, p.Value, source, collectedAt)
+		if err != nil {
+			return fmt.Errorf("insert property %q for element %s: %w", p.Key, elementID, err)
+		}
+	}
+	return nil
+}
+
+// ListProperties returns all properties for an element, grouped by source in the returned slice.
+func (s *Store) ListProperties(elementID uuid.UUID) ([]Property, error) {
+	rows, err := s.db.Query(`
+		SELECT id, element_id, key, value, source, collected_at, created_at
+		FROM element_properties
+		WHERE element_id = $1
+		ORDER BY source, key`, elementID)
+	if err != nil {
+		return nil, fmt.Errorf("list properties: %w", err)
+	}
+	defer func() { _ = rows.Close() }()
+
+	var out []Property
+	for rows.Next() {
+		var p Property
+		if err := rows.Scan(&p.ID, &p.ElementID, &p.Key, &p.Value, &p.Source, &p.CollectedAt, &p.CreatedAt); err != nil {
+			return nil, err
+		}
+		out = append(out, p)
+	}
+	return out, rows.Err()
 }
