@@ -1,5 +1,6 @@
 <script>
   import { push } from 'svelte-spa-router';
+  import { Button } from '$lib/components/ui/button';
 
   export let wsId = null;
   export let wsName = null;
@@ -37,5 +38,5 @@
     {/if}
   </div>
   <div class="nav-spacer"></div>
-  <button class="btn btn-primary btn-sm" on:click={showCreateWs}>+ New workspace</button>
+  <Button size="sm" onclick={showCreateWs}>+ New workspace</Button>
 </nav>

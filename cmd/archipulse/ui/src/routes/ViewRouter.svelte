@@ -26,5 +26,8 @@
 {#if !redirected && (!view || (!view.graph && !view.tree))}
   <TableView {params} />
 {:else}
-  <div class="loading"><div class="spinner"></div> Redirecting…</div>
+  <div class="flex items-center gap-2 text-muted-foreground py-6">
+    <div class="size-4 rounded-full border-2 border-border border-t-primary animate-spin flex-shrink-0"></div>
+    Redirecting…
+  </div>
 {/if}

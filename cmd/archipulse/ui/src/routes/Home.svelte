@@ -2,6 +2,11 @@
   import { onMount } from 'svelte';
   import { push } from 'svelte-spa-router';
   import { api } from '../lib/api.js';
+  import { Button } from '$lib/components/ui/button';
+  import { Badge } from '$lib/components/ui/badge';
+  import * as Dialog from '$lib/components/ui/dialog';
+  import { Input } from '$lib/components/ui/input';
+  import { Label } from '$lib/components/ui/label';
 
   export let params = {};
 
@@ -79,74 +84,78 @@
 
 <div class="content-full">
   {#if loading}
-    <div class="loading"><div class="spinner"></div> Loading…</div>
-  {:else if error}
-    <div class="alert alert-error" style="margin-top:24px">Error: {error}</div>
-  {:else if workspaces.length === 0}
-    <div style="margin-bottom:28px">
-      <h1 style="font-size:20px;font-weight:600">Workspaces</h1>
-      <p style="color:var(--text-muted);margin-top:4px;font-size:13px">Your ArchiMate baselines</p>
+    <div class="flex items-center gap-2 text-muted-foreground py-6">
+      <div class="size-4 rounded-full border-2 border-border border-t-primary animate-spin flex-shrink-0"></div>
+      Loading…
     </div>
-    <div class="empty-state">
-      <div class="es-icon">🏛️</div>
-      <p>No workspaces yet.<br>Create one and import your first ArchiMate model.</p>
+  {:else if error}
+    <div class="mt-6 text-sm text-destructive bg-destructive/10 border border-destructive/30 rounded-md px-3 py-2">Error: {error}</div>
+  {:else if workspaces.length === 0}
+    <div class="mb-7">
+      <h1 class="text-[20px] font-semibold">Workspaces</h1>
+      <p class="text-muted-foreground mt-1 text-[13px]">Your ArchiMate baselines</p>
+    </div>
+    <div class="text-center py-16 px-6 text-muted-foreground">
+      <div class="text-[40px] mb-3.5">🏛️</div>
+      <p class="text-[14px] leading-relaxed">No workspaces yet.<br>Create one and import your first ArchiMate model.</p>
       <br>
-      <button class="btn btn-primary" on:click={openModal}>+ New workspace</button>
+      <Button onclick={openModal}>+ New workspace</Button>
     </div>
   {:else}
-    <div class="page-header">
+    <div class="flex items-start justify-between mb-6 gap-4">
       <div>
-        <h1>Workspaces</h1>
-        <div class="sub">{workspaces.length} baseline{workspaces.length !== 1 ? 's' : ''}</div>
+        <h1 class="text-[18px] font-semibold">Workspaces</h1>
+        <div class="text-muted-foreground text-[13px] mt-0.5">{workspaces.length} baseline{workspaces.length !== 1 ? 's' : ''}</div>
       </div>
-      <button class="btn btn-primary btn-sm" on:click={openModal}>+ New workspace</button>
+      <Button size="sm" onclick={openModal}>+ New workspace</Button>
     </div>
-    <div class="ws-grid">
+    <div class="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-4 mt-6">
       {#each workspaces as ws}
-        <div class="ws-card" on:click={() => push('/ws/' + ws.id)} role="button" tabindex="0" on:keydown={e => e.key === 'Enter' && push('/ws/' + ws.id)}>
-          <div class="ws-card-top">
-            <h2>{ws.name}</h2>
-            <span class="purpose-badge">{ws.purpose}</span>
+        <div class="bg-card border border-border rounded-lg p-5 cursor-pointer transition-all hover:border-primary hover:-translate-y-px flex flex-col gap-2"
+          role="button" tabindex="0"
+          onclick={() => push('/ws/' + ws.id)}
+          onkeydown={e => e.key === 'Enter' && push('/ws/' + ws.id)}>
+          <div class="flex items-start justify-between gap-2">
+            <h2 class="text-[15px] font-semibold">{ws.name}</h2>
+            <Badge variant="outline" class="border-primary/30 bg-primary/10 text-primary text-[10px] font-semibold uppercase tracking-wide shrink-0">{ws.purpose}</Badge>
           </div>
-          <div class="desc">{ws.description || 'No description'}</div>
-          <div class="meta">Updated {formatDate(ws.updated_at)}</div>
+          <div class="text-muted-foreground text-[13px] leading-relaxed flex-1">{ws.description || 'No description'}</div>
+          <div class="text-muted-foreground text-[11px] pt-2 border-t border-border">Updated {formatDate(ws.updated_at)}</div>
         </div>
       {/each}
     </div>
   {/if}
 </div>
 
-{#if showModal}
-  <div class="modal-overlay" on:click={e => e.target === e.currentTarget && closeModal()} role="dialog" aria-modal="true">
-    <div class="modal">
-      <h2>New workspace</h2>
-      <div class="form-grid">
-        <label>
-          Name
-          <input id="ws-name-input" bind:value={wsName} placeholder="Q1-2026-AS-IS" on:keydown={e => e.key === 'Enter' && createWs()} />
-        </label>
-        <label>
-          Purpose
-          <select bind:value={wsPurpose}>
-            <option value="as-is">as-is</option>
-            <option value="to-be">to-be</option>
-            <option value="migration">migration</option>
-          </select>
-        </label>
-        <label>
-          Description
-          <textarea bind:value={wsDesc} placeholder="Optional description"></textarea>
-        </label>
+<Dialog.Root bind:open={showModal}>
+  <Dialog.Content class="bg-card border-border text-foreground max-w-md">
+    <Dialog.Header>
+      <Dialog.Title>New workspace</Dialog.Title>
+    </Dialog.Header>
+    <div class="flex flex-col gap-4 py-2">
+      <div class="flex flex-col gap-1.5">
+        <Label for="ws-name-input">Name</Label>
+        <Input id="ws-name-input" bind:value={wsName} placeholder="Q1-2026-AS-IS" onkeydown={e => e.key === 'Enter' && createWs()} class="bg-background border-border" />
       </div>
-      <div class="modal-actions">
-        <button class="btn btn-ghost" on:click={closeModal}>Cancel</button>
-        <button class="btn btn-primary" on:click={createWs} disabled={creating}>
-          {creating ? 'Creating…' : 'Create'}
-        </button>
+      <div class="flex flex-col gap-1.5">
+        <Label for="ws-purpose">Purpose</Label>
+        <select id="ws-purpose" bind:value={wsPurpose} class="bg-background border border-border rounded-md text-foreground text-sm px-3 py-2 outline-none focus:border-ring">
+          <option value="as-is">as-is</option>
+          <option value="to-be">to-be</option>
+          <option value="migration">migration</option>
+        </select>
       </div>
-      {#if modalError}
-        <div class="alert alert-error" style="margin-top:12px">{modalError}</div>
-      {/if}
+      <div class="flex flex-col gap-1.5">
+        <Label for="ws-desc">Description</Label>
+        <textarea id="ws-desc" bind:value={wsDesc} placeholder="Optional description" class="bg-background border border-border rounded-md text-foreground text-sm px-3 py-2 outline-none focus:border-ring resize-vertical min-h-[72px]"></textarea>
+      </div>
     </div>
-  </div>
-{/if}
+    {#if modalError}
+      <div class="text-sm text-destructive bg-destructive/10 border border-destructive/30 rounded-md px-3 py-2">{modalError}</div>
+    {/if}
+    <Dialog.Footer>
+      <Button variant="outline" onclick={closeModal}>Cancel</Button>
+      <Button onclick={createWs} disabled={creating}>{creating ? 'Creating…' : 'Create'}</Button>
+    </Dialog.Footer>
+  </Dialog.Content>
+</Dialog.Root>

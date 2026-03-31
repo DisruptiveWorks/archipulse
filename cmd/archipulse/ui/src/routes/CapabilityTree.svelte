@@ -3,6 +3,7 @@
   import { api } from '../lib/api.js';
   import { VIEWS } from '../lib/views.js';
   import { makeCapabilityTree } from '../lib/cytoscape.js';
+  import { Button } from '$lib/components/ui/button';
 
   export let params = {};
 
@@ -95,29 +96,32 @@
 </script>
 
 <div class="content">
-  <div class="page-header">
+  <div class="flex items-start justify-between mb-6 gap-4">
     <div>
-      <h1>{meta.label}</h1>
-      <div class="sub">{meta.desc}</div>
+      <h1 class="text-[18px] font-semibold">{meta.label}</h1>
+      <div class="text-muted-foreground text-[13px] mt-0.5">{meta.desc}</div>
     </div>
   </div>
 
   {#if loading}
-    <div class="loading"><div class="spinner"></div> Loading…</div>
+    <div class="flex items-center gap-2 text-muted-foreground py-6">
+      <div class="size-4 rounded-full border-2 border-border border-t-primary animate-spin flex-shrink-0"></div>
+      Loading…
+    </div>
   {:else if error}
-    <div class="alert alert-error">Error: {error}</div>
+    <div class="text-sm text-destructive bg-destructive/10 border border-destructive/30 rounded-md px-3 py-2">Error: {error}</div>
   {:else if empty}
-    <div class="empty-state">
-      <div class="es-icon">◈</div>
-      <p>No Capability elements found.<br>Import or create elements with type <strong>Capability</strong>.</p>
+    <div class="text-center py-16 px-6 text-muted-foreground">
+      <div class="text-[40px] mb-3.5">◈</div>
+      <p class="text-[14px] leading-relaxed">No Capability elements found.<br>Import or create elements with type <strong>Capability</strong>.</p>
     </div>
   {:else}
     <div class="cap-cy-wrap">
       <div id="cap-cy" bind:this={container}></div>
       <div class="cap-cy-controls">
-        <button title="Fit" on:click={fit}>⊡</button>
-        <button title="Zoom in" on:click={zoomIn}>+</button>
-        <button title="Zoom out" on:click={zoomOut}>−</button>
+        <Button variant="outline" size="icon" class="size-8" title="Fit" onclick={fit}>⊡</Button>
+        <Button variant="outline" size="icon" class="size-8" title="Zoom in" onclick={zoomIn}>+</Button>
+        <Button variant="outline" size="icon" class="size-8" title="Zoom out" onclick={zoomOut}>−</Button>
       </div>
       <div class="cap-cy-legend">
         <span><i style="background:#2a2010;border:2px solid #e0af68"></i> Capability</span>

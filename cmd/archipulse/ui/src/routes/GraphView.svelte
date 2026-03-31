@@ -3,6 +3,7 @@
   import { api } from '../lib/api.js';
   import { VIEWS } from '../lib/views.js';
   import { makeGraph } from '../lib/cytoscape.js';
+  import { Button } from '$lib/components/ui/button';
 
   export let params = {};
 
@@ -55,29 +56,32 @@
 </script>
 
 <div class="content">
-  <div class="page-header">
+  <div class="flex items-start justify-between mb-6 gap-4">
     <div>
-      <h1>{meta.label}</h1>
-      <div class="sub">{meta.desc}</div>
+      <h1 class="text-[18px] font-semibold">{meta.label}</h1>
+      <div class="text-muted-foreground text-[13px] mt-0.5">{meta.desc}</div>
     </div>
-    <div style="display:flex;gap:8px">
-      <button class="btn btn-ghost btn-sm" on:click={fit}>⊡ Fit</button>
-      <button class="btn btn-ghost btn-sm" on:click={relayout}>↺ Re-layout</button>
+    <div class="flex gap-2">
+      <Button variant="outline" size="sm" onclick={fit}>⊡ Fit</Button>
+      <Button variant="outline" size="sm" onclick={relayout}>↺ Re-layout</Button>
     </div>
   </div>
 
   {#if loading}
-    <div class="loading"><div class="spinner"></div> Loading…</div>
+    <div class="flex items-center gap-2 text-muted-foreground py-6">
+      <div class="size-4 rounded-full border-2 border-border border-t-primary animate-spin flex-shrink-0"></div>
+      Loading…
+    </div>
   {:else if error}
-    <div class="alert alert-error">Error: {error}</div>
+    <div class="text-sm text-destructive bg-destructive/10 border border-destructive/30 rounded-md px-3 py-2">Error: {error}</div>
   {:else if empty}
-    <div class="empty-state">
-      <div class="es-icon">📭</div>
-      <p>No application elements — import a model first.</p>
+    <div class="text-center py-16 px-6 text-muted-foreground">
+      <div class="text-[40px] mb-3.5">📭</div>
+      <p class="text-[14px] leading-relaxed">No application elements — import a model first.</p>
     </div>
   {:else}
     <div class="cy-container" bind:this={container}></div>
-    <div style="margin-top:10px;color:var(--text-muted);font-size:11px">
+    <div class="mt-2.5 text-muted-foreground text-[11px]">
       Scroll to zoom · Drag to pan · Click a node to highlight connections
     </div>
   {/if}
