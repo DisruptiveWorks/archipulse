@@ -3,12 +3,22 @@
   import { push } from 'svelte-spa-router';
   import { VIEWS, LAYER_GROUPS } from '../lib/views.js';
   import { api } from '../lib/api.js';
+  import { Badge } from '$lib/components/ui/badge';
+  import { Separator } from '$lib/components/ui/separator';
 
   export let wsId;
   export let ws = null;
   export let activeView = null;
 
   const dispatch = createEventDispatcher();
+
+  const dotColors = {
+    'dot-biz':   '#e0af68',
+    'dot-app':   '#7aa2f7',
+    'dot-tech':  '#9ece6a',
+    'dot-cross': '#8b8fa8',
+    'dot-mot':   '#bb9af7',
+  };
 
   let importResult = null;
   let importing = false;
@@ -66,38 +76,39 @@
 
 <aside class="sidebar">
   {#if ws}
-    <div class="sidebar-ws-header">
-      <div class="sidebar-ws-name">{ws.name}</div>
-      <span class="purpose-badge">{ws.purpose}</span>
+    <div class="px-4 pt-4 pb-3 border-b border-border">
+      <div class="text-[13px] font-semibold text-foreground whitespace-nowrap overflow-hidden text-ellipsis mb-1">{ws.name}</div>
+      <Badge variant="outline" class="border-primary/30 bg-primary/10 text-primary text-[10px] font-semibold uppercase tracking-wide">{ws.purpose}</Badge>
     </div>
   {/if}
 
   <div
-    class="sidebar-item {!activeView ? 'active' : ''}"
-    style="margin:8px 8px 0"
+    class="flex items-center gap-2 px-2 py-1.5 rounded-md text-sm cursor-pointer transition-colors mx-2 mt-2 {!activeView ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}"
     on:click={() => push('/ws/' + wsId)}
     on:keydown={e => e.key === 'Enter' && push('/ws/' + wsId)}
     role="button"
     tabindex="0"
   >
-    <span class="si-icon">⌂</span> Overview
+    <span class="text-[14px] flex-shrink-0 w-[18px] text-center">⌂</span> Overview
   </div>
-  <div class="divider" style="margin:8px 8px 0"></div>
+  <div class="mx-2 mt-2">
+    <Separator />
+  </div>
 
   {#each LAYER_GROUPS as group}
     {@const items = Object.entries(VIEWS).filter(([, v]) => v.layer === group.key)}
     {#if items.length > 0}
-      <div class="sidebar-section">
-        <div class="sidebar-section-label">{group.label}</div>
+      <div class="px-2 pt-3 pb-1">
+        <div class="text-[10px] font-bold tracking-[0.8px] uppercase text-muted-foreground px-2 mb-1">{group.label}</div>
         {#each items as [key, v]}
           <div
-            class="sidebar-item {isActive(key, v) ? 'active' : ''}"
+            class="flex items-center gap-2 px-2 py-1.5 rounded-md text-sm cursor-pointer transition-colors {isActive(key, v) ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}"
             on:click={() => push('/ws/' + wsId + '/view/' + navTarget(key, v))}
             on:keydown={e => e.key === 'Enter' && push('/ws/' + wsId + '/view/' + navTarget(key, v))}
             role="button"
             tabindex="0"
           >
-            <span class="sidebar-layer-dot {group.dot}"></span>
+            <span class="size-1.5 rounded-full flex-shrink-0" style="background:{dotColors[group.dot] || '#8b8fa8'}"></span>
             {v.label}
           </div>
         {/each}
@@ -105,10 +116,9 @@
     {/if}
   {/each}
 
-  <div class="sidebar-footer">
+  <div class="mt-auto px-2 py-3 border-t border-border">
     <div
-      class="drop-zone {dropOver ? 'over' : ''}"
-      style="padding:14px"
+      class="border-2 border-dashed border-border rounded-lg p-3.5 text-center text-muted-foreground cursor-pointer transition-colors {dropOver ? 'border-primary text-foreground' : 'hover:border-primary hover:text-foreground'}"
       on:click={() => document.getElementById('sb-file-input-' + wsId).click()}
       on:dragover={handleDragOver}
       on:dragleave={handleDragLeave}
@@ -117,9 +127,9 @@
       tabindex="0"
       on:keydown={e => e.key === 'Enter' && document.getElementById('sb-file-input-' + wsId).click()}
     >
-      <div class="dz-icon">↑</div>
-      <p>Import model</p>
-      <div class="hint">.xml · .ajx · .json</div>
+      <div class="text-2xl mb-1.5">↑</div>
+      <p class="text-xs">Import model</p>
+      <div class="text-[11px] mt-0.5 opacity-70">.xml · .ajx · .json</div>
     </div>
     <input
       type="file"
@@ -129,9 +139,11 @@
       on:change={handleFileInput}
     />
     {#if importing}
-      <div class="loading" style="margin-top:8px"><div class="spinner"></div></div>
+      <div class="flex items-center gap-2 text-muted-foreground py-2 mt-2">
+        <div class="size-4 rounded-full border-2 border-border border-t-primary animate-spin flex-shrink-0"></div>
+      </div>
     {:else if importResult}
-      <div class="alert {importResult.ok ? 'alert-success' : 'alert-error'}" style="margin-top:8px;font-size:12px">
+      <div class="mt-2 text-[12px] px-3 py-2 rounded-md {importResult.ok ? 'bg-success/10 border border-success/30 text-success' : 'bg-destructive/10 border border-destructive/30 text-destructive'}">
         {importResult.msg}
       </div>
     {/if}
