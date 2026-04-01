@@ -1,0 +1,1128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model xmlns="http://www.opengroup.org/xsd/archimate/3.0/"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.opengroup.org/xsd/archimate/3.0/ http://www.opengroup.org/xsd/archimate/3.0/archimate3_Diagram.xsd"
+       identifier="id-archisurance-extended">
+  <name xml:lang="en">Archisurance Extended</name>
+  <documentation xml:lang="en">ArchiSurance model extended with Capabilities, full Application portfolio with lifecycle properties, Technology layer, Data Objects, and Motivation elements. Designed to demonstrate all ArchiPulse EAM views.</documentation>
+
+  <propertyDefinitions>
+    <propertyDefinition identifier="propdef-lifecycle" type="string">
+      <name>lifecycle_status</name>
+    </propertyDefinition>
+    <propertyDefinition identifier="propdef-deployment" type="string">
+      <name>deployment_model</name>
+    </propertyDefinition>
+    <propertyDefinition identifier="propdef-criticality" type="string">
+      <name>criticality</name>
+    </propertyDefinition>
+    <propertyDefinition identifier="propdef-vendor" type="string">
+      <name>vendor</name>
+    </propertyDefinition>
+    <propertyDefinition identifier="propdef-owner" type="string">
+      <name>business_owner</name>
+    </propertyDefinition>
+    <propertyDefinition identifier="propdef-users" type="string">
+      <name>user_count</name>
+    </propertyDefinition>
+  </propertyDefinitions>
+
+  <elements>
+
+    <!-- ================================================================== -->
+    <!-- BUSINESS LAYER — Roles & Actors                                     -->
+    <!-- ================================================================== -->
+    <element identifier="id-b-customer" xsi:type="BusinessRole">
+      <name xml:lang="en">Customer</name>
+    </element>
+    <element identifier="id-b-insurer" xsi:type="BusinessRole">
+      <name xml:lang="en">Insurer</name>
+    </element>
+    <element identifier="id-b-intermediary" xsi:type="BusinessRole">
+      <name xml:lang="en">Intermediary</name>
+    </element>
+    <element identifier="id-b-claims-adjuster" xsi:type="BusinessRole">
+      <name xml:lang="en">Claims Adjuster</name>
+    </element>
+    <element identifier="id-b-underwriter" xsi:type="BusinessRole">
+      <name xml:lang="en">Underwriter</name>
+    </element>
+    <element identifier="id-b-compliance-officer" xsi:type="BusinessRole">
+      <name xml:lang="en">Compliance Officer</name>
+    </element>
+    <element identifier="id-b-finance" xsi:type="BusinessActor">
+      <name xml:lang="en">Finance Department</name>
+    </element>
+    <element identifier="id-b-hrm" xsi:type="BusinessActor">
+      <name xml:lang="en">HRM</name>
+    </element>
+    <element identifier="id-b-front-office" xsi:type="BusinessActor">
+      <name xml:lang="en">Front Office</name>
+    </element>
+    <element identifier="id-b-product-dev" xsi:type="BusinessActor">
+      <name xml:lang="en">Product Development</name>
+    </element>
+
+    <!-- Business Interfaces -->
+    <element identifier="id-b-iface-web" xsi:type="BusinessInterface">
+      <name xml:lang="en">Web Portal</name>
+    </element>
+    <element identifier="id-b-iface-phone" xsi:type="BusinessInterface">
+      <name xml:lang="en">Phone</name>
+    </element>
+    <element identifier="id-b-iface-email" xsi:type="BusinessInterface">
+      <name xml:lang="en">E-mail</name>
+    </element>
+    <element identifier="id-b-iface-mobile" xsi:type="BusinessInterface">
+      <name xml:lang="en">Mobile App</name>
+    </element>
+
+    <!-- Business Processes -->
+    <element identifier="id-bp-claim-handling" xsi:type="BusinessProcess">
+      <name xml:lang="en">Claim Handling</name>
+      <documentation xml:lang="en">End-to-end process for receiving, assessing and settling insurance claims.</documentation>
+    </element>
+    <element identifier="id-bp-policy-issuance" xsi:type="BusinessProcess">
+      <name xml:lang="en">Policy Issuance</name>
+      <documentation xml:lang="en">Process of quoting, underwriting and issuing insurance policies.</documentation>
+    </element>
+    <element identifier="id-bp-customer-onboarding" xsi:type="BusinessProcess">
+      <name xml:lang="en">Customer Onboarding</name>
+      <documentation xml:lang="en">KYC, identity verification and account creation for new customers.</documentation>
+    </element>
+    <element identifier="id-bp-premium-collection" xsi:type="BusinessProcess">
+      <name xml:lang="en">Premium Collection</name>
+      <documentation xml:lang="en">Billing, payment processing and dunning for premium receivables.</documentation>
+    </element>
+    <element identifier="id-bp-fraud-detection" xsi:type="BusinessProcess">
+      <name xml:lang="en">Fraud Detection</name>
+      <documentation xml:lang="en">Identification and investigation of potentially fraudulent claims and applications.</documentation>
+    </element>
+    <element identifier="id-bp-regulatory-reporting" xsi:type="BusinessProcess">
+      <name xml:lang="en">Regulatory Reporting</name>
+      <documentation xml:lang="en">Preparation and submission of regulatory reports (Solvency II, IFRS 17).</documentation>
+    </element>
+    <element identifier="id-bp-product-design" xsi:type="BusinessProcess">
+      <name xml:lang="en">Product Design</name>
+      <documentation xml:lang="en">Design and launch of new insurance products.</documentation>
+    </element>
+    <element identifier="id-bp-reinsurance" xsi:type="BusinessProcess">
+      <name xml:lang="en">Reinsurance Management</name>
+      <documentation xml:lang="en">Placement and administration of reinsurance treaties.</documentation>
+    </element>
+
+    <!-- Business Services -->
+    <element identifier="id-bs-claims-service" xsi:type="BusinessService">
+      <name xml:lang="en">Claims Service</name>
+    </element>
+    <element identifier="id-bs-policy-service" xsi:type="BusinessService">
+      <name xml:lang="en">Policy Service</name>
+    </element>
+    <element identifier="id-bs-customer-service" xsi:type="BusinessService">
+      <name xml:lang="en">Customer Service</name>
+    </element>
+    <element identifier="id-bs-payment-service" xsi:type="BusinessService">
+      <name xml:lang="en">Payment Service</name>
+    </element>
+
+    <!-- Business Objects -->
+    <element identifier="id-bo-policy" xsi:type="BusinessObject">
+      <name xml:lang="en">Insurance Policy</name>
+    </element>
+    <element identifier="id-bo-claim" xsi:type="BusinessObject">
+      <name xml:lang="en">Claim</name>
+    </element>
+    <element identifier="id-bo-customer-record" xsi:type="BusinessObject">
+      <name xml:lang="en">Customer Record</name>
+    </element>
+    <element identifier="id-bo-premium" xsi:type="BusinessObject">
+      <name xml:lang="en">Premium</name>
+    </element>
+    <element identifier="id-bo-risk-assessment" xsi:type="BusinessObject">
+      <name xml:lang="en">Risk Assessment</name>
+    </element>
+
+    <!-- ================================================================== -->
+    <!-- CAPABILITIES — L1 and L2                                           -->
+    <!-- ================================================================== -->
+
+    <!-- L1: Customer Management -->
+    <element identifier="id-cap-customer-mgmt" xsi:type="Capability">
+      <name xml:lang="en">Customer Management</name>
+      <documentation xml:lang="en">Capabilities related to acquiring, serving and retaining customers.</documentation>
+    </element>
+    <element identifier="id-cap-customer-onboarding" xsi:type="Capability">
+      <name xml:lang="en">Customer Onboarding</name>
+      <documentation xml:lang="en">KYC, identity verification and digital account setup.</documentation>
+    </element>
+    <element identifier="id-cap-customer-service" xsi:type="Capability">
+      <name xml:lang="en">Customer Service</name>
+      <documentation xml:lang="en">Multi-channel support for existing customers.</documentation>
+    </element>
+    <element identifier="id-cap-customer-analytics" xsi:type="Capability">
+      <name xml:lang="en">Customer Analytics</name>
+      <documentation xml:lang="en">360-degree customer profiling and churn prediction.</documentation>
+    </element>
+    <element identifier="id-cap-complaints-mgmt" xsi:type="Capability">
+      <name xml:lang="en">Complaints Management</name>
+      <documentation xml:lang="en">Intake, tracking and resolution of customer complaints.</documentation>
+    </element>
+
+    <!-- L1: Policy Management -->
+    <element identifier="id-cap-policy-mgmt" xsi:type="Capability">
+      <name xml:lang="en">Policy Management</name>
+      <documentation xml:lang="en">Full lifecycle management of insurance policies.</documentation>
+    </element>
+    <element identifier="id-cap-underwriting" xsi:type="Capability">
+      <name xml:lang="en">Policy Underwriting</name>
+      <documentation xml:lang="en">Risk evaluation and pricing for new policy applications.</documentation>
+    </element>
+    <element identifier="id-cap-policy-admin" xsi:type="Capability">
+      <name xml:lang="en">Policy Administration</name>
+      <documentation xml:lang="en">Endorsements, renewals, cancellations and policy lifecycle events.</documentation>
+    </element>
+    <element identifier="id-cap-premium-calc" xsi:type="Capability">
+      <name xml:lang="en">Premium Calculation</name>
+      <documentation xml:lang="en">Actuarial rating models and premium computation engines.</documentation>
+    </element>
+    <element identifier="id-cap-product-config" xsi:type="Capability">
+      <name xml:lang="en">Product Configuration</name>
+      <documentation xml:lang="en">Definition and maintenance of insurance product rules and coverages.</documentation>
+    </element>
+
+    <!-- L1: Claims Management -->
+    <element identifier="id-cap-claims-mgmt" xsi:type="Capability">
+      <name xml:lang="en">Claims Management</name>
+      <documentation xml:lang="en">End-to-end claims intake, assessment, settlement and subrogation.</documentation>
+    </element>
+    <element identifier="id-cap-claims-intake" xsi:type="Capability">
+      <name xml:lang="en">Claims Intake</name>
+      <documentation xml:lang="en">First notification of loss (FNOL) and initial triage.</documentation>
+    </element>
+    <element identifier="id-cap-claims-assessment" xsi:type="Capability">
+      <name xml:lang="en">Claims Assessment</name>
+      <documentation xml:lang="en">Investigation, liability determination and reserve setting.</documentation>
+    </element>
+    <element identifier="id-cap-claims-settlement" xsi:type="Capability">
+      <name xml:lang="en">Claims Settlement</name>
+      <documentation xml:lang="en">Payment authorisation and disbursement to claimants.</documentation>
+    </element>
+    <element identifier="id-cap-fraud-detection" xsi:type="Capability">
+      <name xml:lang="en">Fraud Detection</name>
+      <documentation xml:lang="en">AI-driven identification of fraudulent claims and applications.</documentation>
+    </element>
+
+    <!-- L1: Finance and Risk -->
+    <element identifier="id-cap-finance-risk" xsi:type="Capability">
+      <name xml:lang="en">Finance and Risk</name>
+      <documentation xml:lang="en">Financial management, regulatory compliance and enterprise risk.</documentation>
+    </element>
+    <element identifier="id-cap-financial-reporting" xsi:type="Capability">
+      <name xml:lang="en">Financial Reporting</name>
+      <documentation xml:lang="en">IFRS 17, Solvency II and management accounting reporting.</documentation>
+    </element>
+    <element identifier="id-cap-risk-assessment" xsi:type="Capability">
+      <name xml:lang="en">Risk Assessment</name>
+      <documentation xml:lang="en">Enterprise risk identification, quantification and monitoring.</documentation>
+    </element>
+    <element identifier="id-cap-reinsurance" xsi:type="Capability">
+      <name xml:lang="en">Reinsurance Management</name>
+      <documentation xml:lang="en">Treaty placement, bordereau reporting and recoveries.</documentation>
+    </element>
+    <element identifier="id-cap-billing" xsi:type="Capability">
+      <name xml:lang="en">Billing and Collections</name>
+      <documentation xml:lang="en">Premium invoicing, payment processing and receivables management.</documentation>
+    </element>
+
+    <!-- L1: Operations -->
+    <element identifier="id-cap-operations" xsi:type="Capability">
+      <name xml:lang="en">Operations</name>
+      <documentation xml:lang="en">Internal operational capabilities supporting the business.</documentation>
+    </element>
+    <element identifier="id-cap-document-mgmt" xsi:type="Capability">
+      <name xml:lang="en">Document Management</name>
+      <documentation xml:lang="en">Storage, retrieval and versioning of business documents.</documentation>
+    </element>
+    <element identifier="id-cap-compliance" xsi:type="Capability">
+      <name xml:lang="en">Compliance and Regulatory</name>
+      <documentation xml:lang="en">Regulatory change monitoring, obligations tracking and reporting.</documentation>
+    </element>
+    <element identifier="id-cap-hr-mgmt" xsi:type="Capability">
+      <name xml:lang="en">HR Management</name>
+      <documentation xml:lang="en">Workforce administration, payroll and talent management.</documentation>
+    </element>
+    <element identifier="id-cap-supplier-mgmt" xsi:type="Capability">
+      <name xml:lang="en">Supplier Management</name>
+      <documentation xml:lang="en">Vendor onboarding, contract management and performance monitoring.</documentation>
+    </element>
+
+    <!-- ================================================================== -->
+    <!-- APPLICATION LAYER — ~40 Applications with properties               -->
+    <!-- ================================================================== -->
+
+    <!-- Core Insurance Platform -->
+    <element identifier="id-app-pas" xsi:type="ApplicationComponent">
+      <name xml:lang="en">Policy Administration System</name>
+      <documentation xml:lang="en">Core system managing the full lifecycle of insurance policies including issuance, endorsements and renewals.</documentation>
+      <properties>
+        <property propertyDefinitionRef="propdef-lifecycle"><value xml:lang="en">Production</value></property>
+        <property propertyDefinitionRef="propdef-deployment"><value xml:lang="en">On-Premise</value></property>
+        <property propertyDefinitionRef="propdef-criticality"><value xml:lang="en">Critical</value></property>
+        <property propertyDefinitionRef="propdef-vendor"><value xml:lang="en">Majesco</value></property>
+        <property propertyDefinitionRef="propdef-owner"><value xml:lang="en">Policy Operations</value></property>
+        <property propertyDefinitionRef="propdef-users"><value xml:lang="en">320</value></property>
+      </properties>
+    </element>
+
+    <element identifier="id-app-claims-engine" xsi:type="ApplicationComponent">
+      <name xml:lang="en">Claims Engine</name>
+      <documentation xml:lang="en">End-to-end claims management platform handling FNOL through settlement.</documentation>
+      <properties>
+        <property propertyDefinitionRef="propdef-lifecycle"><value xml:lang="en">Production</value></property>
+        <property propertyDefinitionRef="propdef-deployment"><value xml:lang="en">On-Premise</value></property>
+        <property propertyDefinitionRef="propdef-criticality"><value xml:lang="en">Critical</value></property>
+        <property propertyDefinitionRef="propdef-vendor"><value xml:lang="en">Guidewire</value></property>
+        <property propertyDefinitionRef="propdef-owner"><value xml:lang="en">Claims Operations</value></property>
+        <property propertyDefinitionRef="propdef-users"><value xml:lang="en">180</value></property>
+      </properties>
+    </element>
+
+    <element identifier="id-app-crm" xsi:type="ApplicationComponent">
+      <name xml:lang="en">Customer CRM</name>
+      <documentation xml:lang="en">360-degree customer relationship management and interaction history.</documentation>
+      <properties>
+        <property propertyDefinitionRef="propdef-lifecycle"><value xml:lang="en">Production</value></property>
+        <property propertyDefinitionRef="propdef-deployment"><value xml:lang="en">SaaS</value></property>
+        <property propertyDefinitionRef="propdef-criticality"><value xml:lang="en">High</value></property>
+        <property propertyDefinitionRef="propdef-vendor"><value xml:lang="en">Salesforce</value></property>
+        <property propertyDefinitionRef="propdef-owner"><value xml:lang="en">Customer Relations</value></property>
+        <property propertyDefinitionRef="propdef-users"><value xml:lang="en">210</value></property>
+      </properties>
+    </element>
+
+    <element identifier="id-app-billing" xsi:type="ApplicationComponent">
+      <name xml:lang="en">Billing System</name>
+      <documentation xml:lang="en">Premium invoicing, payment processing and collections management.</documentation>
+      <properties>
+        <property propertyDefinitionRef="propdef-lifecycle"><value xml:lang="en">Production</value></property>
+        <property propertyDefinitionRef="propdef-deployment"><value xml:lang="en">On-Premise</value></property>
+        <property propertyDefinitionRef="propdef-criticality"><value xml:lang="en">Critical</value></property>
+        <property propertyDefinitionRef="propdef-vendor"><value xml:lang="en">SAP</value></property>
+        <property propertyDefinitionRef="propdef-owner"><value xml:lang="en">Finance</value></property>
+        <property propertyDefinitionRef="propdef-users"><value xml:lang="en">95</value></property>
+      </properties>
+    </element>
+
+    <element identifier="id-app-underwriting" xsi:type="ApplicationComponent">
+      <name xml:lang="en">Underwriting Workbench</name>
+      <documentation xml:lang="en">Underwriting decision support with risk scoring and appetite rules.</documentation>
+      <properties>
+        <property propertyDefinitionRef="propdef-lifecycle"><value xml:lang="en">Production</value></property>
+        <property propertyDefinitionRef="propdef-deployment"><value xml:lang="en">On-Premise</value></property>
+        <property propertyDefinitionRef="propdef-criticality"><value xml:lang="en">High</value></property>
+        <property propertyDefinitionRef="propdef-vendor"><value xml:lang="en">In-house</value></property>
+        <property propertyDefinitionRef="propdef-owner"><value xml:lang="en">Underwriting</value></property>
+        <property propertyDefinitionRef="propdef-users"><value xml:lang="en">75</value></property>
+      </properties>
+    </element>
+
+    <element identifier="id-app-rating-engine" xsi:type="ApplicationComponent">
+      <name xml:lang="en">Rating Engine</name>
+      <documentation xml:lang="en">Actuarial rating models and real-time premium computation.</documentation>
+      <properties>
+        <property propertyDefinitionRef="propdef-lifecycle"><value xml:lang="en">Production</value></property>
+        <property propertyDefinitionRef="propdef-deployment"><value xml:lang="en">On-Premise</value></property>
+        <property propertyDefinitionRef="propdef-criticality"><value xml:lang="en">Critical</value></property>
+        <property propertyDefinitionRef="propdef-vendor"><value xml:lang="en">In-house</value></property>
+        <property propertyDefinitionRef="propdef-owner"><value xml:lang="en">Actuarial</value></property>
+        <property propertyDefinitionRef="propdef-users"><value xml:lang="en">40</value></property>
+      </properties>
+    </element>
+
+    <element identifier="id-app-product-factory" xsi:type="ApplicationComponent">
+      <name xml:lang="en">Product Factory</name>
+      <documentation xml:lang="en">No-code product configuration tool for defining coverages and rules.</documentation>
+      <properties>
+        <property propertyDefinitionRef="propdef-lifecycle"><value xml:lang="en">Production</value></property>
+        <property propertyDefinitionRef="propdef-deployment"><value xml:lang="en">On-Premise</value></property>
+        <property propertyDefinitionRef="propdef-criticality"><value xml:lang="en">High</value></property>
+        <property propertyDefinitionRef="propdef-vendor"><value xml:lang="en">In-house</value></property>
+        <property propertyDefinitionRef="propdef-owner"><value xml:lang="en">Product Development</value></property>
+        <property propertyDefinitionRef="propdef-users"><value xml:lang="en">30</value></property>
+      </properties>
+    </element>
+
+    <!-- Digital Channels -->
+    <element identifier="id-app-customer-portal" xsi:type="ApplicationComponent">
+      <name xml:lang="en">Customer Self-Service Portal</name>
+      <documentation xml:lang="en">Web portal for customers to manage policies, submit claims and make payments.</documentation>
+      <properties>
+        <property propertyDefinitionRef="propdef-lifecycle"><value xml:lang="en">Production</value></property>
+        <property propertyDefinitionRef="propdef-deployment"><value xml:lang="en">Public Cloud</value></property>
+        <property propertyDefinitionRef="propdef-criticality"><value xml:lang="en">High</value></property>
+        <property propertyDefinitionRef="propdef-vendor"><value xml:lang="en">In-house</value></property>
+        <property propertyDefinitionRef="propdef-owner"><value xml:lang="en">Digital</value></property>
+        <property propertyDefinitionRef="propdef-users"><value xml:lang="en">45000</value></property>
+      </properties>
+    </element>
+
+    <element identifier="id-app-mobile" xsi:type="ApplicationComponent">
+      <name xml:lang="en">Mobile App</name>
+      <documentation xml:lang="en">iOS and Android app for customers to report claims, view policies and contact support.</documentation>
+      <properties>
+        <property propertyDefinitionRef="propdef-lifecycle"><value xml:lang="en">Production</value></property>
+        <property propertyDefinitionRef="propdef-deployment"><value xml:lang="en">Public Cloud</value></property>
+        <property propertyDefinitionRef="propdef-criticality"><value xml:lang="en">High</value></property>
+        <property propertyDefinitionRef="propdef-vendor"><value xml:lang="en">In-house</value></property>
+        <property propertyDefinitionRef="propdef-owner"><value xml:lang="en">Digital</value></property>
+        <property propertyDefinitionRef="propdef-users"><value xml:lang="en">28000</value></property>
+      </properties>
+    </element>
+
+    <element identifier="id-app-broker-portal" xsi:type="ApplicationComponent">
+      <name xml:lang="en">Broker Portal</name>
+      <documentation xml:lang="en">Extranet portal for intermediaries and brokers to quote and bind policies.</documentation>
+      <properties>
+        <property propertyDefinitionRef="propdef-lifecycle"><value xml:lang="en">Production</value></property>
+        <property propertyDefinitionRef="propdef-deployment"><value xml:lang="en">Public Cloud</value></property>
+        <property propertyDefinitionRef="propdef-criticality"><value xml:lang="en">High</value></property>
+        <property propertyDefinitionRef="propdef-vendor"><value xml:lang="en">In-house</value></property>
+        <property propertyDefinitionRef="propdef-owner"><value xml:lang="en">Intermediary Relations</value></property>
+        <property propertyDefinitionRef="propdef-users"><value xml:lang="en">1200</value></property>
+      </properties>
+    </element>
+
+    <!-- Analytics and Data -->
+    <element identifier="id-app-data-warehouse" xsi:type="ApplicationComponent">
+      <name xml:lang="en">Data Warehouse</name>
+      <documentation xml:lang="en">Enterprise data warehouse consolidating operational data for analytics and reporting.</documentation>
+      <properties>
+        <property propertyDefinitionRef="propdef-lifecycle"><value xml:lang="en">Production</value></property>
+        <property propertyDefinitionRef="propdef-deployment"><value xml:lang="en">On-Premise</value></property>
+        <property propertyDefinitionRef="propdef-criticality"><value xml:lang="en">High</value></property>
+        <property propertyDefinitionRef="propdef-vendor"><value xml:lang="en">Teradata</value></property>
+        <property propertyDefinitionRef="propdef-owner"><value xml:lang="en">Data &amp; Analytics</value></property>
+        <property propertyDefinitionRef="propdef-users"><value xml:lang="en">150</value></property>
+      </properties>
+    </element>
+
+    <element identifier="id-app-bi-platform" xsi:type="ApplicationComponent">
+      <name xml:lang="en">BI Platform</name>
+      <documentation xml:lang="en">Self-service business intelligence and reporting dashboards.</documentation>
+      <properties>
+        <property propertyDefinitionRef="propdef-lifecycle"><value xml:lang="en">Production</value></property>
+        <property propertyDefinitionRef="propdef-deployment"><value xml:lang="en">On-Premise</value></property>
+        <property propertyDefinitionRef="propdef-criticality"><value xml:lang="en">Medium</value></property>
+        <property propertyDefinitionRef="propdef-vendor"><value xml:lang="en">Tableau</value></property>
+        <property propertyDefinitionRef="propdef-owner"><value xml:lang="en">Finance</value></property>
+        <property propertyDefinitionRef="propdef-users"><value xml:lang="en">280</value></property>
+      </properties>
+    </element>
+
+    <element identifier="id-app-fraud-ai" xsi:type="ApplicationComponent">
+      <name xml:lang="en">Fraud AI Platform</name>
+      <documentation xml:lang="en">Machine learning platform for real-time fraud scoring on claims and applications.</documentation>
+      <properties>
+        <property propertyDefinitionRef="propdef-lifecycle"><value xml:lang="en">Production</value></property>
+        <property propertyDefinitionRef="propdef-deployment"><value xml:lang="en">Public Cloud</value></property>
+        <property propertyDefinitionRef="propdef-criticality"><value xml:lang="en">High</value></property>
+        <property propertyDefinitionRef="propdef-vendor"><value xml:lang="en">In-house</value></property>
+        <property propertyDefinitionRef="propdef-owner"><value xml:lang="en">Claims Operations</value></property>
+        <property propertyDefinitionRef="propdef-users"><value xml:lang="en">25</value></property>
+      </properties>
+    </element>
+
+    <element identifier="id-app-customer-analytics" xsi:type="ApplicationComponent">
+      <name xml:lang="en">Customer Analytics</name>
+      <documentation xml:lang="en">Churn prediction, next best offer and customer lifetime value models.</documentation>
+      <properties>
+        <property propertyDefinitionRef="propdef-lifecycle"><value xml:lang="en">Pilot</value></property>
+        <property propertyDefinitionRef="propdef-deployment"><value xml:lang="en">Public Cloud</value></property>
+        <property propertyDefinitionRef="propdef-criticality"><value xml:lang="en">Medium</value></property>
+        <property propertyDefinitionRef="propdef-vendor"><value xml:lang="en">In-house</value></property>
+        <property propertyDefinitionRef="propdef-owner"><value xml:lang="en">Customer Relations</value></property>
+        <property propertyDefinitionRef="propdef-users"><value xml:lang="en">15</value></property>
+      </properties>
+    </element>
+
+    <!-- Finance and Compliance -->
+    <element identifier="id-app-erp" xsi:type="ApplicationComponent">
+      <name xml:lang="en">ERP — Finance Module</name>
+      <documentation xml:lang="en">General ledger, accounts payable/receivable and fixed assets.</documentation>
+      <properties>
+        <property propertyDefinitionRef="propdef-lifecycle"><value xml:lang="en">Production</value></property>
+        <property propertyDefinitionRef="propdef-deployment"><value xml:lang="en">On-Premise</value></property>
+        <property propertyDefinitionRef="propdef-criticality"><value xml:lang="en">Critical</value></property>
+        <property propertyDefinitionRef="propdef-vendor"><value xml:lang="en">SAP</value></property>
+        <property propertyDefinitionRef="propdef-owner"><value xml:lang="en">Finance</value></property>
+        <property propertyDefinitionRef="propdef-users"><value xml:lang="en">120</value></property>
+      </properties>
+    </element>
+
+    <element identifier="id-app-solvency-reporting" xsi:type="ApplicationComponent">
+      <name xml:lang="en">Solvency II Reporting</name>
+      <documentation xml:lang="en">Regulatory reporting platform for Solvency II QRTs and SFCR.</documentation>
+      <properties>
+        <property propertyDefinitionRef="propdef-lifecycle"><value xml:lang="en">Production</value></property>
+        <property propertyDefinitionRef="propdef-deployment"><value xml:lang="en">On-Premise</value></property>
+        <property propertyDefinitionRef="propdef-criticality"><value xml:lang="en">Critical</value></property>
+        <property propertyDefinitionRef="propdef-vendor"><value xml:lang="en">Wolters Kluwer</value></property>
+        <property propertyDefinitionRef="propdef-owner"><value xml:lang="en">Finance</value></property>
+        <property propertyDefinitionRef="propdef-users"><value xml:lang="en">35</value></property>
+      </properties>
+    </element>
+
+    <element identifier="id-app-ifrs17" xsi:type="ApplicationComponent">
+      <name xml:lang="en">IFRS 17 Engine</name>
+      <documentation xml:lang="en">Actuarial calculation engine for IFRS 17 liability measurement.</documentation>
+      <properties>
+        <property propertyDefinitionRef="propdef-lifecycle"><value xml:lang="en">Production</value></property>
+        <property propertyDefinitionRef="propdef-deployment"><value xml:lang="en">On-Premise</value></property>
+        <property propertyDefinitionRef="propdef-criticality"><value xml:lang="en">Critical</value></property>
+        <property propertyDefinitionRef="propdef-vendor"><value xml:lang="en">FIS</value></property>
+        <property propertyDefinitionRef="propdef-owner"><value xml:lang="en">Finance</value></property>
+        <property propertyDefinitionRef="propdef-users"><value xml:lang="en">20</value></property>
+      </properties>
+    </element>
+
+    <element identifier="id-app-compliance-mgr" xsi:type="ApplicationComponent">
+      <name xml:lang="en">Compliance Manager</name>
+      <documentation xml:lang="en">Regulatory obligations register, controls testing and audit trail.</documentation>
+      <properties>
+        <property propertyDefinitionRef="propdef-lifecycle"><value xml:lang="en">Production</value></property>
+        <property propertyDefinitionRef="propdef-deployment"><value xml:lang="en">SaaS</value></property>
+        <property propertyDefinitionRef="propdef-criticality"><value xml:lang="en">High</value></property>
+        <property propertyDefinitionRef="propdef-vendor"><value xml:lang="en">NAVEX</value></property>
+        <property propertyDefinitionRef="propdef-owner"><value xml:lang="en">Compliance</value></property>
+        <property propertyDefinitionRef="propdef-users"><value xml:lang="en">60</value></property>
+      </properties>
+    </element>
+
+    <element identifier="id-app-risk-platform" xsi:type="ApplicationComponent">
+      <name xml:lang="en">Enterprise Risk Platform</name>
+      <documentation xml:lang="en">Risk register, risk appetite monitoring and scenario analysis.</documentation>
+      <properties>
+        <property propertyDefinitionRef="propdef-lifecycle"><value xml:lang="en">Production</value></property>
+        <property propertyDefinitionRef="propdef-deployment"><value xml:lang="en">SaaS</value></property>
+        <property propertyDefinitionRef="propdef-criticality"><value xml:lang="en">High</value></property>
+        <property propertyDefinitionRef="propdef-vendor"><value xml:lang="en">Riskonnect</value></property>
+        <property propertyDefinitionRef="propdef-owner"><value xml:lang="en">Risk Management</value></property>
+        <property propertyDefinitionRef="propdef-users"><value xml:lang="en">45</value></property>
+      </properties>
+    </element>
+
+    <element identifier="id-app-reinsurance-mgr" xsi:type="ApplicationComponent">
+      <name xml:lang="en">Reinsurance Manager</name>
+      <documentation xml:lang="en">Treaty administration, bordereau production and recoveries tracking.</documentation>
+      <properties>
+        <property propertyDefinitionRef="propdef-lifecycle"><value xml:lang="en">Retiring</value></property>
+        <property propertyDefinitionRef="propdef-deployment"><value xml:lang="en">On-Premise</value></property>
+        <property propertyDefinitionRef="propdef-criticality"><value xml:lang="en">Medium</value></property>
+        <property propertyDefinitionRef="propdef-vendor"><value xml:lang="en">In-house</value></property>
+        <property propertyDefinitionRef="propdef-owner"><value xml:lang="en">Finance</value></property>
+        <property propertyDefinitionRef="propdef-users"><value xml:lang="en">18</value></property>
+      </properties>
+    </element>
+
+    <!-- Operations and Support -->
+    <element identifier="id-app-dms" xsi:type="ApplicationComponent">
+      <name xml:lang="en">Document Management System</name>
+      <documentation xml:lang="en">Centralised repository for contracts, correspondence and claims documentation.</documentation>
+      <properties>
+        <property propertyDefinitionRef="propdef-lifecycle"><value xml:lang="en">Production</value></property>
+        <property propertyDefinitionRef="propdef-deployment"><value xml:lang="en">On-Premise</value></property>
+        <property propertyDefinitionRef="propdef-criticality"><value xml:lang="en">High</value></property>
+        <property propertyDefinitionRef="propdef-vendor"><value xml:lang="en">OpenText</value></property>
+        <property propertyDefinitionRef="propdef-owner"><value xml:lang="en">Operations</value></property>
+        <property propertyDefinitionRef="propdef-users"><value xml:lang="en">430</value></property>
+      </properties>
+    </element>
+
+    <element identifier="id-app-ecm-legacy" xsi:type="ApplicationComponent">
+      <name xml:lang="en">Legacy ECM</name>
+      <documentation xml:lang="en">Legacy enterprise content management system being replaced by DMS.</documentation>
+      <properties>
+        <property propertyDefinitionRef="propdef-lifecycle"><value xml:lang="en">Retiring</value></property>
+        <property propertyDefinitionRef="propdef-deployment"><value xml:lang="en">On-Premise</value></property>
+        <property propertyDefinitionRef="propdef-criticality"><value xml:lang="en">Low</value></property>
+        <property propertyDefinitionRef="propdef-vendor"><value xml:lang="en">IBM</value></property>
+        <property propertyDefinitionRef="propdef-owner"><value xml:lang="en">Operations</value></property>
+        <property propertyDefinitionRef="propdef-users"><value xml:lang="en">80</value></property>
+      </properties>
+    </element>
+
+    <element identifier="id-app-hrms" xsi:type="ApplicationComponent">
+      <name xml:lang="en">HR Management System</name>
+      <documentation xml:lang="en">Core HR including employee records, payroll and performance management.</documentation>
+      <properties>
+        <property propertyDefinitionRef="propdef-lifecycle"><value xml:lang="en">Production</value></property>
+        <property propertyDefinitionRef="propdef-deployment"><value xml:lang="en">SaaS</value></property>
+        <property propertyDefinitionRef="propdef-criticality"><value xml:lang="en">High</value></property>
+        <property propertyDefinitionRef="propdef-vendor"><value xml:lang="en">Workday</value></property>
+        <property propertyDefinitionRef="propdef-owner"><value xml:lang="en">HRM</value></property>
+        <property propertyDefinitionRef="propdef-users"><value xml:lang="en">650</value></property>
+      </properties>
+    </element>
+
+    <element identifier="id-app-procurement" xsi:type="ApplicationComponent">
+      <name xml:lang="en">Procurement Platform</name>
+      <documentation xml:lang="en">Supplier onboarding, purchase orders and contract management.</documentation>
+      <properties>
+        <property propertyDefinitionRef="propdef-lifecycle"><value xml:lang="en">Production</value></property>
+        <property propertyDefinitionRef="propdef-deployment"><value xml:lang="en">SaaS</value></property>
+        <property propertyDefinitionRef="propdef-criticality"><value xml:lang="en">Medium</value></property>
+        <property propertyDefinitionRef="propdef-vendor"><value xml:lang="en">Coupa</value></property>
+        <property propertyDefinitionRef="propdef-owner"><value xml:lang="en">Operations</value></property>
+        <property propertyDefinitionRef="propdef-users"><value xml:lang="en">55</value></property>
+      </properties>
+    </element>
+
+    <element identifier="id-app-contact-centre" xsi:type="ApplicationComponent">
+      <name xml:lang="en">Contact Centre Platform</name>
+      <documentation xml:lang="en">Omnichannel contact centre for inbound customer interactions.</documentation>
+      <properties>
+        <property propertyDefinitionRef="propdef-lifecycle"><value xml:lang="en">Production</value></property>
+        <property propertyDefinitionRef="propdef-deployment"><value xml:lang="en">SaaS</value></property>
+        <property propertyDefinitionRef="propdef-criticality"><value xml:lang="en">High</value></property>
+        <property propertyDefinitionRef="propdef-vendor"><value xml:lang="en">Genesys</value></property>
+        <property propertyDefinitionRef="propdef-owner"><value xml:lang="en">Customer Relations</value></property>
+        <property propertyDefinitionRef="propdef-users"><value xml:lang="en">340</value></property>
+      </properties>
+    </element>
+
+    <element identifier="id-app-complaints" xsi:type="ApplicationComponent">
+      <name xml:lang="en">Complaints Management</name>
+      <documentation xml:lang="en">Intake, tracking and regulatory reporting of customer complaints.</documentation>
+      <properties>
+        <property propertyDefinitionRef="propdef-lifecycle"><value xml:lang="en">Production</value></property>
+        <property propertyDefinitionRef="propdef-deployment"><value xml:lang="en">On-Premise</value></property>
+        <property propertyDefinitionRef="propdef-criticality"><value xml:lang="en">Medium</value></property>
+        <property propertyDefinitionRef="propdef-vendor"><value xml:lang="en">In-house</value></property>
+        <property propertyDefinitionRef="propdef-owner"><value xml:lang="en">Customer Relations</value></property>
+        <property propertyDefinitionRef="propdef-users"><value xml:lang="en">45</value></property>
+      </properties>
+    </element>
+
+    <!-- Planned / Pilot -->
+    <element identifier="id-app-kyc-platform" xsi:type="ApplicationComponent">
+      <name xml:lang="en">Digital KYC Platform</name>
+      <documentation xml:lang="en">Automated identity verification and onboarding for new customers.</documentation>
+      <properties>
+        <property propertyDefinitionRef="propdef-lifecycle"><value xml:lang="en">Pilot</value></property>
+        <property propertyDefinitionRef="propdef-deployment"><value xml:lang="en">Public Cloud</value></property>
+        <property propertyDefinitionRef="propdef-criticality"><value xml:lang="en">High</value></property>
+        <property propertyDefinitionRef="propdef-vendor"><value xml:lang="en">Onfido</value></property>
+        <property propertyDefinitionRef="propdef-owner"><value xml:lang="en">Digital</value></property>
+        <property propertyDefinitionRef="propdef-users"><value xml:lang="en">5</value></property>
+      </properties>
+    </element>
+
+    <element identifier="id-app-genai-claims" xsi:type="ApplicationComponent">
+      <name xml:lang="en">GenAI Claims Assistant</name>
+      <documentation xml:lang="en">LLM-based assistant to automate claims triage and first-level assessment.</documentation>
+      <properties>
+        <property propertyDefinitionRef="propdef-lifecycle"><value xml:lang="en">Planned</value></property>
+        <property propertyDefinitionRef="propdef-deployment"><value xml:lang="en">Public Cloud</value></property>
+        <property propertyDefinitionRef="propdef-criticality"><value xml:lang="en">Medium</value></property>
+        <property propertyDefinitionRef="propdef-vendor"><value xml:lang="en">In-house</value></property>
+        <property propertyDefinitionRef="propdef-owner"><value xml:lang="en">Claims Operations</value></property>
+        <property propertyDefinitionRef="propdef-users"><value xml:lang="en">0</value></property>
+      </properties>
+    </element>
+
+    <element identifier="id-app-telematics" xsi:type="ApplicationComponent">
+      <name xml:lang="en">Telematics Platform</name>
+      <documentation xml:lang="en">IoT data ingestion for usage-based insurance products.</documentation>
+      <properties>
+        <property propertyDefinitionRef="propdef-lifecycle"><value xml:lang="en">Planned</value></property>
+        <property propertyDefinitionRef="propdef-deployment"><value xml:lang="en">Public Cloud</value></property>
+        <property propertyDefinitionRef="propdef-criticality"><value xml:lang="en">Medium</value></property>
+        <property propertyDefinitionRef="propdef-vendor"><value xml:lang="en">Cambridge Mobile Telematics</value></property>
+        <property propertyDefinitionRef="propdef-owner"><value xml:lang="en">Product Development</value></property>
+        <property propertyDefinitionRef="propdef-users"><value xml:lang="en">0</value></property>
+      </properties>
+    </element>
+
+    <!-- Integration and Infrastructure Apps -->
+    <element identifier="id-app-api-gateway" xsi:type="ApplicationService">
+      <name xml:lang="en">API Gateway</name>
+      <documentation xml:lang="en">Centralised API management, rate limiting and security for all external integrations.</documentation>
+      <properties>
+        <property propertyDefinitionRef="propdef-lifecycle"><value xml:lang="en">Production</value></property>
+        <property propertyDefinitionRef="propdef-deployment"><value xml:lang="en">Public Cloud</value></property>
+        <property propertyDefinitionRef="propdef-criticality"><value xml:lang="en">Critical</value></property>
+        <property propertyDefinitionRef="propdef-vendor"><value xml:lang="en">Kong</value></property>
+        <property propertyDefinitionRef="propdef-owner"><value xml:lang="en">IT Architecture</value></property>
+        <property propertyDefinitionRef="propdef-users"><value xml:lang="en">0</value></property>
+      </properties>
+    </element>
+
+    <element identifier="id-app-esb" xsi:type="ApplicationService">
+      <name xml:lang="en">Integration Bus</name>
+      <documentation xml:lang="en">Enterprise service bus for internal system-to-system message routing.</documentation>
+      <properties>
+        <property propertyDefinitionRef="propdef-lifecycle"><value xml:lang="en">Retiring</value></property>
+        <property propertyDefinitionRef="propdef-deployment"><value xml:lang="en">On-Premise</value></property>
+        <property propertyDefinitionRef="propdef-criticality"><value xml:lang="en">High</value></property>
+        <property propertyDefinitionRef="propdef-vendor"><value xml:lang="en">IBM MQ</value></property>
+        <property propertyDefinitionRef="propdef-owner"><value xml:lang="en">IT Architecture</value></property>
+        <property propertyDefinitionRef="propdef-users"><value xml:lang="en">0</value></property>
+      </properties>
+    </element>
+
+    <element identifier="id-app-idp" xsi:type="ApplicationService">
+      <name xml:lang="en">Identity Provider</name>
+      <documentation xml:lang="en">SSO, MFA and identity federation for all applications.</documentation>
+      <properties>
+        <property propertyDefinitionRef="propdef-lifecycle"><value xml:lang="en">Production</value></property>
+        <property propertyDefinitionRef="propdef-deployment"><value xml:lang="en">SaaS</value></property>
+        <property propertyDefinitionRef="propdef-criticality"><value xml:lang="en">Critical</value></property>
+        <property propertyDefinitionRef="propdef-vendor"><value xml:lang="en">Okta</value></property>
+        <property propertyDefinitionRef="propdef-owner"><value xml:lang="en">IT Security</value></property>
+        <property propertyDefinitionRef="propdef-users"><value xml:lang="en">1500</value></property>
+      </properties>
+    </element>
+
+    <element identifier="id-app-notification" xsi:type="ApplicationService">
+      <name xml:lang="en">Notification Service</name>
+      <documentation xml:lang="en">Transactional email, SMS and push notification delivery service.</documentation>
+      <properties>
+        <property propertyDefinitionRef="propdef-lifecycle"><value xml:lang="en">Production</value></property>
+        <property propertyDefinitionRef="propdef-deployment"><value xml:lang="en">Public Cloud</value></property>
+        <property propertyDefinitionRef="propdef-criticality"><value xml:lang="en">High</value></property>
+        <property propertyDefinitionRef="propdef-vendor"><value xml:lang="en">Twilio</value></property>
+        <property propertyDefinitionRef="propdef-owner"><value xml:lang="en">Digital</value></property>
+        <property propertyDefinitionRef="propdef-users"><value xml:lang="en">0</value></property>
+      </properties>
+    </element>
+
+    <element identifier="id-app-payment-gateway" xsi:type="ApplicationService">
+      <name xml:lang="en">Payment Gateway</name>
+      <documentation xml:lang="en">PCI-DSS compliant payment processing for direct debit and card payments.</documentation>
+      <properties>
+        <property propertyDefinitionRef="propdef-lifecycle"><value xml:lang="en">Production</value></property>
+        <property propertyDefinitionRef="propdef-deployment"><value xml:lang="en">SaaS</value></property>
+        <property propertyDefinitionRef="propdef-criticality"><value xml:lang="en">Critical</value></property>
+        <property propertyDefinitionRef="propdef-vendor"><value xml:lang="en">Stripe</value></property>
+        <property propertyDefinitionRef="propdef-owner"><value xml:lang="en">Finance</value></property>
+        <property propertyDefinitionRef="propdef-users"><value xml:lang="en">0</value></property>
+      </properties>
+    </element>
+
+    <!-- Application Interfaces (APIs) -->
+    <element identifier="id-app-iface-claims-api" xsi:type="ApplicationInterface">
+      <name xml:lang="en">Claims API</name>
+    </element>
+    <element identifier="id-app-iface-policy-api" xsi:type="ApplicationInterface">
+      <name xml:lang="en">Policy API</name>
+    </element>
+    <element identifier="id-app-iface-customer-api" xsi:type="ApplicationInterface">
+      <name xml:lang="en">Customer API</name>
+    </element>
+    <element identifier="id-app-iface-billing-api" xsi:type="ApplicationInterface">
+      <name xml:lang="en">Billing API</name>
+    </element>
+
+    <!-- Data Objects -->
+    <element identifier="id-do-policy-data" xsi:type="DataObject">
+      <name xml:lang="en">Policy Data</name>
+    </element>
+    <element identifier="id-do-claim-data" xsi:type="DataObject">
+      <name xml:lang="en">Claim Data</name>
+    </element>
+    <element identifier="id-do-customer-data" xsi:type="DataObject">
+      <name xml:lang="en">Customer Data</name>
+    </element>
+    <element identifier="id-do-premium-data" xsi:type="DataObject">
+      <name xml:lang="en">Premium Data</name>
+    </element>
+    <element identifier="id-do-risk-data" xsi:type="DataObject">
+      <name xml:lang="en">Risk Data</name>
+    </element>
+    <element identifier="id-do-regulatory-data" xsi:type="DataObject">
+      <name xml:lang="en">Regulatory Reporting Data</name>
+    </element>
+
+    <!-- ================================================================== -->
+    <!-- TECHNOLOGY LAYER                                                    -->
+    <!-- ================================================================== -->
+
+    <!-- Infrastructure Nodes -->
+    <element identifier="id-tech-on-prem-dc" xsi:type="Node">
+      <name xml:lang="en">On-Premise Data Centre</name>
+      <documentation xml:lang="en">Primary data centre hosting core legacy systems.</documentation>
+    </element>
+    <element identifier="id-tech-dr-dc" xsi:type="Node">
+      <name xml:lang="en">Disaster Recovery Site</name>
+      <documentation xml:lang="en">Secondary DR site with cold standby for critical systems.</documentation>
+    </element>
+    <element identifier="id-tech-aws" xsi:type="Node">
+      <name xml:lang="en">AWS Cloud Platform</name>
+      <documentation xml:lang="en">Primary public cloud platform for digital and analytics workloads.</documentation>
+    </element>
+    <element identifier="id-tech-azure" xsi:type="Node">
+      <name xml:lang="en">Azure Cloud Platform</name>
+      <documentation xml:lang="en">Secondary cloud platform for SaaS integrations and Microsoft 365.</documentation>
+    </element>
+
+    <!-- Application Servers -->
+    <element identifier="id-tech-app-server-core" xsi:type="SystemSoftware">
+      <name xml:lang="en">Core App Server Cluster</name>
+      <documentation xml:lang="en">On-premise application server cluster (IBM WebSphere) for core insurance systems.</documentation>
+    </element>
+    <element identifier="id-tech-app-server-web" xsi:type="SystemSoftware">
+      <name xml:lang="en">Web Application Servers</name>
+      <documentation xml:lang="en">AWS ECS cluster hosting digital channel applications.</documentation>
+    </element>
+    <element identifier="id-tech-k8s" xsi:type="SystemSoftware">
+      <name xml:lang="en">Kubernetes Platform</name>
+      <documentation xml:lang="en">Container orchestration platform for microservices and APIs.</documentation>
+    </element>
+
+    <!-- Databases -->
+    <element identifier="id-tech-db-oracle" xsi:type="SystemSoftware">
+      <name xml:lang="en">Oracle Database Cluster</name>
+      <documentation xml:lang="en">Primary Oracle RAC cluster for PAS and Claims Engine.</documentation>
+    </element>
+    <element identifier="id-tech-db-postgres" xsi:type="SystemSoftware">
+      <name xml:lang="en">PostgreSQL Database Cluster</name>
+      <documentation xml:lang="en">PostgreSQL cluster for digital and analytics applications.</documentation>
+    </element>
+    <element identifier="id-tech-db-mongodb" xsi:type="SystemSoftware">
+      <name xml:lang="en">MongoDB Atlas</name>
+      <documentation xml:lang="en">Cloud-managed MongoDB for document storage and unstructured data.</documentation>
+    </element>
+
+    <!-- Network -->
+    <element identifier="id-tech-network-mpls" xsi:type="CommunicationNetwork">
+      <name xml:lang="en">MPLS Corporate Network</name>
+    </element>
+    <element identifier="id-tech-network-internet" xsi:type="CommunicationNetwork">
+      <name xml:lang="en">Internet</name>
+    </element>
+    <element identifier="id-tech-network-vpn" xsi:type="CommunicationNetwork">
+      <name xml:lang="en">VPN Gateway</name>
+    </element>
+
+    <!-- Technology Services -->
+    <element identifier="id-tech-svc-monitoring" xsi:type="TechnologyService">
+      <name xml:lang="en">Monitoring and Observability</name>
+      <documentation xml:lang="en">APM, log aggregation and alerting (Datadog).</documentation>
+    </element>
+    <element identifier="id-tech-svc-backup" xsi:type="TechnologyService">
+      <name xml:lang="en">Backup and Recovery Service</name>
+    </element>
+    <element identifier="id-tech-svc-cicd" xsi:type="TechnologyService">
+      <name xml:lang="en">CI/CD Pipeline</name>
+      <documentation xml:lang="en">Jenkins / GitHub Actions build and deployment automation.</documentation>
+    </element>
+    <element identifier="id-tech-svc-security" xsi:type="TechnologyService">
+      <name xml:lang="en">Security Operations Service</name>
+      <documentation xml:lang="en">SIEM, vulnerability scanning and SOC monitoring.</documentation>
+    </element>
+
+    <!-- ================================================================== -->
+    <!-- MOTIVATION LAYER                                                    -->
+    <!-- ================================================================== -->
+
+    <!-- Goals -->
+    <element identifier="id-goal-digital-cx" xsi:type="Goal">
+      <name xml:lang="en">Deliver a world-class digital customer experience</name>
+      <documentation xml:lang="en">Achieve NPS &gt; 70 and &gt;60% self-service resolution rate by 2027.</documentation>
+    </element>
+    <element identifier="id-goal-claims-speed" xsi:type="Goal">
+      <name xml:lang="en">Reduce claims settlement cycle time by 40%</name>
+      <documentation xml:lang="en">Target average settlement within 5 days for simple claims by 2026.</documentation>
+    </element>
+    <element identifier="id-goal-regulatory" xsi:type="Goal">
+      <name xml:lang="en">Achieve full regulatory compliance</name>
+      <documentation xml:lang="en">Zero regulatory findings in annual Solvency II and IFRS 17 reviews.</documentation>
+    </element>
+    <element identifier="id-goal-cost-efficiency" xsi:type="Goal">
+      <name xml:lang="en">Reduce IT operational costs by 20%</name>
+      <documentation xml:lang="en">Cloud migration and legacy decommissioning to reduce run costs by 2027.</documentation>
+    </element>
+    <element identifier="id-goal-fraud-reduction" xsi:type="Goal">
+      <name xml:lang="en">Reduce claims fraud losses by 30%</name>
+      <documentation xml:lang="en">Deploy AI fraud detection to reduce fraudulent claims payouts.</documentation>
+    </element>
+
+    <!-- Principles -->
+    <element identifier="id-prin-api-first" xsi:type="Principle">
+      <name xml:lang="en">API-First Architecture</name>
+      <documentation xml:lang="en">All integrations must be via documented APIs. No point-to-point file transfers.</documentation>
+    </element>
+    <element identifier="id-prin-cloud-preferred" xsi:type="Principle">
+      <name xml:lang="en">Cloud-Preferred</name>
+      <documentation xml:lang="en">New applications default to public cloud. On-premise only by exception.</documentation>
+    </element>
+    <element identifier="id-prin-data-privacy" xsi:type="Principle">
+      <name xml:lang="en">Privacy by Design</name>
+      <documentation xml:lang="en">Personal data minimisation and consent management built into every system.</documentation>
+    </element>
+    <element identifier="id-prin-zero-trust" xsi:type="Principle">
+      <name xml:lang="en">Zero Trust Security</name>
+      <documentation xml:lang="en">No implicit trust inside or outside the network perimeter.</documentation>
+    </element>
+    <element identifier="id-prin-single-source" xsi:type="Principle">
+      <name xml:lang="en">Single Source of Truth</name>
+      <documentation xml:lang="en">Each data domain has one authoritative system. No silent duplication.</documentation>
+    </element>
+
+    <!-- Requirements -->
+    <element identifier="id-req-ifrs17" xsi:type="Requirement">
+      <name xml:lang="en">IFRS 17 Compliance</name>
+      <documentation xml:lang="en">All financial systems must support IFRS 17 liability measurement and disclosure.</documentation>
+    </element>
+    <element identifier="id-req-gdpr" xsi:type="Requirement">
+      <name xml:lang="en">GDPR Data Subject Rights</name>
+      <documentation xml:lang="en">Systems holding personal data must support right to erasure and data portability within 30 days.</documentation>
+    </element>
+    <element identifier="id-req-pci-dss" xsi:type="Requirement">
+      <name xml:lang="en">PCI-DSS Compliance</name>
+      <documentation xml:lang="en">All payment flows must comply with PCI-DSS Level 1.</documentation>
+    </element>
+
+  </elements>
+
+  <!-- ================================================================== -->
+  <!-- RELATIONSHIPS                                                       -->
+  <!-- ================================================================== -->
+  <relationships>
+
+    <!-- Capability hierarchy (Composition: L1 → L2) -->
+    <relationship identifier="id-rel-cap-cm-co" xsi:type="Composition" source="id-cap-customer-mgmt" target="id-cap-customer-onboarding"/>
+    <relationship identifier="id-rel-cap-cm-cs" xsi:type="Composition" source="id-cap-customer-mgmt" target="id-cap-customer-service"/>
+    <relationship identifier="id-rel-cap-cm-ca" xsi:type="Composition" source="id-cap-customer-mgmt" target="id-cap-customer-analytics"/>
+    <relationship identifier="id-rel-cap-cm-cmp" xsi:type="Composition" source="id-cap-customer-mgmt" target="id-cap-complaints-mgmt"/>
+    <relationship identifier="id-rel-cap-pm-uw" xsi:type="Composition" source="id-cap-policy-mgmt" target="id-cap-underwriting"/>
+    <relationship identifier="id-rel-cap-pm-pa" xsi:type="Composition" source="id-cap-policy-mgmt" target="id-cap-policy-admin"/>
+    <relationship identifier="id-rel-cap-pm-pc" xsi:type="Composition" source="id-cap-policy-mgmt" target="id-cap-premium-calc"/>
+    <relationship identifier="id-rel-cap-pm-pconf" xsi:type="Composition" source="id-cap-policy-mgmt" target="id-cap-product-config"/>
+    <relationship identifier="id-rel-cap-cl-ci" xsi:type="Composition" source="id-cap-claims-mgmt" target="id-cap-claims-intake"/>
+    <relationship identifier="id-rel-cap-cl-ca" xsi:type="Composition" source="id-cap-claims-mgmt" target="id-cap-claims-assessment"/>
+    <relationship identifier="id-rel-cap-cl-cs" xsi:type="Composition" source="id-cap-claims-mgmt" target="id-cap-claims-settlement"/>
+    <relationship identifier="id-rel-cap-cl-fd" xsi:type="Composition" source="id-cap-claims-mgmt" target="id-cap-fraud-detection"/>
+    <relationship identifier="id-rel-cap-fr-fr" xsi:type="Composition" source="id-cap-finance-risk" target="id-cap-financial-reporting"/>
+    <relationship identifier="id-rel-cap-fr-ra" xsi:type="Composition" source="id-cap-finance-risk" target="id-cap-risk-assessment"/>
+    <relationship identifier="id-rel-cap-fr-re" xsi:type="Composition" source="id-cap-finance-risk" target="id-cap-reinsurance"/>
+    <relationship identifier="id-rel-cap-fr-bi" xsi:type="Composition" source="id-cap-finance-risk" target="id-cap-billing"/>
+    <relationship identifier="id-rel-cap-op-dm" xsi:type="Composition" source="id-cap-operations" target="id-cap-document-mgmt"/>
+    <relationship identifier="id-rel-cap-op-co" xsi:type="Composition" source="id-cap-operations" target="id-cap-compliance"/>
+    <relationship identifier="id-rel-cap-op-hr" xsi:type="Composition" source="id-cap-operations" target="id-cap-hr-mgmt"/>
+    <relationship identifier="id-rel-cap-op-sup" xsi:type="Composition" source="id-cap-operations" target="id-cap-supplier-mgmt"/>
+
+    <!-- Application Realizations of Capabilities -->
+    <!-- Customer Management -->
+    <relationship identifier="id-rel-crm-co" xsi:type="Realization" source="id-app-crm" target="id-cap-customer-service"/>
+    <relationship identifier="id-rel-crm-ca" xsi:type="Realization" source="id-app-crm" target="id-cap-customer-onboarding"/>
+    <relationship identifier="id-rel-kyc-co" xsi:type="Realization" source="id-app-kyc-platform" target="id-cap-customer-onboarding"/>
+    <relationship identifier="id-rel-analytics-ca" xsi:type="Realization" source="id-app-customer-analytics" target="id-cap-customer-analytics"/>
+    <relationship identifier="id-rel-complaints-cmp" xsi:type="Realization" source="id-app-complaints" target="id-cap-complaints-mgmt"/>
+    <relationship identifier="id-rel-contact-cs" xsi:type="Realization" source="id-app-contact-centre" target="id-cap-customer-service"/>
+
+    <!-- Policy Management -->
+    <relationship identifier="id-rel-pas-pa" xsi:type="Realization" source="id-app-pas" target="id-cap-policy-admin"/>
+    <relationship identifier="id-rel-pas-uw" xsi:type="Realization" source="id-app-pas" target="id-cap-underwriting"/>
+    <relationship identifier="id-rel-uw-uw" xsi:type="Realization" source="id-app-underwriting" target="id-cap-underwriting"/>
+    <relationship identifier="id-rel-rating-pc" xsi:type="Realization" source="id-app-rating-engine" target="id-cap-premium-calc"/>
+    <relationship identifier="id-rel-factory-pconf" xsi:type="Realization" source="id-app-product-factory" target="id-cap-product-config"/>
+    <!-- NOTE: no app realizes Premium Calculation directly except Rating Engine — intentional gap -->
+
+    <!-- Claims Management -->
+    <relationship identifier="id-rel-claims-ci" xsi:type="Realization" source="id-app-claims-engine" target="id-cap-claims-intake"/>
+    <relationship identifier="id-rel-claims-ca" xsi:type="Realization" source="id-app-claims-engine" target="id-cap-claims-assessment"/>
+    <relationship identifier="id-rel-claims-cs" xsi:type="Realization" source="id-app-claims-engine" target="id-cap-claims-settlement"/>
+    <relationship identifier="id-rel-fraud-fd" xsi:type="Realization" source="id-app-fraud-ai" target="id-cap-fraud-detection"/>
+    <relationship identifier="id-rel-genai-ci" xsi:type="Realization" source="id-app-genai-claims" target="id-cap-claims-intake"/>
+    <!-- NOTE: Claims Assessment intentionally under-covered — no specialized assessment tool -->
+
+    <!-- Finance and Risk -->
+    <relationship identifier="id-rel-erp-fr" xsi:type="Realization" source="id-app-erp" target="id-cap-financial-reporting"/>
+    <relationship identifier="id-rel-bi-fr" xsi:type="Realization" source="id-app-bi-platform" target="id-cap-financial-reporting"/>
+    <relationship identifier="id-rel-solvency-fr" xsi:type="Realization" source="id-app-solvency-reporting" target="id-cap-financial-reporting"/>
+    <relationship identifier="id-rel-ifrs17-fr" xsi:type="Realization" source="id-app-ifrs17" target="id-cap-financial-reporting"/>
+    <relationship identifier="id-rel-risk-ra" xsi:type="Realization" source="id-app-risk-platform" target="id-cap-risk-assessment"/>
+    <relationship identifier="id-rel-reimgr-re" xsi:type="Realization" source="id-app-reinsurance-mgr" target="id-cap-reinsurance"/>
+    <relationship identifier="id-rel-billing-bi" xsi:type="Realization" source="id-app-billing" target="id-cap-billing"/>
+    <!-- NOTE: Reinsurance under-covered — retiring app, no replacement yet -->
+
+    <!-- Operations -->
+    <relationship identifier="id-rel-dms-dm" xsi:type="Realization" source="id-app-dms" target="id-cap-document-mgmt"/>
+    <relationship identifier="id-rel-compliance-co" xsi:type="Realization" source="id-app-compliance-mgr" target="id-cap-compliance"/>
+    <relationship identifier="id-rel-hrms-hr" xsi:type="Realization" source="id-app-hrms" target="id-cap-hr-mgmt"/>
+    <relationship identifier="id-rel-procurement-sup" xsi:type="Realization" source="id-app-procurement" target="id-cap-supplier-mgmt"/>
+    <!-- NOTE: Supplier Management under-covered — no dedicated tool -->
+
+    <!-- Application Serving relationships (integration topology) -->
+    <relationship identifier="id-rel-pas-billing" xsi:type="Serving" source="id-app-pas" target="id-app-billing"/>
+    <relationship identifier="id-rel-pas-claims" xsi:type="Serving" source="id-app-pas" target="id-app-claims-engine"/>
+    <relationship identifier="id-rel-crm-pas" xsi:type="Serving" source="id-app-crm" target="id-app-pas"/>
+    <relationship identifier="id-rel-claims-fraud" xsi:type="Serving" source="id-app-claims-engine" target="id-app-fraud-ai"/>
+    <relationship identifier="id-rel-rating-pas" xsi:type="Serving" source="id-app-rating-engine" target="id-app-pas"/>
+    <relationship identifier="id-rel-idp-portal" xsi:type="Serving" source="id-app-idp" target="id-app-customer-portal"/>
+    <relationship identifier="id-rel-idp-broker" xsi:type="Serving" source="id-app-idp" target="id-app-broker-portal"/>
+    <relationship identifier="id-rel-idp-mobile" xsi:type="Serving" source="id-app-idp" target="id-app-mobile"/>
+    <relationship identifier="id-rel-notification-portal" xsi:type="Serving" source="id-app-notification" target="id-app-customer-portal"/>
+    <relationship identifier="id-rel-notification-mobile" xsi:type="Serving" source="id-app-notification" target="id-app-mobile"/>
+    <relationship identifier="id-rel-payment-billing" xsi:type="Serving" source="id-app-payment-gateway" target="id-app-billing"/>
+    <relationship identifier="id-rel-apigw-portal" xsi:type="Serving" source="id-app-api-gateway" target="id-app-customer-portal"/>
+    <relationship identifier="id-rel-apigw-broker" xsi:type="Serving" source="id-app-api-gateway" target="id-app-broker-portal"/>
+    <relationship identifier="id-rel-apigw-mobile" xsi:type="Serving" source="id-app-api-gateway" target="id-app-mobile"/>
+    <relationship identifier="id-rel-dms-claims" xsi:type="Serving" source="id-app-dms" target="id-app-claims-engine"/>
+    <relationship identifier="id-rel-dms-pas" xsi:type="Serving" source="id-app-dms" target="id-app-pas"/>
+    <relationship identifier="id-rel-dw-bi" xsi:type="Serving" source="id-app-data-warehouse" target="id-app-bi-platform"/>
+    <relationship identifier="id-rel-erp-dw" xsi:type="Serving" source="id-app-erp" target="id-app-data-warehouse"/>
+    <relationship identifier="id-rel-billing-dw" xsi:type="Serving" source="id-app-billing" target="id-app-data-warehouse"/>
+    <relationship identifier="id-rel-claims-dw" xsi:type="Serving" source="id-app-claims-engine" target="id-app-data-warehouse"/>
+    <relationship identifier="id-rel-pas-dw" xsi:type="Serving" source="id-app-pas" target="id-app-data-warehouse"/>
+
+    <!-- Application Flow (data flows) -->
+    <relationship identifier="id-rel-flow-claims-fraud" xsi:type="Flow" source="id-app-claims-engine" target="id-app-fraud-ai"/>
+    <relationship identifier="id-rel-flow-portal-pas" xsi:type="Flow" source="id-app-customer-portal" target="id-app-pas"/>
+    <relationship identifier="id-rel-flow-mobile-claims" xsi:type="Flow" source="id-app-mobile" target="id-app-claims-engine"/>
+    <relationship identifier="id-rel-flow-broker-pas" xsi:type="Flow" source="id-app-broker-portal" target="id-app-pas"/>
+
+    <!-- Technology Assignments -->
+    <relationship identifier="id-rel-assign-pas-dc" xsi:type="Assignment" source="id-tech-on-prem-dc" target="id-app-pas"/>
+    <relationship identifier="id-rel-assign-claims-dc" xsi:type="Assignment" source="id-tech-on-prem-dc" target="id-app-claims-engine"/>
+    <relationship identifier="id-rel-assign-billing-dc" xsi:type="Assignment" source="id-tech-on-prem-dc" target="id-app-billing"/>
+    <relationship identifier="id-rel-assign-portal-aws" xsi:type="Assignment" source="id-tech-aws" target="id-app-customer-portal"/>
+    <relationship identifier="id-rel-assign-mobile-aws" xsi:type="Assignment" source="id-tech-aws" target="id-app-mobile"/>
+    <relationship identifier="id-rel-assign-fraud-aws" xsi:type="Assignment" source="id-tech-aws" target="id-app-fraud-ai"/>
+    <relationship identifier="id-rel-assign-apigw-aws" xsi:type="Assignment" source="id-tech-aws" target="id-app-api-gateway"/>
+    <relationship identifier="id-rel-assign-k8s-aws" xsi:type="Assignment" source="id-tech-aws" target="id-tech-k8s"/>
+    <relationship identifier="id-rel-assign-pas-oracle" xsi:type="Assignment" source="id-tech-db-oracle" target="id-app-pas"/>
+    <relationship identifier="id-rel-assign-claims-oracle" xsi:type="Assignment" source="id-tech-db-oracle" target="id-app-claims-engine"/>
+    <relationship identifier="id-rel-assign-portal-pg" xsi:type="Assignment" source="id-tech-db-postgres" target="id-app-customer-portal"/>
+    <relationship identifier="id-rel-assign-dms-pg" xsi:type="Assignment" source="id-tech-db-postgres" target="id-app-dms"/>
+
+    <!-- Business Process → Capability Realization -->
+    <relationship identifier="id-rel-bp-claims-cap" xsi:type="Realization" source="id-bp-claim-handling" target="id-cap-claims-mgmt"/>
+    <relationship identifier="id-rel-bp-policy-cap" xsi:type="Realization" source="id-bp-policy-issuance" target="id-cap-policy-mgmt"/>
+    <relationship identifier="id-rel-bp-onboard-cap" xsi:type="Realization" source="id-bp-customer-onboarding" target="id-cap-customer-mgmt"/>
+    <relationship identifier="id-rel-bp-billing-cap" xsi:type="Realization" source="id-bp-premium-collection" target="id-cap-billing"/>
+    <relationship identifier="id-rel-bp-fraud-cap" xsi:type="Realization" source="id-bp-fraud-detection" target="id-cap-fraud-detection"/>
+    <relationship identifier="id-rel-bp-reg-cap" xsi:type="Realization" source="id-bp-regulatory-reporting" target="id-cap-financial-reporting"/>
+
+    <!-- Motivation → Capabilities (Influence) -->
+    <relationship identifier="id-rel-goal-cx-cap" xsi:type="Influence" source="id-goal-digital-cx" target="id-cap-customer-mgmt"/>
+    <relationship identifier="id-rel-goal-claims-cap" xsi:type="Influence" source="id-goal-claims-speed" target="id-cap-claims-mgmt"/>
+    <relationship identifier="id-rel-goal-fraud-cap" xsi:type="Influence" source="id-goal-fraud-reduction" target="id-cap-fraud-detection"/>
+    <relationship identifier="id-rel-goal-reg-cap" xsi:type="Influence" source="id-goal-regulatory" target="id-cap-compliance"/>
+    <relationship identifier="id-rel-goal-cost-cap" xsi:type="Influence" source="id-goal-cost-efficiency" target="id-cap-operations"/>
+
+    <!-- Requirements → Applications (Realization) -->
+    <relationship identifier="id-rel-req-ifrs-app" xsi:type="Realization" source="id-app-ifrs17" target="id-req-ifrs17"/>
+    <relationship identifier="id-rel-req-pci-app" xsi:type="Realization" source="id-app-payment-gateway" target="id-req-pci-dss"/>
+
+    <!-- Business Role → Process Assignments -->
+    <relationship identifier="id-rel-adj-claims" xsi:type="Assignment" source="id-b-claims-adjuster" target="id-bp-claim-handling"/>
+    <relationship identifier="id-rel-uw-policy" xsi:type="Assignment" source="id-b-underwriter" target="id-bp-policy-issuance"/>
+    <relationship identifier="id-rel-co-reg" xsi:type="Assignment" source="id-b-compliance-officer" target="id-bp-regulatory-reporting"/>
+
+    <!-- Business Services serving Business Roles -->
+    <relationship identifier="id-rel-bs-claims-customer" xsi:type="Serving" source="id-bs-claims-service" target="id-b-customer"/>
+    <relationship identifier="id-rel-bs-policy-intermediary" xsi:type="Serving" source="id-bs-policy-service" target="id-b-intermediary"/>
+    <relationship identifier="id-rel-bs-customer-service" xsi:type="Serving" source="id-bs-customer-service" target="id-b-customer"/>
+
+  </relationships>
+
+  <views>
+    <diagrams>
+
+      <!-- View 1: Capability Map -->
+      <view identifier="id-view-capability-map" xsi:type="Diagram">
+        <name xml:lang="en">Capability Map</name>
+        <documentation xml:lang="en">L1 and L2 Business Capabilities of Archisurance.</documentation>
+        <node identifier="id-vn-cap-cm" elementRef="id-cap-customer-mgmt" xsi:type="Element" x="20" y="20" w="340" h="160">
+          <node identifier="id-vn-cap-co" elementRef="id-cap-customer-onboarding" xsi:type="Element" x="30" y="60" w="140" h="50"/>
+          <node identifier="id-vn-cap-cs" elementRef="id-cap-customer-service" xsi:type="Element" x="180" y="60" w="140" h="50"/>
+          <node identifier="id-vn-cap-ca" elementRef="id-cap-customer-analytics" xsi:type="Element" x="30" y="120" w="140" h="50"/>
+          <node identifier="id-vn-cap-cmp" elementRef="id-cap-complaints-mgmt" xsi:type="Element" x="180" y="120" w="140" h="50"/>
+        </node>
+        <node identifier="id-vn-cap-pm" elementRef="id-cap-policy-mgmt" xsi:type="Element" x="380" y="20" w="340" h="160">
+          <node identifier="id-vn-cap-uw" elementRef="id-cap-underwriting" xsi:type="Element" x="390" y="60" w="140" h="50"/>
+          <node identifier="id-vn-cap-pa" elementRef="id-cap-policy-admin" xsi:type="Element" x="540" y="60" w="140" h="50"/>
+          <node identifier="id-vn-cap-pc" elementRef="id-cap-premium-calc" xsi:type="Element" x="390" y="120" w="140" h="50"/>
+          <node identifier="id-vn-cap-pconf" elementRef="id-cap-product-config" xsi:type="Element" x="540" y="120" w="140" h="50"/>
+        </node>
+        <node identifier="id-vn-cap-cl" elementRef="id-cap-claims-mgmt" xsi:type="Element" x="20" y="200" w="340" h="160">
+          <node identifier="id-vn-cap-ci" elementRef="id-cap-claims-intake" xsi:type="Element" x="30" y="240" w="140" h="50"/>
+          <node identifier="id-vn-cap-cla" elementRef="id-cap-claims-assessment" xsi:type="Element" x="180" y="240" w="140" h="50"/>
+          <node identifier="id-vn-cap-cset" elementRef="id-cap-claims-settlement" xsi:type="Element" x="30" y="300" w="140" h="50"/>
+          <node identifier="id-vn-cap-fd" elementRef="id-cap-fraud-detection" xsi:type="Element" x="180" y="300" w="140" h="50"/>
+        </node>
+        <node identifier="id-vn-cap-fr" elementRef="id-cap-finance-risk" xsi:type="Element" x="380" y="200" w="340" h="160">
+          <node identifier="id-vn-cap-finrep" elementRef="id-cap-financial-reporting" xsi:type="Element" x="390" y="240" w="140" h="50"/>
+          <node identifier="id-vn-cap-ra" elementRef="id-cap-risk-assessment" xsi:type="Element" x="540" y="240" w="140" h="50"/>
+          <node identifier="id-vn-cap-rein" elementRef="id-cap-reinsurance" xsi:type="Element" x="390" y="300" w="140" h="50"/>
+          <node identifier="id-vn-cap-bil" elementRef="id-cap-billing" xsi:type="Element" x="540" y="300" w="140" h="50"/>
+        </node>
+        <node identifier="id-vn-cap-op" elementRef="id-cap-operations" xsi:type="Element" x="20" y="380" w="700" h="100">
+          <node identifier="id-vn-cap-dm" elementRef="id-cap-document-mgmt" xsi:type="Element" x="30" y="420" w="140" h="50"/>
+          <node identifier="id-vn-cap-comp" elementRef="id-cap-compliance" xsi:type="Element" x="190" y="420" w="140" h="50"/>
+          <node identifier="id-vn-cap-hr" elementRef="id-cap-hr-mgmt" xsi:type="Element" x="350" y="420" w="140" h="50"/>
+          <node identifier="id-vn-cap-sup" elementRef="id-cap-supplier-mgmt" xsi:type="Element" x="510" y="420" w="140" h="50"/>
+        </node>
+      </view>
+
+      <!-- View 2: Application Landscape -->
+      <view identifier="id-view-app-landscape" xsi:type="Diagram">
+        <name xml:lang="en">Application Landscape</name>
+        <documentation xml:lang="en">Full application portfolio organised by business domain.</documentation>
+        <node identifier="id-vn-pas" elementRef="id-app-pas" xsi:type="Element" x="20" y="20" w="180" h="60"/>
+        <node identifier="id-vn-claims" elementRef="id-app-claims-engine" xsi:type="Element" x="220" y="20" w="180" h="60"/>
+        <node identifier="id-vn-crm" elementRef="id-app-crm" xsi:type="Element" x="420" y="20" w="180" h="60"/>
+        <node identifier="id-vn-billing" elementRef="id-app-billing" xsi:type="Element" x="620" y="20" w="180" h="60"/>
+        <node identifier="id-vn-uw" elementRef="id-app-underwriting" xsi:type="Element" x="20" y="100" w="180" h="60"/>
+        <node identifier="id-vn-rating" elementRef="id-app-rating-engine" xsi:type="Element" x="220" y="100" w="180" h="60"/>
+        <node identifier="id-vn-factory" elementRef="id-app-product-factory" xsi:type="Element" x="420" y="100" w="180" h="60"/>
+        <node identifier="id-vn-portal" elementRef="id-app-customer-portal" xsi:type="Element" x="20" y="180" w="180" h="60"/>
+        <node identifier="id-vn-mobile" elementRef="id-app-mobile" xsi:type="Element" x="220" y="180" w="180" h="60"/>
+        <node identifier="id-vn-broker" elementRef="id-app-broker-portal" xsi:type="Element" x="420" y="180" w="180" h="60"/>
+        <node identifier="id-vn-dw" elementRef="id-app-data-warehouse" xsi:type="Element" x="20" y="260" w="180" h="60"/>
+        <node identifier="id-vn-bi" elementRef="id-app-bi-platform" xsi:type="Element" x="220" y="260" w="180" h="60"/>
+        <node identifier="id-vn-fraud" elementRef="id-app-fraud-ai" xsi:type="Element" x="420" y="260" w="180" h="60"/>
+        <node identifier="id-vn-erp" elementRef="id-app-erp" xsi:type="Element" x="20" y="340" w="180" h="60"/>
+        <node identifier="id-vn-solvency" elementRef="id-app-solvency-reporting" xsi:type="Element" x="220" y="340" w="180" h="60"/>
+        <node identifier="id-vn-ifrs" elementRef="id-app-ifrs17" xsi:type="Element" x="420" y="340" w="180" h="60"/>
+        <node identifier="id-vn-dms" elementRef="id-app-dms" xsi:type="Element" x="20" y="420" w="180" h="60"/>
+        <node identifier="id-vn-hrms" elementRef="id-app-hrms" xsi:type="Element" x="220" y="420" w="180" h="60"/>
+        <node identifier="id-vn-apigw" elementRef="id-app-api-gateway" xsi:type="Element" x="420" y="420" w="180" h="60"/>
+      </view>
+
+      <!-- View 3: Technology Infrastructure -->
+      <view identifier="id-view-technology" xsi:type="Diagram">
+        <name xml:lang="en">Technology Infrastructure</name>
+        <node identifier="id-vn-dc" elementRef="id-tech-on-prem-dc" xsi:type="Element" x="20" y="20" w="200" h="60"/>
+        <node identifier="id-vn-dr" elementRef="id-tech-dr-dc" xsi:type="Element" x="240" y="20" w="200" h="60"/>
+        <node identifier="id-vn-aws" elementRef="id-tech-aws" xsi:type="Element" x="460" y="20" w="200" h="60"/>
+        <node identifier="id-vn-azure" elementRef="id-tech-azure" xsi:type="Element" x="680" y="20" w="200" h="60"/>
+        <node identifier="id-vn-oracle" elementRef="id-tech-db-oracle" xsi:type="Element" x="20" y="100" w="200" h="60"/>
+        <node identifier="id-vn-pg" elementRef="id-tech-db-postgres" xsi:type="Element" x="240" y="100" w="200" h="60"/>
+        <node identifier="id-vn-mongo" elementRef="id-tech-db-mongodb" xsi:type="Element" x="460" y="100" w="200" h="60"/>
+        <node identifier="id-vn-k8s" elementRef="id-tech-k8s" xsi:type="Element" x="20" y="180" w="200" h="60"/>
+        <node identifier="id-vn-cicd" elementRef="id-tech-svc-cicd" xsi:type="Element" x="240" y="180" w="200" h="60"/>
+        <node identifier="id-vn-monitoring" elementRef="id-tech-svc-monitoring" xsi:type="Element" x="460" y="180" w="200" h="60"/>
+      </view>
+
+      <!-- View 4: Motivation / Strategy -->
+      <view identifier="id-view-motivation" xsi:type="Diagram">
+        <name xml:lang="en">Strategic Goals and Principles</name>
+        <node identifier="id-vn-goal-cx" elementRef="id-goal-digital-cx" xsi:type="Element" x="20" y="20" w="260" h="60"/>
+        <node identifier="id-vn-goal-claims" elementRef="id-goal-claims-speed" xsi:type="Element" x="300" y="20" w="260" h="60"/>
+        <node identifier="id-vn-goal-reg" elementRef="id-goal-regulatory" xsi:type="Element" x="580" y="20" w="260" h="60"/>
+        <node identifier="id-vn-goal-cost" elementRef="id-goal-cost-efficiency" xsi:type="Element" x="20" y="100" w="260" h="60"/>
+        <node identifier="id-vn-goal-fraud" elementRef="id-goal-fraud-reduction" xsi:type="Element" x="300" y="100" w="260" h="60"/>
+        <node identifier="id-vn-prin-api" elementRef="id-prin-api-first" xsi:type="Element" x="20" y="200" w="200" h="60"/>
+        <node identifier="id-vn-prin-cloud" elementRef="id-prin-cloud-preferred" xsi:type="Element" x="240" y="200" w="200" h="60"/>
+        <node identifier="id-vn-prin-privacy" elementRef="id-prin-data-privacy" xsi:type="Element" x="460" y="200" w="200" h="60"/>
+        <node identifier="id-vn-prin-zt" elementRef="id-prin-zero-trust" xsi:type="Element" x="680" y="200" w="200" h="60"/>
+        <node identifier="id-vn-prin-sot" elementRef="id-prin-single-source" xsi:type="Element" x="20" y="280" w="200" h="60"/>
+      </view>
+
+    </diagrams>
+  </views>
+
+</model>
