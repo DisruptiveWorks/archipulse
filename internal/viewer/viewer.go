@@ -87,9 +87,10 @@ func (r *Registry) IntegrationMap(workspaceID uuid.UUID) (*views.IntegrationGrap
 	return views.IntegrationMap(r.db, workspaceID)
 }
 
-// ApplicationDashboard returns lifecycle and type distribution for the Application layer.
-func (r *Registry) ApplicationDashboard(workspaceID uuid.UUID) (*views.ApplicationDashboardData, error) {
-	return views.ApplicationDashboard(r.db, workspaceID)
+// ApplicationDashboard returns all property distributions for the Application layer,
+// optionally filtered by capability name ("" or "all" = no filter).
+func (r *Registry) ApplicationDashboard(workspaceID uuid.UUID, capability string) (*views.ApplicationDashboardData, error) {
+	return views.ApplicationDashboard(r.db, workspaceID, capability)
 }
 
 // List returns the names of all registered tabular views, sorted.

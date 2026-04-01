@@ -86,14 +86,16 @@ func (h *viewerHandler) getCapabilityTree(w http.ResponseWriter, r *http.Request
 	respondJSON(w, http.StatusOK, map[string]any{"nodes": nodes})
 }
 
-// getApplicationDashboard returns lifecycle and type distribution stats.
+// getApplicationDashboard returns property distribution stats.
+// Accepts optional ?capability=<name> query param to filter by capability.
 func (h *viewerHandler) getApplicationDashboard(w http.ResponseWriter, r *http.Request) {
 	wsID, err := uuid.Parse(chi.URLParam(r, "id"))
 	if err != nil {
 		respondError(w, http.StatusBadRequest, err)
 		return
 	}
-	data, err := h.registry.ApplicationDashboard(wsID)
+	capability := r.URL.Query().Get("capability")
+	data, err := h.registry.ApplicationDashboard(wsID, capability)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, err)
 		return
