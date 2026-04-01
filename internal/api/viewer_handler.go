@@ -86,11 +86,27 @@ func (h *viewerHandler) getCapabilityTree(w http.ResponseWriter, r *http.Request
 	respondJSON(w, http.StatusOK, map[string]any{"nodes": nodes})
 }
 
+// getApplicationDashboard returns lifecycle and type distribution stats.
+func (h *viewerHandler) getApplicationDashboard(w http.ResponseWriter, r *http.Request) {
+	wsID, err := uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		respondError(w, http.StatusBadRequest, err)
+		return
+	}
+	data, err := h.registry.ApplicationDashboard(wsID)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, err)
+		return
+	}
+	respondJSON(w, http.StatusOK, data)
+}
+
 func registerViewerRoutes(r chi.Router, db *sql.DB) {
 	h := &viewerHandler{registry: viewer.NewRegistry(db)}
 	r.Get("/workspaces/{id}/views", h.listViews)
 	r.Get("/workspaces/{id}/views/capability-tree/tree", h.getCapabilityTree)
 	r.Get("/workspaces/{id}/views/application-dependency/graph", h.getDependencyGraph)
 	r.Get("/workspaces/{id}/views/integration-map/graph", h.getIntegrationMap)
+	r.Get("/workspaces/{id}/views/application-dashboard/stats", h.getApplicationDashboard)
 	r.Get("/workspaces/{id}/views/{view}", h.getView)
 }
