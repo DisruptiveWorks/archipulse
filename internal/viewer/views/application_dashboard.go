@@ -137,18 +137,18 @@ func appsInScope(db *sql.DB, workspaceID uuid.UUID, capabilityName string) ([]uu
 // propertyDistributions returns, for every distinct property key found among
 // the given app IDs, a slice of (value, count) sorted by count descending.
 // Apps missing a given key are counted as "(unset)".
-func propertyDistributions(db *sql.DB, workspaceID uuid.UUID, appIDs []uuid.UUID, total int) (map[string][]PropertyBucket, error) {
+func propertyDistributions(db *sql.DB, _ uuid.UUID, appIDs []uuid.UUID, total int) (map[string][]PropertyBucket, error) {
 	if len(appIDs) == 0 {
 		return map[string][]PropertyBucket{}, nil
 	}
 
-	// Build $2, $3, ... placeholders for the app IDs.
+	// Build $1, $2, ... placeholders for the app IDs.
+	// workspaceID is not needed here — appIDs are already workspace-scoped.
 	placeholders := make([]string, len(appIDs))
-	args := make([]any, 0, 1+len(appIDs))
-	args = append(args, workspaceID)
+	args := make([]any, len(appIDs))
 	for i, id := range appIDs {
-		placeholders[i] = fmt.Sprintf("$%d", i+2)
-		args = append(args, id)
+		placeholders[i] = fmt.Sprintf("$%d", i+1)
+		args[i] = id
 	}
 	inClause := joinStrings(placeholders, ",")
 
