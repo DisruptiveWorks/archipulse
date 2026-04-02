@@ -69,13 +69,11 @@
 
   $: colorMap = data ? buildColorMap(overlay, data.l1) : {};
 
-  function chipColor(app) {
-    const v = app.properties?.[overlay] ?? '';
+  // overlay is passed explicitly so Svelte tracks it as a template dependency
+  // and re-evaluates the expression when the overlay selector changes.
+  function chipColor(app, ov) {
+    const v = app.properties?.[ov] ?? '';
     return v ? (colorMap[v] ?? '#6b7280') : UNSET_COLOR;
-  }
-
-  function chipValue(app) {
-    return app.properties?.[overlay] ?? '(unset)';
   }
 
   // ── Legend entries (distinct values present) ──────────────────────────────
@@ -235,7 +233,7 @@
                       {#each l2.apps as app}
                         <button
                           class="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-medium text-[#0f1117] transition-opacity hover:opacity-80 cursor-default"
-                          style="background:{chipColor(app)}"
+                          style="background:{chipColor(app, overlay)}"
                           onmouseenter={(e) => showTooltip(e, app)}
                           onmouseleave={hideTooltip}
                           onfocus={(e) => showTooltip(e, app)}
