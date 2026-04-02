@@ -154,7 +154,7 @@ func loadAppsByCapability(db *sql.DB, workspaceID uuid.UUID) (map[string][]Lands
 			AND cap.type         = 'Capability'
 		WHERE r.workspace_id = $1
 		  AND r.type IN ('Realization', 'RealizationRelationship')
-		ORDER BY cap.source_id, e.name`, appTypesSQL))
+		ORDER BY cap.source_id, e.name`, appTypesSQL), workspaceID)
 	if err != nil {
 		return nil, fmt.Errorf("apps by capability: %w", err)
 	}
