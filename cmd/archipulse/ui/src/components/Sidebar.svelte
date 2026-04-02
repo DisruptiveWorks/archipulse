@@ -1,6 +1,6 @@
 <script>
   import { createEventDispatcher } from 'svelte';
-  import { push } from 'svelte-spa-router';
+  import { push, location } from 'svelte-spa-router';
   import { VIEWS, LAYER_GROUPS } from '../lib/views.js';
   import { api } from '../lib/api.js';
   import { Badge } from '$lib/components/ui/badge';
@@ -8,9 +8,19 @@
 
   export let wsId;
   export let ws = null;
-  export let activeView = null;
 
   const dispatch = createEventDispatcher();
+
+  // Derive active state directly from the router location store —
+  // avoids stale-prop issues from parent re-render timing.
+  function isActive(key) {
+    const base = '/ws/' + wsId + '/view/' + key;
+    return $location === base || $location.startsWith(base + '/');
+  }
+
+  function isOverview() {
+    return $location === '/ws/' + wsId;
+  }
 
   const dotColors = {
     'dot-biz':   '#e0af68',
@@ -26,11 +36,6 @@
 
   function navTarget(key, v) {
     return v.graph ? key + '/graph' : v.tree ? key + '/tree' : key;
-  }
-
-  function isActive(key, v) {
-    const target = navTarget(key, v);
-    return activeView === target || activeView === key;
   }
 
   function handleFileInput(e) {
@@ -83,7 +88,7 @@
   {/if}
 
   <div
-    class="flex items-center gap-2 px-2 py-1.5 rounded-md text-sm cursor-pointer transition-colors mx-2 mt-2 {!activeView ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}"
+    class="flex items-center gap-2 px-2 py-1.5 rounded-md text-sm cursor-pointer transition-colors mx-2 mt-2 {isOverview() ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}"
     on:click={() => push('/ws/' + wsId)}
     on:keydown={e => e.key === 'Enter' && push('/ws/' + wsId)}
     role="button"
@@ -102,7 +107,7 @@
         <div class="text-[10px] font-bold tracking-[0.8px] uppercase text-muted-foreground px-2 mb-1">{group.label}</div>
         {#each items as [key, v]}
           <div
-            class="flex items-center gap-2 px-2 py-1.5 rounded-md text-sm cursor-pointer transition-colors {isActive(key, v) ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}"
+            class="flex items-center gap-2 px-2 py-1.5 rounded-md text-sm cursor-pointer transition-colors {isActive(key) ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}"
             on:click={() => push('/ws/' + wsId + '/view/' + navTarget(key, v))}
             on:keydown={e => e.key === 'Enter' && push('/ws/' + wsId + '/view/' + navTarget(key, v))}
             role="button"

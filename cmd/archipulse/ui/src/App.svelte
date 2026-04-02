@@ -94,7 +94,6 @@
     <Sidebar
       {wsId}
       {ws}
-      activeView={activeView}
       on:imported={handleImported}
     />
     <div style="flex:1;display:flex;flex-direction:column;min-width:0">
