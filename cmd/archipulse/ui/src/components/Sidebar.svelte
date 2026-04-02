@@ -11,16 +11,9 @@
 
   const dispatch = createEventDispatcher();
 
-  // Derive active state directly from the router location store —
-  // avoids stale-prop issues from parent re-render timing.
-  function isActive(key) {
-    const base = '/ws/' + wsId + '/view/' + key;
-    return $location === base || $location.startsWith(base + '/');
-  }
-
-  function isOverview() {
-    return $location === '/ws/' + wsId;
-  }
+  // $: ensures Svelte tracks $location as a reactive dependency and
+  // re-renders whenever the store changes.
+  $: loc = $location;
 
   const dotColors = {
     'dot-biz':   '#e0af68',
@@ -88,7 +81,7 @@
   {/if}
 
   <div
-    class="flex items-center gap-2 px-2 py-1.5 rounded-md text-sm cursor-pointer transition-colors mx-2 mt-2 {isOverview() ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}"
+    class="flex items-center gap-2 px-2 py-1.5 rounded-md text-sm cursor-pointer transition-colors mx-2 mt-2 {loc === '/ws/' + wsId ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}"
     on:click={() => push('/ws/' + wsId)}
     on:keydown={e => e.key === 'Enter' && push('/ws/' + wsId)}
     role="button"
@@ -106,8 +99,10 @@
       <div class="px-2 pt-3 pb-1">
         <div class="text-[10px] font-bold tracking-[0.8px] uppercase text-muted-foreground px-2 mb-1">{group.label}</div>
         {#each items as [key, v]}
+          {@const base = '/ws/' + wsId + '/view/' + key}
+          {@const active = loc === base || loc.startsWith(base + '/')}
           <div
-            class="flex items-center gap-2 px-2 py-1.5 rounded-md text-sm cursor-pointer transition-colors {isActive(key) ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}"
+            class="flex items-center gap-2 px-2 py-1.5 rounded-md text-sm cursor-pointer transition-colors {active ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}"
             on:click={() => push('/ws/' + wsId + '/view/' + navTarget(key, v))}
             on:keydown={e => e.key === 'Enter' && push('/ws/' + wsId + '/view/' + navTarget(key, v))}
             role="button"
