@@ -4,6 +4,7 @@
   import { VIEWS } from '../lib/views.js';
   import TableView from './TableView.svelte';
   import ApplicationDashboard from './ApplicationDashboard.svelte';
+  import ApplicationLandscapeMap from './ApplicationLandscapeMap.svelte';
 
   export let params = {};
 
@@ -19,6 +20,9 @@
       redirected = true;
     } else if (view && view.tree) {
       push('/ws/' + wsId + '/view/' + viewName + '/tree');
+      redirected = true;
+    } else if (view && view.map) {
+      push('/ws/' + wsId + '/view/' + viewName + '/map');
       redirected = true;
     }
   });

@@ -103,6 +103,21 @@ func (h *viewerHandler) getApplicationDashboard(w http.ResponseWriter, r *http.R
 	respondJSON(w, http.StatusOK, data)
 }
 
+// getLandscapeMap returns the L1 → L2 → apps hierarchy for the landscape map view.
+func (h *viewerHandler) getLandscapeMap(w http.ResponseWriter, r *http.Request) {
+	wsID, err := uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		respondError(w, http.StatusBadRequest, err)
+		return
+	}
+	data, err := h.registry.ApplicationLandscapeMap(wsID)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, err)
+		return
+	}
+	respondJSON(w, http.StatusOK, data)
+}
+
 func registerViewerRoutes(r chi.Router, db *sql.DB) {
 	h := &viewerHandler{registry: viewer.NewRegistry(db)}
 	r.Get("/workspaces/{id}/views", h.listViews)
@@ -110,5 +125,6 @@ func registerViewerRoutes(r chi.Router, db *sql.DB) {
 	r.Get("/workspaces/{id}/views/application-dependency/graph", h.getDependencyGraph)
 	r.Get("/workspaces/{id}/views/integration-map/graph", h.getIntegrationMap)
 	r.Get("/workspaces/{id}/views/application-dashboard/stats", h.getApplicationDashboard)
+	r.Get("/workspaces/{id}/views/application-landscape/map", h.getLandscapeMap)
 	r.Get("/workspaces/{id}/views/{view}", h.getView)
 }

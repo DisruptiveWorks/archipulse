@@ -93,6 +93,11 @@ func (r *Registry) ApplicationDashboard(workspaceID uuid.UUID, capability string
 	return views.ApplicationDashboard(r.db, workspaceID, capability)
 }
 
+// ApplicationLandscapeMap returns the L1 → L2 → apps hierarchy for the landscape map view.
+func (r *Registry) ApplicationLandscapeMap(workspaceID uuid.UUID) (*views.ApplicationLandscapeMapData, error) {
+	return views.ApplicationLandscapeMap(r.db, workspaceID)
+}
+
 // List returns the names of all registered tabular views, sorted.
 func (r *Registry) List() []string {
 	names := make([]string, 0, len(r.views))
