@@ -8,6 +8,7 @@
   import ViewRouter from './routes/ViewRouter.svelte';
   import GraphView from './routes/GraphView.svelte';
   import CapabilityTree from './routes/CapabilityTree.svelte';
+  import ApplicationLandscapeMap from './routes/ApplicationLandscapeMap.svelte';
 
   import { api } from './lib/api.js';
   import { VIEWS } from './lib/views.js';
@@ -20,6 +21,7 @@
     '/ws/:wsId/view/:viewName': ViewRouter,
     '/ws/:wsId/view/:viewName/graph': GraphView,
     '/ws/:wsId/view/:viewName/tree': CapabilityTree,
+    '/ws/:wsId/view/:viewName/map': ApplicationLandscapeMap,
   };
 
   // Current route state derived from location
@@ -53,8 +55,8 @@
   }
 
   function extractParams(loc) {
-    // Match /ws/:wsId/view/:viewName/graph or /tree
-    let m = loc.match(/^\/ws\/([^/]+)\/view\/([^/]+)\/(graph|tree)$/);
+    // Match /ws/:wsId/view/:viewName/graph or /tree or /map
+    let m = loc.match(/^\/ws\/([^/]+)\/view\/([^/]+)\/(graph|tree|map)$/);
     if (m) return { wsId: m[1], viewName: m[2], activeView: m[2] + '/' + m[3] };
 
     // Match /ws/:wsId/view/:viewName
@@ -62,7 +64,7 @@
     if (m) {
       const vn = m[2];
       const v = VIEWS[vn];
-      const target = v && v.graph ? vn + '/graph' : v && v.tree ? vn + '/tree' : vn;
+      const target = v && v.graph ? vn + '/graph' : v && v.tree ? vn + '/tree' : v && v.map ? vn + '/map' : vn;
       return { wsId: m[1], viewName: vn, activeView: target };
     }
 
