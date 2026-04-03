@@ -8,8 +8,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@dagrejs/dagre": "^3.0.0",
     "@lucide/svelte": "^1.7.0",
     "@tailwindcss/vite": "^4.2.2",
+    "@xyflow/svelte": "^1.5.2",
     "bits-ui": "^2.16.5",
     "clsx": "^2.1.1",
     "cytoscape": "^3.29.2",
