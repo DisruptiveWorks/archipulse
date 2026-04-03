@@ -18,9 +18,10 @@ type CapabilityNode struct {
 
 // CapabilitySuppApp is an application element that serves a capability or process.
 type CapabilitySuppApp struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
-	Type string `json:"type"`
+	ID              string `json:"id"`
+	Name            string `json:"name"`
+	Type            string `json:"type"`
+	LifecycleStatus string `json:"lifecycle_status"`
 }
 
 // CapabilityTreeData returns all capability/process nodes with parent references
@@ -72,7 +73,16 @@ func CapabilityTreeData(db *sql.DB, workspaceID uuid.UUID) ([]CapabilityNode, er
 			r.target_element AS cap_id,
 			a.source_id,
 			a.name,
-			a.type
+			a.type,
+			COALESCE(
+				(SELECT ep.value
+				 FROM element_properties ep
+				 WHERE ep.element_id = a.id
+				   AND ep.key = 'lifecycle_status'
+				   AND ep.source = 'model'
+				 LIMIT 1),
+				''
+			) AS lifecycle_status
 		FROM relationships r
 		JOIN elements a
 			ON  a.workspace_id = r.workspace_id
@@ -93,7 +103,7 @@ func CapabilityTreeData(db *sql.DB, workspaceID uuid.UUID) ([]CapabilityNode, er
 	for appRows.Next() {
 		var capID string
 		var app CapabilitySuppApp
-		if err := appRows.Scan(&capID, &app.ID, &app.Name, &app.Type); err != nil {
+		if err := appRows.Scan(&capID, &app.ID, &app.Name, &app.Type, &app.LifecycleStatus); err != nil {
 			return nil, err
 		}
 		if idx, ok := nodeIndex[capID]; ok {
