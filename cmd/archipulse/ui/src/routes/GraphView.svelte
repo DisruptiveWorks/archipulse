@@ -95,12 +95,12 @@
     selectedId = id;
     const node = cy.$id(id);
     const visible = node.union(node.neighborhood());
-    // Hide everything outside the neighbourhood and re-layout the subgraph.
     cy.elements().style('display', 'none').removeClass('selected faded');
     visible.style('display', 'element');
     node.addClass('selected');
-    visible.layout({ ...DAGRE_OPTS, animate: true, animationDuration: 350 }).run();
-    cy.once('layoutstop', () => cy.fit(visible, 60));
+    // Layout without animation so positions are final before fit.
+    visible.layout(DAGRE_OPTS).run();
+    cy.animate({ fit: { eles: visible, padding: 60 }, duration: 300 });
   }
 
   function clearFocus() {
@@ -108,8 +108,8 @@
     selectedId = null;
     cy.elements().style('display', 'element').removeClass('selected faded');
     applyRelFilter();
-    cy.layout({ ...DAGRE_OPTS, animate: true, animationDuration: 350 }).run();
-    cy.once('layoutstop', () => cy.fit(undefined, 48));
+    cy.layout(DAGRE_OPTS).run();
+    cy.animate({ fit: { eles: cy.elements(), padding: 48 }, duration: 300 });
   }
 
   onMount(async () => {
