@@ -10,9 +10,9 @@
   } from '@xyflow/svelte';
   import '@xyflow/svelte/dist/style.css';
   import dagre from '@dagrejs/dagre';
-  import { api } from '../../lib/api.js';
-  import AppNode from './AppNode.svelte';
-  import FlowControls from './FlowControls.svelte';
+  import { api } from '../lib/api.js';
+  import AppNode from '../components/flow/AppNode.svelte';
+  import FlowControls from '../components/flow/FlowControls.svelte';
 
   let { params = {} } = $props();
 
