@@ -6,8 +6,7 @@
   import Home from './routes/Home.svelte';
   import WorkspaceOverview from './routes/WorkspaceOverview.svelte';
   import ViewRouter from './routes/ViewRouter.svelte';
-  import GraphView from './routes/GraphView.svelte';
-  import DependencyGraphView from './routes/dependency/DependencyGraphView.svelte';
+  import DependencyGraphView from './routes/DependencyGraphView.svelte';
   import CapabilityTree from './routes/CapabilityTree.svelte';
   import ApplicationLandscapeMap from './routes/ApplicationLandscapeMap.svelte';
 
@@ -21,7 +20,6 @@
     '/ws/:wsId': WorkspaceOverview,
     '/ws/:wsId/view/:viewName': ViewRouter,
     '/ws/:wsId/view/application-dependency/graph': DependencyGraphView,
-    '/ws/:wsId/view/:viewName/graph': GraphView,
     '/ws/:wsId/view/:viewName/tree': CapabilityTree,
     '/ws/:wsId/view/:viewName/map': ApplicationLandscapeMap,
   };
