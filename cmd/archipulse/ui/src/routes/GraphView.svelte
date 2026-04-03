@@ -88,21 +88,28 @@
     applyRelFilter();
   }
 
+  const DAGRE_OPTS = { name: 'dagre', rankDir: 'LR', nodeSep: 28, rankSep: 90, animate: false, padding: 48 };
+
   function focusNode(id) {
     if (!cy) return;
     selectedId = id;
     const node = cy.$id(id);
-    cy.elements().addClass('faded').removeClass('selected');
-    node.removeClass('faded').addClass('selected');
-    node.neighborhood().removeClass('faded');
-    cy.animate({ fit: { eles: node.neighborhood().union(node), padding: 80 }, duration: 350 });
+    const visible = node.union(node.neighborhood());
+    // Hide everything outside the neighbourhood and re-layout the subgraph.
+    cy.elements().style('display', 'none').removeClass('selected faded');
+    visible.style('display', 'element');
+    node.addClass('selected');
+    visible.layout({ ...DAGRE_OPTS, animate: true, animationDuration: 350 }).run();
+    cy.once('layoutstop', () => cy.fit(visible, 60));
   }
 
   function clearFocus() {
     if (!cy) return;
     selectedId = null;
-    cy.elements().removeClass('faded selected');
-    cy.fit(undefined, 48);
+    cy.elements().style('display', 'element').removeClass('selected faded');
+    applyRelFilter();
+    cy.layout({ ...DAGRE_OPTS, animate: true, animationDuration: 350 }).run();
+    cy.once('layoutstop', () => cy.fit(undefined, 48));
   }
 
   onMount(async () => {
@@ -147,12 +154,11 @@
   function fit()      { if (cy) cy.fit(undefined, 48); }
   function relayout() {
     if (!cy) return;
-    cy.layout({
-      name: isDependency ? 'dagre' : 'cose',
-      ...(isDependency
-        ? { rankDir: 'LR', nodeSep: 28, rankSep: 90, animate: true, animationDuration: 400, padding: 48 }
-        : { animate: true, padding: 40, nodeRepulsion: 8000 }),
-    }).run();
+    if (isDependency) {
+      clearFocus();
+    } else {
+      cy.layout({ name: 'cose', animate: true, padding: 40, nodeRepulsion: 8000 }).run();
+    }
   }
 </script>
 
