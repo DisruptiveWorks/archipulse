@@ -188,16 +188,14 @@
     applyLayout(currentVisibleIds());
   }
 
-  // ── Edge events (xyflow passes (event, edge) directly) ────────────────────
-  function onEdgeMouseEnter(event, edge) {
+  // ── Edge events ───────────────────────────────────────────────────────────
+  // @xyflow/svelte uses onedgepointerenter/leave; callback receives { event, edge }
+  function onEdgePointerEnter({ event, edge }) {
     const d = edge?.data;
     if (!d) return;
     tooltip = { text: `${d.sourceName}  →  ${d.relLabel}  →  ${d.targetName}`, x: event.clientX, y: event.clientY };
   }
-  function onEdgeMouseMove(event) {
-    if (tooltip) tooltip = { ...tooltip, x: event.clientX, y: event.clientY };
-  }
-  function onEdgeMouseLeave() { tooltip = null; }
+  function onEdgePointerLeave() { tooltip = null; }
 
   // ── Panel list ────────────────────────────────────────────────────────────
   const filteredNodes = $derived(
@@ -321,9 +319,8 @@
           minZoom={0.08}
           maxZoom={3}
           proOptions={{ hideAttribution: true }}
-          onedgemouseenter={onEdgeMouseEnter}
-          onedgemousemove={onEdgeMouseMove}
-          onedgemouseleave={onEdgeMouseLeave}
+          onedgepointerenter={onEdgePointerEnter}
+          onedgepointerleave={onEdgePointerLeave}
           style="background:#161b22; width:100%; height:100%;"
         >
           <!-- Registers fitView from inside the SvelteFlow context -->
