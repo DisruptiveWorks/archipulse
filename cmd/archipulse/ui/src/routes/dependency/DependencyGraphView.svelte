@@ -221,7 +221,7 @@
   </div>
 {/if}
 
-<div class="content" style="padding:0; display:flex; flex-direction:column; height:100%;">
+<div style="position:fixed; top:var(--nav-h); left:var(--sidebar-w); right:0; bottom:0; display:flex; flex-direction:column; overflow:hidden; background:var(--bg);">
 
   <!-- Header -->
   <div class="flex items-center justify-between gap-4 px-6 pt-5 pb-4 flex-shrink-0">
