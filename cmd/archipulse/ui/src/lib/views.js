@@ -1,5 +1,5 @@
 export const VIEWS = {
-  'element-catalogue':      { icon: '◈', label: 'Element Catalogue',      desc: 'All elements across layers',                                   layer: 'cross' },
+  'element-catalogue':      { icon: '◈', label: 'Element Catalogue',      desc: 'All elements across layers',                                   layer: 'cross', catalogue: 'element' },
   'capability-tree':        { icon: '◈', label: 'Capability Tree',         desc: 'Business capability hierarchy',                                layer: 'business', tree: true },
   'application-dashboard':  { icon: '◉', label: 'Application Dashboard',   desc: 'Lifecycle status & type distribution charts',                  layer: 'application', dashboard: true },
   'application-landscape':  { icon: '◈', label: 'Application Landscape',   desc: 'Capabilities mapped to realizing applications',                layer: 'application', map: true },
