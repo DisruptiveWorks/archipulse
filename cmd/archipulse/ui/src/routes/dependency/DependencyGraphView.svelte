@@ -251,7 +251,7 @@
     <div class="flex flex-1 min-h-0">
 
       <!-- Left panel -->
-      <div class="flex flex-col border-r border-border w-52 flex-shrink-0 bg-card/50 overflow-hidden">
+      <div class="flex flex-col border-r border-border w-52 flex-shrink-0 bg-card/50 overflow-hidden min-h-0 h-full">
 
         <div class="px-3 pt-3 pb-2 flex-shrink-0">
           <input type="search" bind:value={searchQ} placeholder="Find application…"
