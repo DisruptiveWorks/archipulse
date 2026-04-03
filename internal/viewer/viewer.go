@@ -98,6 +98,16 @@ func (r *Registry) ApplicationLandscapeMap(workspaceID uuid.UUID) (*views.Applic
 	return views.ApplicationLandscapeMap(r.db, workspaceID)
 }
 
+// AppCatalogueEntries returns all application elements with properties for the rich catalogue view.
+func (r *Registry) AppCatalogueEntries(workspaceID uuid.UUID) (*views.AppCatalogueData, error) {
+	return views.AppCatalogueEntries(r.db, workspaceID)
+}
+
+// TechCatalogueEntries returns all technology elements with assigned apps for the rich catalogue view.
+func (r *Registry) TechCatalogueEntries(workspaceID uuid.UUID) (*views.TechCatalogueData, error) {
+	return views.TechCatalogueEntries(r.db, workspaceID)
+}
+
 // List returns the names of all registered tabular views, sorted.
 func (r *Registry) List() []string {
 	names := make([]string, 0, len(r.views))

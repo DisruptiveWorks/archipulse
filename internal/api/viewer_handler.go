@@ -118,6 +118,36 @@ func (h *viewerHandler) getLandscapeMap(w http.ResponseWriter, r *http.Request) 
 	respondJSON(w, http.StatusOK, data)
 }
 
+// getAppCatalogueEntries returns the rich application catalogue payload.
+func (h *viewerHandler) getAppCatalogueEntries(w http.ResponseWriter, r *http.Request) {
+	wsID, err := uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		respondError(w, http.StatusBadRequest, err)
+		return
+	}
+	data, err := h.registry.AppCatalogueEntries(wsID)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, err)
+		return
+	}
+	respondJSON(w, http.StatusOK, data)
+}
+
+// getTechCatalogueEntries returns the rich technology catalogue payload.
+func (h *viewerHandler) getTechCatalogueEntries(w http.ResponseWriter, r *http.Request) {
+	wsID, err := uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		respondError(w, http.StatusBadRequest, err)
+		return
+	}
+	data, err := h.registry.TechCatalogueEntries(wsID)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, err)
+		return
+	}
+	respondJSON(w, http.StatusOK, data)
+}
+
 func registerViewerRoutes(r chi.Router, db *sql.DB) {
 	h := &viewerHandler{registry: viewer.NewRegistry(db)}
 	r.Get("/workspaces/{id}/views", h.listViews)
@@ -126,5 +156,7 @@ func registerViewerRoutes(r chi.Router, db *sql.DB) {
 	r.Get("/workspaces/{id}/views/integration-map/graph", h.getIntegrationMap)
 	r.Get("/workspaces/{id}/views/application-dashboard/stats", h.getApplicationDashboard)
 	r.Get("/workspaces/{id}/views/application-landscape/map", h.getLandscapeMap)
+	r.Get("/workspaces/{id}/views/application-catalogue/entries", h.getAppCatalogueEntries)
+	r.Get("/workspaces/{id}/views/technology-catalogue/entries", h.getTechCatalogueEntries)
 	r.Get("/workspaces/{id}/views/{view}", h.getView)
 }
