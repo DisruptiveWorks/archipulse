@@ -6,6 +6,7 @@
   import ApplicationLandscapeMap from './ApplicationLandscapeMap.svelte';
   import ApplicationCatalogueView from './ApplicationCatalogueView.svelte';
   import TechnologyCatalogueView from './TechnologyCatalogueView.svelte';
+  import ElementCatalogueView from './ElementCatalogueView.svelte';
 
   export let params = {};
 
@@ -35,6 +36,8 @@
 
 {#if view?.dashboard}
   <ApplicationDashboard {params} />
+{:else if view?.catalogue === 'element'}
+  <ElementCatalogueView {params} />
 {:else if view?.catalogue === 'application'}
   <ApplicationCatalogueView {params} />
 {:else if view?.catalogue === 'technology'}
