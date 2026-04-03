@@ -6,36 +6,36 @@
     MiniMap,
     Background,
     BackgroundVariant,
+    Panel,
   } from '@xyflow/svelte';
   import '@xyflow/svelte/dist/style.css';
   import dagre from '@dagrejs/dagre';
   import { api } from '../../lib/api.js';
   import AppNode from './AppNode.svelte';
+  import FlowControls from './FlowControls.svelte';
 
   let { params = {} } = $props();
-  $effect(() => { wsId = params.wsId; });
-  let wsId = $state('');
 
-  // ── XyFlow state ─────────────────────────────────────────────────────────
+  // ── XyFlow state ──────────────────────────────────────────────────────────
   let nodes = $state([]);
   let edges = $state([]);
   const nodeTypes = { appNode: AppNode };
 
-  // fitView called via the flow instance obtained from oninit
-  let flowInstance = $state(null);
-  function fit() { flowInstance?.fitView({ padding: 0.12, duration: 300 }); }
+  // fitView comes from useSvelteFlow() via child FlowControls
+  let fitView = $state(null);
+  function fit() { fitView?.({ padding: 0.12, duration: 300 }); }
 
   // ── Data ──────────────────────────────────────────────────────────────────
-  let allNodes   = $state([]);
-  let allEdges   = $state([]);
-  let loading    = $state(true);
-  let error      = $state(null);
+  let allNodes = $state([]);
+  let allEdges = $state([]);
+  let loading  = $state(true);
+  let error    = $state(null);
 
-  // ── Panel state ───────────────────────────────────────────────────────────
+  // ── Panel ─────────────────────────────────────────────────────────────────
   let searchQ    = $state('');
   let selectedId = $state(null);
 
-  // ── Tooltip ───────────────────────────────────────────────────────────────
+  // ── Edge tooltip ──────────────────────────────────────────────────────────
   let tooltip = $state(null);
 
   // ── Relationship filters ──────────────────────────────────────────────────
@@ -49,11 +49,11 @@
   let activeRels = $state(new Set(REL_TYPES.map(r => r.key)));
 
   const LIFECYCLE_COLORS = {
-    'Production':     '#4ade80',
-    'Pilot':          '#60a5fa',
-    'Planned':        '#a78bfa',
-    'Retiring':       '#fb923c',
-    'Decommissioned': '#f87171',
+    'Production':     '#22c55e',
+    'Pilot':          '#3b82f6',
+    'Planned':        '#8b5cf6',
+    'Retiring':       '#f97316',
+    'Decommissioned': '#ef4444',
   };
 
   const REL_META = {
@@ -85,10 +85,10 @@
   function layoutNodes(rawNodes, rawEdges, visibleIds = null) {
     const g = new dagre.graphlib.Graph();
     g.setDefaultEdgeLabel(() => ({}));
-    g.setGraph({ rankdir: 'LR', nodesep: 32, ranksep: 110, marginx: 48, marginy: 48 });
+    g.setGraph({ rankdir: 'LR', nodesep: 36, ranksep: 120, marginx: 60, marginy: 60 });
 
-    const nw = (tier) => tier === 'component' ? 180 : 150;
-    const nh = (tier) => tier === 'component' ? 48  : 38;
+    const nw = t => t === 'component' ? 190 : 158;
+    const nh = t => t === 'component' ? 52  : 42;
     const nodeSet = visibleIds ? new Set(visibleIds) : null;
 
     rawNodes.forEach(n => {
@@ -116,6 +116,7 @@
         return {
           id:       n.id,
           type:     'appNode',
+          draggable: false,
           position: gn ? { x: gn.x - nw(tier) / 2, y: gn.y - nh(tier) / 2 } : { x: 0, y: 0 },
           data:     { label: n.name, badge: n.type.replace('Application', ''), tier, lifecycle: n.lifecycle_status },
         };
@@ -135,8 +136,8 @@
           source:    e.source,
           target:    e.target,
           animated:  meta.animated,
-          style:     `stroke:${meta.color}; stroke-width:1.5px;`,
-          markerEnd: { type: 'arrowclosed', color: meta.color, width: 16, height: 16 },
+          style:     `stroke:${meta.color}; stroke-width:1.8px;`,
+          markerEnd: { type: 'arrowclosed', color: meta.color, width: 14, height: 14 },
           data:      { relLabel: meta.label, sourceName: nameById[e.source] ?? '', targetName: nameById[e.target] ?? '', rk },
         };
       });
@@ -148,7 +149,8 @@
     const { flowNodes, flowEdges } = layoutNodes(allNodes, allEdges, visibleIds);
     nodes = flowNodes;
     edges = flowEdges;
-    setTimeout(fit, 60);
+    // Fit after a short delay to ensure SvelteFlow has rendered new positions.
+    setTimeout(fit, 80);
   }
 
   // ── Focus / clear ─────────────────────────────────────────────────────────
@@ -180,18 +182,18 @@
     applyLayout(selectedId ? neighbourIds(selectedId) : null);
   }
 
-  // ── Edge events ────────────────────────────────────────────────────────────
-  function onEdgeMouseEnter(e) {
-    const d = e.detail?.edge?.data;
+  // ── Edge events (xyflow passes (event, edge) directly) ────────────────────
+  function onEdgeMouseEnter(event, edge) {
+    const d = edge?.data;
     if (!d) return;
-    tooltip = { text: `${d.sourceName} → ${d.relLabel} → ${d.targetName}`, x: e.detail?.event?.clientX ?? 0, y: e.detail?.event?.clientY ?? 0 };
+    tooltip = { text: `${d.sourceName}  →  ${d.relLabel}  →  ${d.targetName}`, x: event.clientX, y: event.clientY };
   }
-  function onEdgeMouseMove(e) {
-    if (tooltip) tooltip = { ...tooltip, x: e.detail?.event?.clientX ?? tooltip.x, y: e.detail?.event?.clientY ?? tooltip.y };
+  function onEdgeMouseMove(event) {
+    if (tooltip) tooltip = { ...tooltip, x: event.clientX, y: event.clientY };
   }
   function onEdgeMouseLeave() { tooltip = null; }
 
-  // ── Panel filter ──────────────────────────────────────────────────────────
+  // ── Panel list ────────────────────────────────────────────────────────────
   const filteredNodes = $derived(
     searchQ ? allNodes.filter(n => n.name.toLowerCase().includes(searchQ.toLowerCase())) : allNodes
   );
@@ -211,9 +213,10 @@
   });
 </script>
 
+<!-- Edge tooltip -->
 {#if tooltip}
-  <div class="fixed z-50 pointer-events-none bg-popover border border-border rounded-lg shadow-lg px-3 py-2 text-[12px] text-foreground max-w-xs"
-       style="left:{Math.min(tooltip.x + 14, window.innerWidth - 280)}px; top:{tooltip.y - 36}px">
+  <div class="fixed z-50 pointer-events-none rounded-lg shadow-xl px-3 py-2 text-[12px] text-foreground max-w-sm"
+       style="left:{Math.min(tooltip.x + 16, window.innerWidth - 320)}px; top:{tooltip.y - 40}px; background:rgba(22,27,34,0.95); border:1px solid #30363d;">
     {tooltip.text}
   </div>
 {/if}
@@ -226,7 +229,10 @@
       <h1 class="text-[18px] font-semibold">Dependency Graph</h1>
       <div class="text-muted-foreground text-[13px] mt-0.5">Interactive application dependency map</div>
     </div>
-    <button class="bg-card border border-border rounded-md px-3 py-1.5 text-[13px] hover:bg-muted transition-colors" onclick={fit}>⊡ Fit</button>
+    <button
+      class="bg-card border border-border rounded-md px-3 py-1.5 text-[13px] hover:bg-muted transition-colors"
+      onclick={fit}
+    >⊡ Fit</button>
   </div>
 
   {#if loading}
@@ -246,6 +252,7 @@
 
       <!-- Left panel -->
       <div class="flex flex-col border-r border-border w-52 flex-shrink-0 bg-card/50 overflow-hidden">
+
         <div class="px-3 pt-3 pb-2 flex-shrink-0">
           <input type="search" bind:value={searchQ} placeholder="Find application…"
             class="w-full bg-background border border-border rounded-md px-2.5 py-1.5 text-[12px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
@@ -267,7 +274,7 @@
           {/each}
         </div>
 
-        <!-- Rel filters -->
+        <!-- Relationship filters -->
         <div class="border-t border-border px-3 py-2.5 flex-shrink-0">
           <div class="text-[10px] font-bold uppercase tracking-wide text-muted-foreground mb-1.5">Relationships</div>
           {#each REL_TYPES as rt}
@@ -281,54 +288,61 @@
       </div>
 
       <!-- Flow canvas -->
-      <div class="flex-1 relative" style="background:#0d1117;">
+      <div class="flex-1 min-w-0" style="background:#161b22;">
         <SvelteFlow
           {nodes}
           {edges}
           {nodeTypes}
+          nodesDraggable={false}
           fitView
-          minZoom={0.1}
+          minZoom={0.08}
           maxZoom={3}
           proOptions={{ hideAttribution: true }}
-          oninit={(instance) => { flowInstance = instance; }}
           onedgemouseenter={onEdgeMouseEnter}
           onedgemousemove={onEdgeMouseMove}
           onedgemouseleave={onEdgeMouseLeave}
-          style="background:#0d1117;"
+          style="background:#161b22; width:100%; height:100%;"
         >
-          <Controls position="bottom-right" style="background:#1a1f2e; border-color:#2a2d3e;" />
+          <!-- Registers fitView from inside the SvelteFlow context -->
+          <FlowControls onReady={(fn) => { fitView = fn; }} />
+
+          <Controls showInteractive={false} style="background:#1c2128; border:1px solid #30363d; border-radius:8px;" />
+
           <MiniMap
             position="bottom-right"
-            style="background:#1a1f2e; border:1px solid #2a2d3e; margin-bottom:44px;"
-            nodeColor={(n) => LIFECYCLE_COLORS[n.data?.lifecycle] ?? '#3d59a1'}
-            maskColor="rgba(0,0,0,0.6)"
+            style="background:#1c2128; border:1px solid #30363d; border-radius:8px; margin-bottom:48px;"
+            nodeColor={(n) => LIFECYCLE_COLORS[n.data?.lifecycle] ?? '#4a6fa5'}
+            maskColor="rgba(0,0,0,0.55)"
           />
-          <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="#1e2130" />
-        </SvelteFlow>
 
-        <!-- Legend: bottom-left corner over the canvas -->
-        <div class="absolute bottom-4 left-4 z-10 pointer-events-none rounded-lg px-3.5 py-3 text-[11px]"
-             style="background:rgba(13,17,23,0.88); border:1px solid #2a2d3e;">
-          <div class="text-[10px] font-bold uppercase tracking-wide text-muted-foreground mb-2">Node type</div>
-          {#each [
-            { label: 'Component', bStyle: 'solid',  color: '#7aa2f7', bold: true  },
-            { label: 'Service',   bStyle: 'dashed', color: '#60a5fa', bold: false },
-            { label: 'Interface', bStyle: 'dotted', color: '#38bdf8', bold: false },
-            { label: 'Function',  bStyle: 'dotted', color: '#818cf8', bold: false },
-          ] as t}
-            <div class="flex items-center gap-2 mb-1">
-              <div class="flex-shrink-0 rounded-sm" style="width:18px; height:11px; border:1.5px {t.bStyle} {t.color}; background:transparent;"></div>
-              <span style="color:{t.bold ? '#c9d1d9' : '#8b8fa8'}; font-weight:{t.bold ? 600 : 400};">{t.label}</span>
+          <Background variant={BackgroundVariant.Dots} gap={22} size={1} color="#21262d" />
+
+          <!-- Legend panel — rendered inside SvelteFlow as an overlay -->
+          <Panel position="bottom-left">
+            <div class="rounded-lg px-3.5 py-3 text-[11px]" style="background:rgba(22,27,34,0.92); border:1px solid #30363d; min-width:140px;">
+              <div class="text-[10px] font-bold uppercase tracking-wide mb-2" style="color:#6b7280;">Node type</div>
+              {#each [
+                { label: 'Component', bs: 'solid',  color: '#93b4f0', bold: true  },
+                { label: 'Service',   bs: 'dashed', color: '#7aabf7', bold: false },
+                { label: 'Interface', bs: 'dotted', color: '#5ebbe8', bold: false },
+                { label: 'Function',  bs: 'dotted', color: '#a89cf7', bold: false },
+              ] as t}
+                <div class="flex items-center gap-2 mb-1.5">
+                  <div style="width:20px; height:12px; border-radius:3px; border:1.5px {t.bs} {t.color}; background:transparent; flex-shrink:0;"></div>
+                  <span style="color:{t.bold ? '#cdd9e5' : '#8b949e'}; font-weight:{t.bold ? 600 : 400};">{t.label}</span>
+                </div>
+              {/each}
+
+              <div class="text-[10px] font-bold uppercase tracking-wide mt-3 mb-2" style="color:#6b7280;">Lifecycle</div>
+              {#each Object.entries(LIFECYCLE_COLORS) as [lc, color]}
+                <div class="flex items-center gap-2 mb-1.5">
+                  <span style="width:8px; height:8px; border-radius:50%; background:{color}; flex-shrink:0; display:inline-block;"></span>
+                  <span style="color:#8b949e;">{lc}</span>
+                </div>
+              {/each}
             </div>
-          {/each}
-          <div class="text-[10px] font-bold uppercase tracking-wide text-muted-foreground mt-3 mb-2">Lifecycle</div>
-          {#each Object.entries(LIFECYCLE_COLORS) as [lc, color]}
-            <div class="flex items-center gap-2 mb-1">
-              <span class="size-2 rounded-full flex-shrink-0" style="background:{color}"></span>
-              <span class="text-muted-foreground">{lc}</span>
-            </div>
-          {/each}
-        </div>
+          </Panel>
+        </SvelteFlow>
       </div>
 
     </div>

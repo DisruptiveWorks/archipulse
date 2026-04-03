@@ -4,44 +4,43 @@
   let { data = {} } = $props();
 
   const LIFECYCLE_STYLE = {
-    'Production':     { border: '#4ade80', text: '#4ade80', bg: '#0d2a1a' },
-    'Pilot':          { border: '#60a5fa', text: '#60a5fa', bg: '#0d1f38' },
-    'Planned':        { border: '#a78bfa', text: '#a78bfa', bg: '#1a1228' },
-    'Retiring':       { border: '#fb923c', text: '#fb923c', bg: '#2a1800' },
-    'Decommissioned': { border: '#f87171', text: '#f87171', bg: '#2a0d0d' },
+    'Production':     { border: '#22c55e', text: '#86efac', bg: '#14352a' },
+    'Pilot':          { border: '#3b82f6', text: '#93c5fd', bg: '#172444' },
+    'Planned':        { border: '#8b5cf6', text: '#c4b5fd', bg: '#22173a' },
+    'Retiring':       { border: '#f97316', text: '#fdba74', bg: '#3a2010' },
+    'Decommissioned': { border: '#ef4444', text: '#fca5a5', bg: '#3a1414' },
   };
-  const DEFAULT_STYLE = { border: '#3d59a1', text: '#7aa2f7', bg: '#131929' };
+  const DEFAULT_STYLE = { border: '#4a6fa5', text: '#93b4f0', bg: '#1e2d45' };
 
   const style       = $derived(LIFECYCLE_STYLE[data.lifecycle] ?? DEFAULT_STYLE);
   const isComponent = $derived(data.tier === 'component');
-  const borderStyle = $derived(
+  const bw          = $derived(isComponent ? '2.5px' : '1.5px');
+  const bs          = $derived(
     data.tier === 'service'   ? 'dashed' :
     data.tier === 'interface' || data.tier === 'function' ? 'dotted' : 'solid'
   );
 </script>
 
-<div
-  style="
-    background: {style.bg};
-    border: {isComponent ? '2.5px' : '1.5px'} {borderStyle} {style.border};
-    color: {style.text};
-    font-weight: {isComponent ? '700' : '400'};
-    font-size: {isComponent ? '12px' : '11px'};
-    min-width: {isComponent ? '140px' : '110px'};
-    max-width: {isComponent ? '180px' : '156px'};
-    padding: {isComponent ? '9px 13px' : '6px 10px'};
-    border-radius: 8px;
-    text-align: center;
-    line-height: 1.3;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-    cursor: default;
-    user-select: none;
-  "
->
-  <Handle type="target" position={Position.Left}  style="background:{style.border}; width:8px; height:8px; border:none;" />
+<div style="
+  background:{style.bg};
+  border:{bw} {bs} {style.border};
+  color:{style.text};
+  font-weight:{isComponent ? 700 : 400};
+  font-size:{isComponent ? '12px' : '11px'};
+  min-width:{isComponent ? '148px' : '118px'};
+  max-width:{isComponent ? '190px' : '160px'};
+  padding:{isComponent ? '10px 14px' : '7px 11px'};
+  border-radius:8px;
+  text-align:center;
+  line-height:1.35;
+  box-shadow:0 2px 12px rgba(0,0,0,0.5);
+  cursor:default;
+  user-select:none;
+">
+  <Handle type="target" position={Position.Left}  style="background:{style.border}; width:9px; height:9px; border:none; border-radius:50%;" />
   <div style="word-break:break-word;">{data.label}</div>
   {#if data.badge && data.badge !== 'Component'}
-    <div style="font-size:9px; opacity:0.55; margin-top:2px; font-weight:400;">{data.badge}</div>
+    <div style="font-size:9px; opacity:0.6; margin-top:3px; font-weight:400; letter-spacing:0.3px;">{data.badge}</div>
   {/if}
-  <Handle type="source" position={Position.Right} style="background:{style.border}; width:8px; height:8px; border:none;" />
+  <Handle type="source" position={Position.Right} style="background:{style.border}; width:9px; height:9px; border:none; border-radius:50%;" />
 </div>
