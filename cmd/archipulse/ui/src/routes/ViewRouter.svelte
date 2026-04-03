@@ -4,6 +4,8 @@
   import TableView from './TableView.svelte';
   import ApplicationDashboard from './ApplicationDashboard.svelte';
   import ApplicationLandscapeMap from './ApplicationLandscapeMap.svelte';
+  import ApplicationCatalogueView from './ApplicationCatalogueView.svelte';
+  import TechnologyCatalogueView from './TechnologyCatalogueView.svelte';
 
   export let params = {};
 
@@ -33,6 +35,10 @@
 
 {#if view?.dashboard}
   <ApplicationDashboard {params} />
+{:else if view?.catalogue === 'application'}
+  <ApplicationCatalogueView {params} />
+{:else if view?.catalogue === 'technology'}
+  <TechnologyCatalogueView {params} />
 {:else if redirected}
   <div class="flex items-center gap-2 text-muted-foreground py-6">
     <div class="size-4 rounded-full border-2 border-border border-t-primary animate-spin flex-shrink-0"></div>
