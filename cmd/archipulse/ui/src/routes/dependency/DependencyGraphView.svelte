@@ -32,8 +32,8 @@
   let error    = $state(null);
 
   // ── Panel ─────────────────────────────────────────────────────────────────
-  let searchQ    = $state('');
-  let selectedId = $state(null);
+  let searchQ      = $state('');
+  let selectedApps = $state(new Set()); // multi-select set of app IDs
 
   // ── Edge tooltip ──────────────────────────────────────────────────────────
   let tooltip = $state(null);
@@ -153,24 +153,30 @@
     setTimeout(fit, 80);
   }
 
-  // ── Focus / clear ─────────────────────────────────────────────────────────
-  function neighbourIds(id) {
-    const ids = new Set([id]);
+  // ── Multi-selection helpers ───────────────────────────────────────────────
+  function neighboursOfMany(ids) {
+    const result = new Set(ids);
     allEdges.forEach(e => {
-      if (e.source === id) ids.add(e.target);
-      if (e.target === id) ids.add(e.source);
+      if (ids.has(e.source)) result.add(e.target);
+      if (ids.has(e.target)) result.add(e.source);
     });
-    return ids;
+    return result;
   }
 
-  function focusNode(id) {
-    selectedId = id;
-    applyLayout(neighbourIds(id));
+  function currentVisibleIds() {
+    return selectedApps.size > 0 ? neighboursOfMany(selectedApps) : null;
+  }
+
+  function toggleApp(id) {
+    const next = new Set(selectedApps);
+    if (next.has(id)) next.delete(id); else next.add(id);
+    selectedApps = next;
+    applyLayout(next.size > 0 ? neighboursOfMany(next) : null);
   }
 
   function clearFocus() {
-    selectedId = null;
-    applyLayout();
+    selectedApps = new Set();
+    applyLayout(null);
   }
 
   // ── Rel filter toggle ─────────────────────────────────────────────────────
@@ -179,7 +185,7 @@
     if (next.has(key)) { if (next.size === 1) return; next.delete(key); }
     else next.add(key);
     activeRels = next;
-    applyLayout(selectedId ? neighbourIds(selectedId) : null);
+    applyLayout(currentVisibleIds());
   }
 
   // ── Edge events (xyflow passes (event, edge) directly) ────────────────────
@@ -253,20 +259,37 @@
       <!-- Left panel -->
       <div class="flex flex-col border-r border-border w-52 flex-shrink-0 bg-card/50 overflow-hidden min-h-0 h-full">
 
+        <!-- Search -->
         <div class="px-3 pt-3 pb-2 flex-shrink-0">
           <input type="search" bind:value={searchQ} placeholder="Find application…"
             class="w-full bg-background border border-border rounded-md px-2.5 py-1.5 text-[12px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
         </div>
 
-        <div class="overflow-y-auto flex-1 px-2 pb-2">
-          {#if selectedId}
-            <button class="w-full text-left px-2 py-1 rounded text-[11px] text-primary hover:bg-primary/10 mb-1.5" onclick={clearFocus}>← Show all</button>
-          {/if}
+        <!-- Selected chips -->
+        {#if selectedApps.size > 0}
+          <div class="px-2 pb-2 flex-shrink-0 flex flex-wrap gap-1 border-b border-border">
+            {#each [...selectedApps] as id}
+              {@const node = allNodes.find(n => n.id === id)}
+              {@const color = LIFECYCLE_COLORS[node?.lifecycle_status] ?? '#6b7280'}
+              <span class="inline-flex items-center gap-1 pl-1.5 pr-1 py-0.5 rounded-full text-[11px] font-medium"
+                    style="background:{color}22; border:1px solid {color}55; color:{color};">
+                <span class="max-w-[120px] truncate">{node?.name ?? id}</span>
+                <button class="flex-shrink-0 rounded-full hover:bg-white/20 p-0.5 leading-none"
+                        onclick={() => toggleApp(id)}>×</button>
+              </span>
+            {/each}
+            <button class="text-[10px] text-muted-foreground hover:text-foreground px-1" onclick={clearFocus}>clear</button>
+          </div>
+        {/if}
+
+        <!-- App list (scrollable) -->
+        <div class="overflow-y-auto flex-1 px-2 py-1">
           {#each filteredNodes as node}
             {@const color = LIFECYCLE_COLORS[node.lifecycle_status] ?? '#6b7280'}
+            {@const selected = selectedApps.has(node.id)}
             <button
-              class="w-full text-left flex items-center gap-1.5 px-2 py-1.5 rounded text-[12px] transition-colors {selectedId === node.id ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-muted/50'}"
-              onclick={() => selectedId === node.id ? clearFocus() : focusNode(node.id)}
+              class="w-full text-left flex items-center gap-1.5 px-2 py-1.5 rounded text-[12px] transition-colors {selected ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-muted/50'}"
+              onclick={() => toggleApp(node.id)}
             >
               <span class="size-2 rounded-full flex-shrink-0" style="background:{color}"></span>
               <span class="truncate">{node.name}</span>
@@ -274,7 +297,7 @@
           {/each}
         </div>
 
-        <!-- Relationship filters -->
+        <!-- Relationship filters — pinned at bottom -->
         <div class="border-t border-border px-3 py-2.5 flex-shrink-0">
           <div class="text-[10px] font-bold uppercase tracking-wide text-muted-foreground mb-1.5">Relationships</div>
           {#each REL_TYPES as rt}

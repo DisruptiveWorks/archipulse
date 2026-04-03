@@ -39,7 +39,7 @@
 ">
   <Handle type="target" position={Position.Left}  style="background:{style.border}; width:9px; height:9px; border:none; border-radius:50%;" />
   <div style="word-break:break-word;">{data.label}</div>
-  {#if data.badge && data.badge !== 'Component'}
+  {#if data.badge}
     <div style="font-size:9px; opacity:0.6; margin-top:3px; font-weight:400; letter-spacing:0.3px;">{data.badge}</div>
   {/if}
   <Handle type="source" position={Position.Right} style="background:{style.border}; width:9px; height:9px; border:none; border-radius:50%;" />
