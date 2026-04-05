@@ -15,6 +15,28 @@ ArchiPulse uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.5.0] — 2026-04-05
+
+### Added
+- Corporate Light theme — professional light-mode UI replacing the dark navy theme
+- Application Dashboard view with lifecycle/criticality donut charts and summary KPIs
+- Table View as a shared route powering multiple catalogue drill-downs
+- Application Dependency Graph rebuilt with @xyflow/svelte (XY Flow) — pan/zoom, custom nodes, lifecycle colors, hover tooltips
+
+### Changed
+- AppNode and CapabilityNode: pastel backgrounds with dark same-hue text, reduced shadow
+- Dependency Graph and Capability Tree: light canvas, controls, and minimap
+- Application Landscape Map: light L1 headers, chips visually tied to legend via color-tinted backgrounds
+- All catalogue badge colors use inline `style=` to avoid Tailwind v4 build-time class purging
+- Sidebar active item uses white card on slate background instead of blue tint
+- Design tokens: `#f8fafc` background, `#ffffff` surface, `#2563eb` brand blue, `#cbd5e1` borders
+- Frontend structure: ViewRouter-rendered views moved to `components/views/`
+
+### Removed
+- Integration Map view (superseded by Application Dependency Graph)
+
+---
+
 ## [0.4.0] — 2026-03-30
 
 ### Added
@@ -71,7 +93,8 @@ ArchiPulse uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
-[Unreleased]: https://github.com/DisruptiveWorks/archipulse/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/DisruptiveWorks/archipulse/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/DisruptiveWorks/archipulse/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/DisruptiveWorks/archipulse/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/DisruptiveWorks/archipulse/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/DisruptiveWorks/archipulse/compare/v0.1.0...v0.2.0
