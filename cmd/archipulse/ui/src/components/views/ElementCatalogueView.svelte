@@ -19,14 +19,14 @@
 
   // ── Layer meta ────────────────────────────────────────────────────────────
   const LAYER_META = {
-    'Application':           { bg: '#0d1b38', text: '#7aa2f7', border: '#2a4080' },
-    'Business':              { bg: '#211800', text: '#e0af68', border: '#5a4010' },
-    'Technology':            { bg: '#0d1f0d', text: '#9ece6a', border: '#2a4a1a' },
-    'Motivation':            { bg: '#1e1030', text: '#bb9af7', border: '#4a2a80' },
-    'Strategy':              { bg: '#0d2020', text: '#4fd1c5', border: '#1a5555' },
-    'Physical':              { bg: '#201408', text: '#d4956a', border: '#5a3a18' },
-    'ImplementationMigration': { bg: '#10181e', text: '#7dcfff', border: '#1e4060' },
-    'Composite':             { bg: '#161b22', text: '#8b949e', border: '#30363d' },
+    'Application':           { bg: '#eff6ff', text: '#1d4ed8', border: '#bfdbfe' },
+    'Business':              { bg: '#fffbeb', text: '#92400e', border: '#fde68a' },
+    'Technology':            { bg: '#f0fdf4', text: '#166534', border: '#bbf7d0' },
+    'Motivation':            { bg: '#f5f3ff', text: '#6d28d9', border: '#ddd6fe' },
+    'Strategy':              { bg: '#f0fdfa', text: '#0f766e', border: '#99f6e4' },
+    'Physical':              { bg: '#fff7ed', text: '#9a3412', border: '#fed7aa' },
+    'ImplementationMigration': { bg: '#f0f9ff', text: '#075985', border: '#bae6fd' },
+    'Composite':             { bg: '#f8fafc', text: '#475569', border: '#cbd5e1' },
   };
 
   const LAYER_LABELS = {
@@ -135,20 +135,26 @@
       <div class="flex flex-wrap gap-1.5">
         {#each layers as l}
           {@const m = LAYER_META[l] ?? LAYER_META['Composite']}
-          {@const active = activeLayers.size === 0 || activeLayers.has(l)}
-          <button
+          <span
+            role="button"
+            tabindex="0"
             onclick={() => toggleLayer(l)}
-            class="px-2.5 py-0.5 rounded-full text-[11px] font-medium border transition-opacity {activeLayers.size > 0 && !activeLayers.has(l) ? 'opacity-30' : ''}"
-            style="background:{m.bg}; color:{m.text}; border-color:{m.border};"
+            onkeydown={e => e.key === 'Enter' && toggleLayer(l)}
+            class="px-2.5 py-0.5 text-[11px] font-medium cursor-pointer transition-opacity select-none {activeLayers.size > 0 && !activeLayers.has(l) ? 'opacity-30' : ''}"
+            style="background:{m.bg}; color:{m.text}; border-radius:3px;"
           >
             {layerLabel(l)}
-          </button>
+          </span>
         {/each}
         {#if activeLayers.size > 0}
-          <button
+          <span
+            role="button"
+            tabindex="0"
             onclick={() => { activeLayers = new Set(); }}
-            class="px-2 py-0.5 rounded-full text-[11px] text-muted-foreground hover:text-foreground border border-border transition-colors"
-          >✕ clear</button>
+            onkeydown={e => e.key === 'Enter' && (activeLayers = new Set())}
+            class="px-2 py-0.5 text-[11px] text-muted-foreground hover:text-foreground cursor-pointer select-none"
+            style="border-radius:3px;"
+          >✕ clear</span>
         {/if}
       </div>
     </div>
@@ -186,8 +192,8 @@
               {@const m = LAYER_META[row.layer] ?? LAYER_META['Composite']}
               <tr class="border-b border-border hover:bg-muted/40 transition-colors">
                 <td class="px-3 py-2 whitespace-nowrap">
-                  <span class="inline-block px-2 py-0.5 rounded-full text-[11px] font-medium border"
-                        style="background:{m.bg}; color:{m.text}; border-color:{m.border};">
+                  <span class="inline-block px-2 py-0.5 text-[11px] font-medium"
+                        style="background:{m.bg}; color:{m.text}; border-radius:3px; border:none;">
                     {layerLabel(row.layer)}
                   </span>
                 </td>

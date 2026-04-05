@@ -29,14 +29,17 @@
   }
 
   const CATEGORY_BADGE = {
-    'Node':              'bg-[#1e2f55] text-[#7aa2f7]',
-    'Device':            'bg-[#1e2f55] text-[#7aa2f7]',
-    'SystemSoftware':    'bg-[#14302a] text-[#34d399]',
-    'TechnologyService': 'bg-[#2a2414] text-[#e0af68]',
-    'Artifact':          'bg-[#2a1f4a] text-[#a78bfa]',
+    'Node':              { bg: '#dbeafe', text: '#1e40af' },
+    'Device':            { bg: '#dbeafe', text: '#1e40af' },
+    'SystemSoftware':    { bg: '#dcfce7', text: '#166534' },
+    'TechnologyService': { bg: '#ffedd5', text: '#9a3412' },
+    'Artifact':          { bg: '#ede9fe', text: '#5b21b6' },
+    'CommunicationNetwork': { bg: '#f1f5f9', text: '#475569' },
+    'Path':              { bg: '#f1f5f9', text: '#475569' },
   };
-  function categoryBadgeClass(t) {
-    return CATEGORY_BADGE[t] ?? 'bg-muted text-muted-foreground';
+  function categoryBadgeStyle(t) {
+    const b = CATEGORY_BADGE[t] ?? { bg: '#f1f5f9', text: '#475569' };
+    return `background:${b.bg}; color:${b.text};`;
   }
 
   // ── Filtering & sorting ────────────────────────────────────────────────────
@@ -166,7 +169,7 @@
               <tr class="hover:bg-muted/30 transition-colors">
                 <td class="px-3 py-2.5 font-medium text-foreground whitespace-nowrap">{entry.name}</td>
                 <td class="px-3 py-2.5 whitespace-nowrap">
-                  <span class="inline-block px-2 py-0.5 rounded text-[11px] font-medium {categoryBadgeClass(entry.type)}">
+                  <span class="inline-block px-2 py-0.5 rounded text-[11px] font-medium" style="{categoryBadgeStyle(entry.type)}">
                     {categoryLabel(entry.type)}
                   </span>
                 </td>
@@ -179,7 +182,7 @@
                   {:else}
                     <div class="flex flex-wrap gap-1">
                       {#each entry.used_by_apps as app}
-                        <span class="inline-block px-1.5 py-0.5 rounded text-[11px] bg-[#1e2f55] text-[#7aa2f7]">{app}</span>
+                        <span class="inline-block px-1.5 py-0.5 rounded text-[11px]" style="background:#dbeafe; color:#1e40af;">{app}</span>
                       {/each}
                     </div>
                   {/if}

@@ -49,11 +49,11 @@
   let activeRels = $state(new Set(REL_TYPES.map(r => r.key)));
 
   const LIFECYCLE_COLORS = {
-    'Production':     '#22c55e',
-    'Pilot':          '#3b82f6',
-    'Planned':        '#8b5cf6',
-    'Retiring':       '#f97316',
-    'Decommissioned': '#ef4444',
+    'Production':     '#16a34a',
+    'Pilot':          '#2563eb',
+    'Planned':        '#7c3aed',
+    'Retiring':       '#ea580c',
+    'Decommissioned': '#dc2626',
   };
 
   const REL_META = {
@@ -220,7 +220,7 @@
 <!-- Edge tooltip -->
 {#if tooltip}
   <div class="fixed z-50 pointer-events-none rounded-lg shadow-xl px-3 py-2 text-[12px] text-foreground max-w-sm"
-       style="left:{Math.min(tooltip.x + 16, window.innerWidth - 320)}px; top:{tooltip.y - 40}px; background:rgba(13,21,38,0.96); border:1px solid #1e3a5f;">
+       style="left:{Math.min(tooltip.x + 16, window.innerWidth - 320)}px; top:{tooltip.y - 40}px; background:rgba(255,255,255,0.97); border:1px solid #e2e8f0;">
     {tooltip.text}
   </div>
 {/if}
@@ -309,7 +309,7 @@
       </div>
 
       <!-- Flow canvas -->
-      <div class="flex-1 min-w-0" style="background:#0d1526;">
+      <div class="flex-1 min-w-0" style="background:#f8fafc;">
         <SvelteFlow
           {nodes}
           {edges}
@@ -321,26 +321,26 @@
           proOptions={{ hideAttribution: true }}
           onedgepointerenter={onEdgePointerEnter}
           onedgepointerleave={onEdgePointerLeave}
-          style="background:#0d1526; width:100%; height:100%;"
+          style="background:#f8fafc; width:100%; height:100%;"
         >
           <!-- Registers fitView from inside the SvelteFlow context -->
           <FlowControls onReady={(fn) => { fitView = fn; }} />
 
-          <Controls showInteractive={false} style="background:#122040; border:1px solid #1e3a5f; border-radius:8px;" />
+          <Controls showInteractive={false} style="background:#ffffff; border:1px solid #e2e8f0; border-radius:8px;" />
 
           <MiniMap
             position="bottom-right"
-            style="background:#122040; border:1px solid #1e3a5f; border-radius:8px; margin-bottom:48px;"
+            style="background:#ffffff; border:1px solid #e2e8f0; border-radius:8px; margin-bottom:48px;"
             nodeColor={(n) => LIFECYCLE_COLORS[n.data?.lifecycle] ?? '#4a6fa5'}
             maskColor="rgba(0,0,0,0.55)"
           />
 
-          <Background variant={BackgroundVariant.Dots} gap={22} size={1} color="#112050" />
+          <Background variant={BackgroundVariant.Dots} gap={22} size={1} color="#cbd5e1" />
 
           <!-- Legend panel — rendered inside SvelteFlow as an overlay -->
           <Panel position="bottom-left">
-            <div class="rounded-lg px-3.5 py-3 text-[11px]" style="background:rgba(13,21,38,0.94); border:1px solid #1e3a5f; min-width:140px;">
-              <div class="text-[10px] font-bold uppercase tracking-wide mb-2" style="color:#6b7280;">Node type</div>
+            <div class="rounded-lg px-3.5 py-3 text-[11px]" style="background:rgba(255,255,255,0.97); border:1px solid #e2e8f0; min-width:140px;">
+              <div class="text-[10px] font-bold uppercase tracking-wide mb-2" style="color:#64748b;">Node type</div>
               {#each [
                 { label: 'Component', bs: 'solid',  color: '#93b4f0', bold: true  },
                 { label: 'Service',   bs: 'dashed', color: '#7aabf7', bold: false },
@@ -353,11 +353,11 @@
                 </div>
               {/each}
 
-              <div class="text-[10px] font-bold uppercase tracking-wide mt-3 mb-2" style="color:#6b7280;">Lifecycle</div>
+              <div class="text-[10px] font-bold uppercase tracking-wide mt-3 mb-2" style="color:#64748b;">Lifecycle</div>
               {#each Object.entries(LIFECYCLE_COLORS) as [lc, color]}
                 <div class="flex items-center gap-2 mb-1.5">
                   <span style="width:8px; height:8px; border-radius:50%; background:{color}; flex-shrink:0; display:inline-block;"></span>
-                  <span style="color:#8b949e;">{lc}</span>
+                  <span style="color:#475569;">{lc}</span>
                 </div>
               {/each}
             </div>

@@ -4,13 +4,13 @@
   let { data = {} } = $props();
 
   const LIFECYCLE_STYLE = {
-    'Production':     { border: '#22c55e', text: '#86efac', bg: '#14352a' },
-    'Pilot':          { border: '#3b82f6', text: '#93c5fd', bg: '#172444' },
-    'Planned':        { border: '#8b5cf6', text: '#c4b5fd', bg: '#22173a' },
-    'Retiring':       { border: '#f97316', text: '#fdba74', bg: '#3a2010' },
-    'Decommissioned': { border: '#ef4444', text: '#fca5a5', bg: '#3a1414' },
+    'Production':     { border: '#16a34a', text: '#166534', bg: '#f0fdf4' },
+    'Pilot':          { border: '#2563eb', text: '#1d4ed8', bg: '#eff6ff' },
+    'Planned':        { border: '#7c3aed', text: '#6d28d9', bg: '#f5f3ff' },
+    'Retiring':       { border: '#ea580c', text: '#c2410c', bg: '#fff7ed' },
+    'Decommissioned': { border: '#dc2626', text: '#b91c1c', bg: '#fef2f2' },
   };
-  const DEFAULT_STYLE = { border: '#4a6fa5', text: '#93b4f0', bg: '#1e2d45' };
+  const DEFAULT_STYLE = { border: '#2563eb', text: '#1e3a8a', bg: '#eff6ff' };
 
   const style       = $derived(LIFECYCLE_STYLE[data.lifecycle] ?? DEFAULT_STYLE);
   const isComponent = $derived(data.tier === 'component');
@@ -33,7 +33,7 @@
   border-radius:8px;
   text-align:center;
   line-height:1.35;
-  box-shadow:0 2px 12px rgba(0,0,0,0.5);
+  box-shadow:0 1px 4px rgba(0,0,0,0.10), 0 0 0 1px rgba(0,0,0,0.04);
   cursor:default;
   user-select:none;
 ">

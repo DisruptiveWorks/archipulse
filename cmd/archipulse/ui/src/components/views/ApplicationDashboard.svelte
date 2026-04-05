@@ -35,10 +35,10 @@
   ];
 
   const PALETTE = [
-    '#4ade80','#60a5fa','#a78bfa','#fb923c','#f87171',
-    '#34d399','#f472b6','#facc15','#38bdf8','#c084fc',
+    '#16a34a','#2563eb','#7c3aed','#ea580c','#dc2626',
+    '#0891b2','#db2777','#ca8a04','#0284c7','#9333ea',
   ];
-  const UNSET_COLOR = '#4b5563';
+  const UNSET_COLOR = '#94a3b8';
 
   function colorFor(value, index) {
     return value === '(unset)' ? UNSET_COLOR : PALETTE[index % PALETTE.length];
@@ -186,7 +186,7 @@
       <div class="flex gap-5 items-start">
 
         <!-- App list panel -->
-        <div class="flex-shrink-0 w-48 bg-card border border-border rounded-xl overflow-hidden">
+        <div class="flex-shrink-0 w-48 bg-card border border-border rounded-xl overflow-hidden shadow-sm">
           <div class="text-[10px] font-bold tracking-[0.6px] uppercase text-muted-foreground px-3 py-2.5 border-b border-border">
             Applications ({data.apps.length})
           </div>
@@ -209,7 +209,7 @@
           {#each sortedPropKeys(data.properties) as key}
             {@const buckets = data.properties[key]}
             {@const slices = arcData(buckets)}
-            <div class="bg-card border border-border rounded-xl p-4">
+            <div class="bg-card border border-border rounded-xl p-4 shadow-sm">
               <div class="text-[11px] font-bold tracking-[0.6px] uppercase text-muted-foreground mb-3">{propLabel(key)}</div>
               <div class="flex gap-4 items-center">
                 <!-- Donut -->

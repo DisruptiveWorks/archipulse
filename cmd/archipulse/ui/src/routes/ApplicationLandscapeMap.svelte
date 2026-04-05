@@ -18,31 +18,31 @@
   // Well-known value → colour for common property keys
   const KNOWN_COLORS = {
     lifecycle_status: {
-      'Production':    '#4ade80',
-      'Pilot':         '#60a5fa',
-      'Planned':       '#a78bfa',
-      'Retiring':      '#fb923c',
-      'Decommissioned':'#f87171',
+      'Production':    '#16a34a',
+      'Pilot':         '#2563eb',
+      'Planned':       '#7c3aed',
+      'Retiring':      '#ea580c',
+      'Decommissioned':'#dc2626',
     },
     criticality: {
-      'Critical': '#f87171',
-      'High':     '#fb923c',
-      'Medium':   '#facc15',
-      'Low':      '#4ade80',
+      'Critical': '#dc2626',
+      'High':     '#ea580c',
+      'Medium':   '#ca8a04',
+      'Low':      '#16a34a',
     },
     deployment_model: {
-      'On-Premise':  '#4ade80',
-      'Public Cloud':'#60a5fa',
-      'SaaS':        '#34d399',
-      'Hybrid':      '#a78bfa',
+      'On-Premise':  '#16a34a',
+      'Public Cloud':'#2563eb',
+      'SaaS':        '#0891b2',
+      'Hybrid':      '#7c3aed',
     },
   };
 
   const PALETTE = [
-    '#4ade80','#60a5fa','#a78bfa','#fb923c','#f87171',
-    '#34d399','#f472b6','#facc15','#38bdf8','#c084fc',
+    '#16a34a','#2563eb','#7c3aed','#ea580c','#dc2626',
+    '#0891b2','#db2777','#ca8a04','#0284c7','#9333ea',
   ];
-  const UNSET_COLOR = '#374151';
+  const UNSET_COLOR = '#94a3b8';
 
   // Per-overlay, assign consistent colours to each distinct value
   function buildColorMap(overlay, l1List) {
@@ -69,11 +69,12 @@
 
   $: colorMap = data ? buildColorMap(overlay, data.l1) : {};
 
-  // overlay is passed explicitly so Svelte tracks it as a template dependency
-  // and re-evaluates the expression when the overlay selector changes.
-  function chipColor(app, ov) {
+  // Chip uses a colored left border (same saturated color as legend dot)
+  // with a neutral background — directly connects chip to legend visually.
+  function chipStyle(app, ov) {
     const v = app.properties?.[ov] ?? '';
-    return v ? (colorMap[v] ?? '#6b7280') : UNSET_COLOR;
+    const color = v ? (colorMap[v] ?? '#94a3b8') : UNSET_COLOR;
+    return `border-left: 3px solid ${color}; background:${color}18; color:#1e293b; padding-left:7px;`;
   }
 
   // ── Legend entries (distinct values present) ──────────────────────────────
@@ -208,15 +209,15 @@
       <div class="space-y-4">
         {#each data.l1 as l1}
           {@const totalApps = l1.l2.reduce((s, l2) => s + l2.apps.length, 0)}
-          <div class="border border-border rounded-xl overflow-hidden">
+          <div class="border border-slate-300 rounded-xl overflow-hidden" style="box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04);">
             <!-- L1 header -->
-            <div class="bg-[#1a1f2e] border-b border-border px-4 py-2.5 flex items-center gap-3">
-              <span class="text-[13px] font-bold text-foreground tracking-wide uppercase">{l1.name}</span>
-              <span class="text-[11px] text-muted-foreground ml-auto">{totalApps} app{totalApps !== 1 ? 's' : ''}</span>
+            <div class="bg-slate-100 border-b border-slate-200 px-4 py-2.5 flex items-center gap-3">
+              <span class="text-[12px] font-bold text-slate-600 tracking-[0.8px] uppercase">{l1.name}</span>
+              <span class="text-[11px] text-slate-400 ml-auto">{totalApps} app{totalApps !== 1 ? 's' : ''}</span>
             </div>
 
             <!-- L2 rows -->
-            <div class="divide-y divide-border/50">
+            <div class="divide-y divide-slate-200">
               {#each l1.l2 as l2}
                 <div class="flex items-start gap-3 px-4 py-2.5 hover:bg-muted/20 transition-colors">
                   <!-- L2 name + count -->
@@ -232,8 +233,8 @@
                     {:else}
                       {#each l2.apps as app}
                         <button
-                          class="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-medium text-[#0f1117] transition-opacity hover:opacity-80 cursor-default"
-                          style="background:{chipColor(app, overlay)}"
+                          class="inline-flex items-center px-2.5 py-1 rounded text-[11px] font-medium transition-opacity hover:opacity-80 cursor-default"
+                          style="{chipStyle(app, overlay)}"
                           onmouseenter={(e) => showTooltip(e, app)}
                           onmouseleave={hideTooltip}
                           onfocus={(e) => showTooltip(e, app)}
