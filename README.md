@@ -113,19 +113,19 @@ flowchart TD
 
 **Application Dashboard** — lifecycle and criticality breakdown across your application portfolio.
 
-![Application Dashboard](docs/screenshots/dashboard.png)
+![Application Dashboard](website/screenshots/dashboard.png)
 
 **Application Landscape Map** — applications mapped to business capabilities with overlay filters.
 
-![Application Landscape Map](docs/screenshots/landscape.png)
+![Application Landscape Map](website/screenshots/landscape.png)
 
 **Application Dependency Graph** — interactive graph of application integrations with XY Flow.
 
-![Application Dependency Graph](docs/screenshots/dependency-graph.png)
+![Application Dependency Graph](website/screenshots/dependency-graph.png)
 
 **Capability Tree** — hierarchical capability model with collapsible levels.
 
-![Capability Tree](docs/screenshots/capability-tree.png)
+![Capability Tree](website/screenshots/capability-tree.png)
 
 ---
 
