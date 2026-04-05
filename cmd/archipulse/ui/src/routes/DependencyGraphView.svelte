@@ -43,7 +43,7 @@
     { key: 'serving',     label: 'Serves',      color: '#7aa2f7' },
     { key: 'flow',        label: 'Data Flow',    color: '#9ece6a' },
     { key: 'access',      label: 'Accesses',     color: '#bb9af7' },
-    { key: 'triggering',  label: 'Triggers',     color: '#E85D3A' },
+    { key: 'triggering',  label: 'Triggers',     color: '#e53e3e' },
     { key: 'association', label: 'Associated',   color: '#6b7280' },
   ];
   let activeRels = $state(new Set(REL_TYPES.map(r => r.key)));
@@ -60,7 +60,7 @@
     serving:     { label: 'Serves',         color: '#7aa2f7', animated: false },
     flow:        { label: 'Data Flow',       color: '#9ece6a', animated: true  },
     access:      { label: 'Accesses',        color: '#bb9af7', animated: true  },
-    triggering:  { label: 'Triggers',        color: '#E85D3A', animated: false },
+    triggering:  { label: 'Triggers',        color: '#e53e3e', animated: false },
     association: { label: 'Associated with', color: '#6b7280', animated: false },
   };
 
@@ -220,7 +220,7 @@
 <!-- Edge tooltip -->
 {#if tooltip}
   <div class="fixed z-50 pointer-events-none rounded-lg shadow-xl px-3 py-2 text-[12px] text-foreground max-w-sm"
-       style="left:{Math.min(tooltip.x + 16, window.innerWidth - 320)}px; top:{tooltip.y - 40}px; background:rgba(22,27,34,0.95); border:1px solid #30363d;">
+       style="left:{Math.min(tooltip.x + 16, window.innerWidth - 320)}px; top:{tooltip.y - 40}px; background:rgba(13,21,38,0.96); border:1px solid #1e3a5f;">
     {tooltip.text}
   </div>
 {/if}
@@ -309,7 +309,7 @@
       </div>
 
       <!-- Flow canvas -->
-      <div class="flex-1 min-w-0" style="background:#161b22;">
+      <div class="flex-1 min-w-0" style="background:#0d1526;">
         <SvelteFlow
           {nodes}
           {edges}
@@ -321,25 +321,25 @@
           proOptions={{ hideAttribution: true }}
           onedgepointerenter={onEdgePointerEnter}
           onedgepointerleave={onEdgePointerLeave}
-          style="background:#161b22; width:100%; height:100%;"
+          style="background:#0d1526; width:100%; height:100%;"
         >
           <!-- Registers fitView from inside the SvelteFlow context -->
           <FlowControls onReady={(fn) => { fitView = fn; }} />
 
-          <Controls showInteractive={false} style="background:#1c2128; border:1px solid #30363d; border-radius:8px;" />
+          <Controls showInteractive={false} style="background:#122040; border:1px solid #1e3a5f; border-radius:8px;" />
 
           <MiniMap
             position="bottom-right"
-            style="background:#1c2128; border:1px solid #30363d; border-radius:8px; margin-bottom:48px;"
+            style="background:#122040; border:1px solid #1e3a5f; border-radius:8px; margin-bottom:48px;"
             nodeColor={(n) => LIFECYCLE_COLORS[n.data?.lifecycle] ?? '#4a6fa5'}
             maskColor="rgba(0,0,0,0.55)"
           />
 
-          <Background variant={BackgroundVariant.Dots} gap={22} size={1} color="#21262d" />
+          <Background variant={BackgroundVariant.Dots} gap={22} size={1} color="#112050" />
 
           <!-- Legend panel — rendered inside SvelteFlow as an overlay -->
           <Panel position="bottom-left">
-            <div class="rounded-lg px-3.5 py-3 text-[11px]" style="background:rgba(22,27,34,0.92); border:1px solid #30363d; min-width:140px;">
+            <div class="rounded-lg px-3.5 py-3 text-[11px]" style="background:rgba(13,21,38,0.94); border:1px solid #1e3a5f; min-width:140px;">
               <div class="text-[10px] font-bold uppercase tracking-wide mb-2" style="color:#6b7280;">Node type</div>
               {#each [
                 { label: 'Component', bs: 'solid',  color: '#93b4f0', bold: true  },

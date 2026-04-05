@@ -30,14 +30,14 @@
 }
 
 :root {
-  /* ── ArchiPulse design tokens ──────────────────────────────────────────── */
-  --bg:         #0f1117;
-  --surface:    #1a1d27;
-  --surface2:   #13151f;
-  --brand:      #E85D3A;
-  --brand-light:#ff8c6b;
-  --text:       #e2e4f0;
-  --text-muted: #8b8fa8;
+  /* ── ArchiPulse design tokens — Corporate Navy Dark ────────────────────── */
+  --bg:         #0d1526;
+  --surface:    #122040;
+  --surface2:   #0f1a35;
+  --brand:      #2563eb;
+  --brand-light:#60a5fa;
+  --text:       #e2e8f0;
+  --text-muted: #94a3b8;
   --danger:     #f87171;
   --success:    #4ade80;
   --sidebar-w:  240px;
@@ -61,8 +61,8 @@
   --accent-foreground:      var(--brand);
   --destructive:            var(--danger);
   --destructive-foreground: #ffffff;
-  --border:                 #2a2d3e;
-  --input:                  #2a2d3e;
+  --border:                 #1e3a5f;
+  --input:                  #1e3a5f;
   --ring:                   var(--brand);
   --radius:                 0.375rem;
 }
