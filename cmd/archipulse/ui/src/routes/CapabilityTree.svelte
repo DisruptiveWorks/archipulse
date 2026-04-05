@@ -280,7 +280,7 @@
       </div>
 
       <!-- Flow canvas -->
-      <div class="flex-1 min-w-0" style="background:#161b22;">
+      <div class="flex-1 min-w-0" style="background:#0d1526;">
         <SvelteFlow
           {nodes}
           {edges}
@@ -290,24 +290,24 @@
           minZoom={0.05}
           maxZoom={3}
           proOptions={{ hideAttribution: true }}
-          style="background:#161b22; width:100%; height:100%;"
+          style="background:#0d1526; width:100%; height:100%;"
         >
           <FlowControls onReady={(fn) => { fitView = fn; }} />
 
-          <Controls showInteractive={false} style="background:#1c2128; border:1px solid #30363d; border-radius:8px;" />
+          <Controls showInteractive={false} style="background:#122040; border:1px solid #1e3a5f; border-radius:8px;" />
 
           <MiniMap
             position="bottom-right"
-            style="background:#1c2128; border:1px solid #30363d; border-radius:8px; margin-bottom:48px;"
+            style="background:#122040; border:1px solid #1e3a5f; border-radius:8px; margin-bottom:48px;"
             nodeColor={(n) => n.type === 'capNode' ? '#c09040' : (LIFECYCLE_COLORS[n.data?.lifecycle] ?? '#4a6fa5')}
             maskColor="rgba(0,0,0,0.55)"
           />
 
-          <Background variant={BackgroundVariant.Dots} gap={22} size={1} color="#21262d" />
+          <Background variant={BackgroundVariant.Dots} gap={22} size={1} color="#112050" />
 
           <!-- Legend -->
           <Panel position="bottom-left">
-            <div class="rounded-lg px-3.5 py-3 text-[11px]" style="background:rgba(22,27,34,0.92); border:1px solid #30363d; min-width:140px;">
+            <div class="rounded-lg px-3.5 py-3 text-[11px]" style="background:rgba(13,21,38,0.94); border:1px solid #1e3a5f; min-width:140px;">
               <div class="text-[10px] font-bold uppercase tracking-wide mb-2" style="color:#6b7280;">Node type</div>
               <div class="flex items-center gap-2 mb-1.5">
                 <div style="width:20px; height:12px; border-radius:3px; border:2px solid #e0af68; background:#201808; flex-shrink:0;"></div>
