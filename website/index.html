@@ -204,6 +204,49 @@
       margin: 0 auto;
     }
 
+    /* ── Screenshots ─────────────────────────────────────────────────── */
+    #screenshots {
+      padding: 80px 24px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .screenshots-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 48px;
+    }
+
+    .screenshot-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      transition: box-shadow 0.15s;
+    }
+    .screenshot-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+
+    .screenshot-card img {
+      width: 100%; display: block;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .screenshot-caption {
+      padding: 14px 18px;
+    }
+    .screenshot-caption strong {
+      display: block; font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 3px;
+    }
+    .screenshot-caption span {
+      font-size: 12px; color: var(--muted);
+    }
+
+    @media (max-width: 768px) {
+      .screenshots-grid { grid-template-columns: 1fr; }
+    }
+
     /* ── Problem ──────────────────────────────────────────────────────── */
     .two-col {
       display: grid;
@@ -437,6 +480,7 @@
     </span>
   </a>
   <ul class="nav-links">
+    <li><a href="#screenshots">Screenshots</a></li>
     <li><a href="#how-it-works">How it works</a></li>
     <li><a href="#features">Features</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
@@ -480,6 +524,46 @@
     <div class="tech-badge"><span class="dot dot-pg"></span> PostgreSQL 17+</div>
     <div class="tech-badge"><span class="dot dot-open"></span> ArchiMate 3.2</div>
     <div class="tech-badge"><span class="dot dot-mit"></span> Apache 2.0</div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ── Screenshots ───────────────────────────────────────────────────── -->
+<section id="screenshots">
+  <div class="section-label">Screenshots</div>
+  <h2>See it in action.</h2>
+  <p class="section-intro">ArchiPulse turns ArchiMate models into interactive, queryable views — built for the way architects actually work.</p>
+
+  <div class="screenshots-grid">
+    <div class="screenshot-card">
+      <img src="../docs/screenshots/dashboard.png" alt="Application Dashboard" loading="lazy" />
+      <div class="screenshot-caption">
+        <strong>Application Dashboard</strong>
+        <span>Lifecycle, criticality, deployment model and vendor breakdown across your portfolio.</span>
+      </div>
+    </div>
+    <div class="screenshot-card">
+      <img src="../docs/screenshots/landscape.png" alt="Application Landscape Map" loading="lazy" />
+      <div class="screenshot-caption">
+        <strong>Application Landscape Map</strong>
+        <span>Applications mapped to business capabilities with overlay filters.</span>
+      </div>
+    </div>
+    <div class="screenshot-card">
+      <img src="../docs/screenshots/dependency-graph.png" alt="Dependency Graph" loading="lazy" />
+      <div class="screenshot-caption">
+        <strong>Application Dependency Graph</strong>
+        <span>Interactive integration map — pan, zoom, filter by lifecycle and relationship type.</span>
+      </div>
+    </div>
+    <div class="screenshot-card">
+      <img src="../docs/screenshots/capability-tree.png" alt="Capability Tree" loading="lazy" />
+      <div class="screenshot-caption">
+        <strong>Capability Tree</strong>
+        <span>Hierarchical business capability model with supporting applications.</span>
+      </div>
+    </div>
   </div>
 </section>
 
