@@ -6,25 +6,23 @@
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpolygon points='16,2 27,8 27,22 16,28 5,22 5,8' fill='%23E85D3A'/%3E%3Cpolygon points='16,9 22,13 22,21 16,25 10,21 10,13' fill='none' stroke='white' stroke-width='0.8' stroke-linejoin='round' opacity='0.4'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='white'/%3E%3Cline x1='16' y1='13.5' x2='16' y2='9' stroke='white' stroke-width='1' opacity='0.7'/%3E%3Cline x1='18' y1='14.5' x2='22' y2='13' stroke='white' stroke-width='1' opacity='0.7'/%3E%3Cline x1='18' y1='17.5' x2='22' y2='21' stroke='white' stroke-width='1' opacity='0.7'/%3E%3C/svg%3E" />
   <title>ArchiPulse — Enterprise Architecture Without Vendor Lock-in</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #0b0f14;
-      --surface: #111820;
-      --surface2: #192030;
-      --border: #1e2d3d;
-      --text: #dde6f0;
-      --muted: #5e7a96;
-      --accent: #00c2ff;
-      --accent2: #0077cc;
-      --go: #00ADD8;
-      --pg: #336791;
-      --green: #3ddc84;
-      --warn: #e8a030;
-      --font-head: 'Syne', sans-serif;
-      --font-mono: 'DM Mono', monospace;
+      --bg:       #f8fafc;
+      --surface:  #ffffff;
+      --surface2: #f1f5f9;
+      --border:   #e2e8f0;
+      --border2:  #cbd5e1;
+      --text:     #0f172a;
+      --muted:    #64748b;
+      --muted2:   #94a3b8;
+      --brand:    #2563eb;
+      --brand-lt: #eff6ff;
+      --brand-dk: #1d4ed8;
+      --font: 'Inter', system-ui, -apple-system, sans-serif;
     }
 
     html { scroll-behavior: smooth; }
@@ -32,34 +30,14 @@
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: var(--font-mono);
+      font-family: var(--font);
       font-size: 15px;
-      line-height: 1.7;
+      line-height: 1.6;
       overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
     }
 
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
-      opacity: 0.025;
-      pointer-events: none;
-      z-index: 9999;
-    }
-
-    .grid-bg {
-      position: fixed;
-      inset: 0;
-      background-image:
-        linear-gradient(var(--border) 1px, transparent 1px),
-        linear-gradient(90deg, var(--border) 1px, transparent 1px);
-      background-size: 64px 64px;
-      opacity: 0.35;
-      pointer-events: none;
-      z-index: 0;
-    }
-
+    /* ── Nav ─────────────────────────────────────────────────────────── */
     nav {
       position: fixed;
       top: 0; left: 0; right: 0;
@@ -69,7 +47,7 @@
       justify-content: space-between;
       padding: 0 48px;
       height: 60px;
-      background: rgba(11,15,20,0.85);
+      background: rgba(255,255,255,0.92);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
     }
@@ -78,15 +56,13 @@
       text-decoration: none;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
-
-    .nav-logo svg { display: block; flex-shrink: 0; }
 
     .nav-wordmark {
       font-family: 'Trebuchet MS', Arial, sans-serif;
-      font-size: 18px;
-      letter-spacing: -0.8px;
+      font-size: 17px;
+      letter-spacing: -0.6px;
       line-height: 1;
       display: flex;
       align-items: baseline;
@@ -94,252 +70,353 @@
     .nav-wordmark .w-archi { font-weight: 300; color: var(--text); }
     .nav-wordmark .w-pulse { font-weight: 700; color: #E85D3A; }
 
-    .nav-links { display: flex; gap: 32px; list-style: none; }
-    .nav-links a { color: var(--muted); text-decoration: none; font-size: 13px; letter-spacing: 0.05em; transition: color 0.2s; }
+    .nav-links { display: flex; gap: 28px; list-style: none; }
+    .nav-links a {
+      color: var(--muted); text-decoration: none;
+      font-size: 13px; font-weight: 500;
+      transition: color 0.15s;
+    }
     .nav-links a:hover { color: var(--text); }
 
     .nav-cta {
-      display: flex; align-items: center; gap: 8px;
-      padding: 7px 18px; border: 1px solid var(--accent);
-      color: var(--accent); border-radius: 3px; text-decoration: none;
-      font-size: 13px; letter-spacing: 0.05em; transition: background 0.2s, color 0.2s;
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 6px 16px;
+      background: var(--brand); color: #fff;
+      border-radius: 6px; text-decoration: none;
+      font-size: 13px; font-weight: 500;
+      transition: background 0.15s;
     }
-    .nav-cta:hover { background: var(--accent); color: var(--bg); }
+    .nav-cta:hover { background: var(--brand-dk); }
 
+    /* ── Hero ────────────────────────────────────────────────────────── */
     #hero {
-      position: relative; z-index: 1;
-      min-height: 100vh;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      text-align: center; padding: 80px 24px 60px;
+      padding: 140px 24px 100px;
+      text-align: center;
+      max-width: 900px;
+      margin: 0 auto;
     }
 
     .hero-badge {
       display: inline-flex; align-items: center; gap: 8px;
-      padding: 5px 14px; border: 1px solid var(--border); border-radius: 2px;
-      color: var(--warn); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
-      margin-bottom: 36px; background: rgba(232,160,48,0.06);
+      padding: 4px 14px;
+      border: 1px solid var(--border2);
+      border-radius: 99px;
+      color: var(--muted); font-size: 12px; font-weight: 500;
+      letter-spacing: 0.04em; text-transform: uppercase;
+      margin-bottom: 32px;
+      background: var(--surface);
     }
-    .hero-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--warn); }
+    .hero-badge-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #16a34a;
+      box-shadow: 0 0 0 2px #dcfce7;
+    }
 
     h1 {
-      font-family: var(--font-head);
-      font-size: clamp(44px, 8vw, 88px);
-      font-weight: 800; line-height: 0.95; letter-spacing: -3px;
-      margin-bottom: 28px; color: var(--text);
+      font-size: clamp(38px, 6vw, 64px);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -2px;
+      color: var(--text);
+      margin-bottom: 24px;
     }
-    h1 span.accent { color: var(--accent); }
+    h1 .accent { color: var(--brand); }
 
-    .hero-sub { max-width: 600px; color: var(--muted); font-size: 16px; line-height: 1.8; margin-bottom: 48px; }
-    .hero-sub strong { color: var(--text); font-weight: 400; }
+    .hero-sub {
+      font-size: 17px;
+      color: var(--muted);
+      line-height: 1.75;
+      max-width: 580px;
+      margin: 0 auto 44px;
+    }
+    .hero-sub strong { color: var(--text); font-weight: 500; }
 
-    .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; margin-bottom: 72px; }
+    .hero-actions {
+      display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
+      margin-bottom: 64px;
+    }
 
     .btn-primary {
       display: inline-flex; align-items: center; gap: 8px;
-      padding: 12px 28px; background: var(--accent); color: var(--bg); border-radius: 3px;
-      text-decoration: none; font-family: var(--font-mono); font-size: 13px; font-weight: 500;
-      letter-spacing: 0.05em; transition: opacity 0.2s, transform 0.15s;
+      padding: 11px 24px; background: var(--brand); color: #fff;
+      border-radius: 8px; text-decoration: none;
+      font-size: 14px; font-weight: 500;
+      transition: background 0.15s, transform 0.1s;
+      box-shadow: 0 1px 3px rgba(37,99,235,0.3);
     }
-    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn-primary:hover { background: var(--brand-dk); transform: translateY(-1px); }
 
     .btn-secondary {
       display: inline-flex; align-items: center; gap: 8px;
-      padding: 12px 28px; border: 1px solid var(--border); color: var(--text); border-radius: 3px;
-      text-decoration: none; font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.05em;
-      transition: border-color 0.2s, color 0.2s;
+      padding: 11px 24px;
+      border: 1px solid var(--border2); color: var(--text);
+      background: var(--surface);
+      border-radius: 8px; text-decoration: none;
+      font-size: 14px; font-weight: 500;
+      transition: border-color 0.15s, background 0.15s;
     }
-    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-secondary:hover { border-color: var(--brand); background: var(--brand-lt); color: var(--brand); }
 
-    .tech-stack { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+    .tech-stack { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
     .tech-badge {
-      display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px;
-      border: 1px solid var(--border); border-radius: 2px; font-size: 11px; color: var(--muted);
-      background: var(--surface); letter-spacing: 0.05em;
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 12px;
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      font-size: 12px; font-weight: 500; color: var(--muted);
+      background: var(--surface);
     }
-    .tech-badge .dot { width: 7px; height: 7px; border-radius: 50%; }
-    .dot-go { background: var(--go); }
-    .dot-pg { background: var(--pg); }
-    .dot-open { background: var(--green); }
-    .dot-apache { background: var(--accent); }
+    .tech-badge .dot { width: 6px; height: 6px; border-radius: 50%; }
+    .dot-go   { background: #00ADD8; }
+    .dot-pg   { background: #336791; }
+    .dot-open { background: #16a34a; }
+    .dot-mit  { background: var(--brand); }
 
+    /* ── Sections ─────────────────────────────────────────────────────── */
     section {
-      position: relative; z-index: 1;
-      padding: 100px 24px; max-width: 1100px; margin: 0 auto;
+      padding: 96px 24px;
+      max-width: 1100px;
+      margin: 0 auto;
     }
 
-    .section-label { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
+    .section-label {
+      font-size: 12px; font-weight: 600; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--brand);
+      margin-bottom: 12px;
+    }
 
     h2 {
-      font-family: var(--font-head);
-      font-size: clamp(30px, 4vw, 48px); font-weight: 700; line-height: 1.1;
-      letter-spacing: -1px; margin-bottom: 20px;
+      font-size: clamp(26px, 3.5vw, 40px);
+      font-weight: 700;
+      letter-spacing: -1px;
+      line-height: 1.15;
+      margin-bottom: 16px;
     }
 
-    .section-intro { color: var(--muted); max-width: 560px; margin-bottom: 60px; line-height: 1.8; }
+    .section-intro {
+      color: var(--muted); max-width: 520px; margin-bottom: 56px; line-height: 1.75;
+    }
 
-    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; margin-top: 48px; }
+    .section-divider {
+      height: 1px;
+      background: var(--border);
+      max-width: 1100px;
+      margin: 0 auto;
+    }
 
-    .col-card { background: var(--surface); border: 1px solid var(--border); padding: 36px 32px; }
-    .col-card:first-child { border-right: none; }
+    /* ── Problem ──────────────────────────────────────────────────────── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 48px;
+    }
+
+    .col-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
 
     .col-tag {
-      font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
-      padding: 3px 10px; border-radius: 2px; display: inline-block; margin-bottom: 20px;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; padding: 3px 10px;
+      border-radius: 99px; display: inline-block; margin-bottom: 16px;
     }
-    .col-tag.bad { background: rgba(220,50,50,0.12); color: #f07070; border: 1px solid rgba(220,50,50,0.2); }
-    .col-tag.good { background: rgba(0,194,255,0.1); color: var(--accent); border: 1px solid rgba(0,194,255,0.2); }
+    .col-tag.bad  { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+    .col-tag.good { background: var(--brand-lt); color: var(--brand-dk); border: 1px solid #bfdbfe; }
 
-    .col-card h3 { font-family: var(--font-head); font-size: 22px; font-weight: 700; margin-bottom: 14px; letter-spacing: -0.5px; }
-    .col-card p { color: var(--muted); font-size: 14px; line-height: 1.8; }
+    .col-card h3 { font-size: 18px; font-weight: 600; margin-bottom: 12px; letter-spacing: -0.3px; }
+    .col-card p  { color: var(--muted); font-size: 14px; line-height: 1.75; }
 
-    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2px; }
+    /* ── Features ─────────────────────────────────────────────────────── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px;
+    }
 
     .feature-card {
-      background: var(--surface); border: 1px solid var(--border);
-      padding: 32px; position: relative; overflow: hidden; transition: border-color 0.2s;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      transition: box-shadow 0.15s, border-color 0.15s;
     }
-    .feature-card:hover { border-color: var(--accent2); }
-    .feature-card::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-      background: linear-gradient(90deg, transparent, var(--accent), transparent);
-      opacity: 0; transition: opacity 0.3s;
+    .feature-card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      border-color: var(--border2);
     }
-    .feature-card:hover::before { opacity: 1; }
 
     .feature-icon {
-      width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
-      border: 1px solid var(--border); border-radius: 4px; margin-bottom: 18px;
-      font-size: 18px; background: var(--surface2);
+      width: 40px; height: 40px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--brand-lt);
+      border-radius: 10px;
+      font-size: 18px;
+      margin-bottom: 16px;
+      color: var(--brand);
     }
 
-    .feature-card h3 { font-family: var(--font-head); font-size: 17px; font-weight: 700; margin-bottom: 10px; letter-spacing: -0.3px; }
-    .feature-card p { color: var(--muted); font-size: 13px; line-height: 1.8; }
+    .feature-card h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; letter-spacing: -0.2px; }
+    .feature-card p  { color: var(--muted); font-size: 13px; line-height: 1.75; }
 
-    .steps { counter-reset: step; display: flex; flex-direction: column; gap: 0; margin-top: 48px; }
+    /* ── How it works ─────────────────────────────────────────────────── */
+    .steps { display: flex; flex-direction: column; gap: 0; margin-top: 48px; }
 
     .step {
-      display: flex; gap: 28px; padding: 32px 0;
+      display: flex; gap: 24px; padding: 28px 0;
       border-bottom: 1px solid var(--border);
     }
     .step:last-child { border-bottom: none; }
 
     .step-num {
-      font-family: var(--font-head); font-size: 56px; font-weight: 800;
-      color: var(--border); line-height: 1; flex-shrink: 0; width: 64px; text-align: right;
+      font-size: 13px; font-weight: 700; color: var(--brand);
+      background: var(--brand-lt);
+      border-radius: 99px;
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 2px;
     }
 
-    .step-content h3 { font-family: var(--font-head); font-size: 18px; font-weight: 700; letter-spacing: -0.3px; margin-bottom: 8px; }
-    .step-content p { color: var(--muted); font-size: 14px; line-height: 1.8; }
+    .step-content h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+    .step-content p  { color: var(--muted); font-size: 14px; line-height: 1.75; }
 
     .code-block {
-      background: #060a0e; border: 1px solid var(--border); border-radius: 4px;
-      padding: 28px 32px; font-family: var(--font-mono); font-size: 13px; line-height: 1.7;
-      overflow-x: auto; margin-top: 48px; position: relative;
+      background: #1e293b;
+      border-radius: 10px;
+      padding: 24px 28px;
+      font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+      font-size: 13px; line-height: 1.75;
+      overflow-x: auto; margin-top: 48px;
+      color: #e2e8f0;
+      position: relative;
     }
     .code-block::before {
-      content: 'bash'; position: absolute; top: 12px; right: 16px;
-      font-size: 10px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase;
+      content: 'bash'; position: absolute; top: 14px; right: 18px;
+      font-size: 10px; color: #475569; letter-spacing: 0.1em;
+      text-transform: uppercase; font-family: var(--font);
     }
-    .code-comment { color: #3d5a73; }
-    .code-cmd { color: var(--accent); }
-    .code-str { color: var(--green); }
-    .code-flag { color: var(--warn); }
+    .code-comment { color: #475569; }
+    .code-cmd  { color: #7dd3fc; }
+    .code-str  { color: #86efac; }
+    .code-flag { color: #fbbf24; }
 
-    .roadmap { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 2px; margin-top: 48px; }
+    /* ── Roadmap ──────────────────────────────────────────────────────── */
+    .roadmap {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px; margin-top: 48px;
+    }
 
-    .roadmap-version { background: var(--surface); border: 1px solid var(--border); padding: 28px; }
-    .roadmap-version.current { border-color: var(--accent); background: rgba(0,194,255,0.04); }
+    .roadmap-version {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .roadmap-version.done {
+      border-color: #bbf7d0;
+      background: #f0fdf4;
+    }
+    .roadmap-version.current {
+      border-color: #bfdbfe;
+      background: var(--brand-lt);
+    }
+    .roadmap-version.next {
+      border-color: var(--border);
+      opacity: 0.7;
+    }
 
-    .version-tag { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
-    .version-tag .now { color: var(--accent); font-weight: 500; }
+    .version-tag {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--muted);
+      margin-bottom: 6px; display: flex; align-items: center; gap: 8px;
+    }
+    .tag-done    { color: #16a34a; }
+    .tag-current { color: var(--brand); }
 
-    .roadmap-version h3 { font-family: var(--font-head); font-size: 20px; font-weight: 700; margin-bottom: 18px; letter-spacing: -0.5px; }
-    .roadmap-version ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .roadmap-version h3 { font-size: 16px; font-weight: 600; margin-bottom: 14px; letter-spacing: -0.2px; }
+    .roadmap-version ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
     .roadmap-version li { font-size: 13px; color: var(--muted); display: flex; align-items: flex-start; gap: 8px; }
-    .roadmap-version li::before { content: '—'; color: var(--border); flex-shrink: 0; }
+    .roadmap-version.done li::before    { content: '✓'; color: #16a34a; flex-shrink: 0; font-weight: 600; }
+    .roadmap-version.current li::before { content: '→'; color: var(--brand); flex-shrink: 0; font-weight: 600; }
+    .roadmap-version.next li::before    { content: '·'; color: var(--muted2); flex-shrink: 0; }
 
-    .contribute-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 2px; margin-top: 48px; }
+    /* ── Contributing ─────────────────────────────────────────────────── */
+    .contribute-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px; margin-top: 48px;
+    }
 
-    .contribute-card { background: var(--surface); border: 1px solid var(--border); padding: 28px; display: flex; flex-direction: column; gap: 10px; }
-    .contribute-card .label { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); }
-    .contribute-card h4 { font-family: var(--font-head); font-size: 16px; font-weight: 700; letter-spacing: -0.2px; }
-    .contribute-card p { color: var(--muted); font-size: 13px; line-height: 1.7; flex: 1; }
+    .contribute-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .contribute-card .label {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--brand);
+      margin-bottom: 8px;
+    }
+    .contribute-card h4 { font-size: 15px; font-weight: 600; margin-bottom: 8px; letter-spacing: -0.2px; }
+    .contribute-card p  { color: var(--muted); font-size: 13px; line-height: 1.7; }
 
+    /* ── CTA ──────────────────────────────────────────────────────────── */
     #cta {
-      border-top: 1px solid var(--border); text-align: center;
-      padding: 100px 24px; position: relative; z-index: 1;
-    }
-    #cta::before {
-      content: ''; position: absolute; top: -1px; left: 50%; transform: translateX(-50%);
-      width: 200px; height: 1px; background: var(--accent); box-shadow: 0 0 20px var(--accent);
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+      padding: 96px 24px;
     }
 
+    #cta h2 { max-width: 480px; margin: 0 auto 16px; }
+    #cta .section-intro { margin: 0 auto 40px; }
+
+    /* ── Footer ───────────────────────────────────────────────────────── */
     footer {
-      position: relative; z-index: 1;
-      border-top: 1px solid var(--border); padding: 32px 48px;
-      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
-      color: var(--muted); font-size: 12px; letter-spacing: 0.05em;
+      padding: 28px 48px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px;
+      color: var(--muted); font-size: 12px;
+      border-top: 1px solid var(--border);
     }
-    footer a { color: var(--muted); text-decoration: none; transition: color 0.2s; }
-    footer a:hover { color: var(--accent); }
-    .footer-links { display: flex; gap: 24px; }
+    footer a { color: var(--muted); text-decoration: none; transition: color 0.15s; }
+    footer a:hover { color: var(--brand); }
+    .footer-links { display: flex; gap: 20px; }
 
-    .section-divider {
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--border), transparent);
-      position: relative; z-index: 1;
-    }
-
-    .hero-terminal {
-      width: min(700px, 90vw); background: #060a0e; border: 1px solid var(--border);
-      border-radius: 6px; overflow: hidden; margin: 64px auto 0; text-align: left;
-    }
-    .terminal-bar {
-      background: var(--surface); padding: 10px 16px;
-      display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--border);
-    }
-    .t-dot { width: 10px; height: 10px; border-radius: 50%; }
-    .t-red { background: #ff5f56; }
-    .t-yellow { background: #ffbd2e; }
-    .t-green { background: #27c93f; }
-    .terminal-title { flex: 1; text-align: center; font-size: 11px; color: var(--muted); letter-spacing: 0.05em; }
-    .terminal-body { padding: 24px 28px; font-size: 13px; line-height: 2; }
-    .t-prompt { color: var(--muted); }
-    .t-cmd { color: var(--green); }
-    .t-output { color: #3d5a73; }
-    .t-info { color: var(--accent); }
-    .cursor {
-      display: inline-block; width: 8px; height: 14px; background: var(--accent);
-      vertical-align: middle; animation: blink 1.2s step-end infinite;
-    }
-    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-
-    .fade-up { opacity: 0; transform: translateY(24px); animation: fadeUp 0.7s ease forwards; }
+    /* ── Animations ───────────────────────────────────────────────────── */
+    .fade-up { opacity: 0; transform: translateY(20px); animation: fadeUp 0.6s ease forwards; }
     @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
-    .delay-1 { animation-delay: 0.1s; }
-    .delay-2 { animation-delay: 0.2s; }
-    .delay-3 { animation-delay: 0.3s; }
-    .delay-4 { animation-delay: 0.4s; }
-    .delay-5 { animation-delay: 0.5s; }
+    .delay-1 { animation-delay: 0.08s; }
+    .delay-2 { animation-delay: 0.16s; }
+    .delay-3 { animation-delay: 0.24s; }
+    .delay-4 { animation-delay: 0.32s; }
+    .delay-5 { animation-delay: 0.40s; }
 
+    /* ── Responsive ───────────────────────────────────────────────────── */
     @media (max-width: 768px) {
       nav { padding: 0 20px; }
       .nav-links { display: none; }
       .two-col { grid-template-columns: 1fr; }
-      .col-card:first-child { border-right: 1px solid var(--border); }
-      footer { flex-direction: column; gap: 16px; }
-      .step { flex-direction: column; gap: 12px; }
-      .step-num { width: auto; text-align: left; font-size: 36px; }
+      footer { flex-direction: column; gap: 12px; text-align: center; }
+      .step { flex-direction: column; gap: 10px; }
     }
   </style>
 </head>
 <body>
 
-<div class="grid-bg"></div>
-
 <nav>
   <a href="#" class="nav-logo">
-    <svg width="30" height="30" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <svg width="28" height="28" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
       <polygon points="60,12 101,36 101,84 60,108 19,84 19,36"
                fill="none" stroke="#E85D3A" stroke-width="5" stroke-linejoin="round"/>
       <polygon points="60,37 85,51 85,77 60,91 35,77 35,51"
@@ -371,8 +448,12 @@
   </a>
 </nav>
 
+<!-- ── Hero ──────────────────────────────────────────────────────────── -->
 <section id="hero">
-  <div class="hero-badge fade-up">Pre-Alpha · Early Development</div>
+  <div class="hero-badge fade-up">
+    <span class="hero-badge-dot"></span>
+    Pre-Alpha · Early Development
+  </div>
 
   <h1 class="fade-up delay-1">
     Enterprise Architecture<br/>
@@ -395,33 +476,16 @@
   </div>
 
   <div class="tech-stack fade-up delay-4">
-    <div class="tech-badge"><span class="dot dot-go"></span>Go 1.22+</div>
-    <div class="tech-badge"><span class="dot dot-pg"></span>PostgreSQL 16+</div>
-    <div class="tech-badge"><span class="dot dot-open"></span>ArchiMate 3.2</div>
-    <div class="tech-badge"><span class="dot dot-apache"></span>Apache 2.0</div>
-  </div>
-
-  <div class="hero-terminal fade-up delay-5">
-    <div class="terminal-bar">
-      <span class="t-dot t-red"></span>
-      <span class="t-dot t-yellow"></span>
-      <span class="t-dot t-green"></span>
-      <span class="terminal-title">archipulse — bash</span>
-    </div>
-    <div class="terminal-body">
-      <div><span class="t-prompt">$ </span><span class="t-cmd">git clone https://github.com/DisruptiveWorks/archipulse.git</span></div>
-      <div class="t-output">Cloning into 'archipulse'...</div>
-      <div><span class="t-prompt">$ </span><span class="t-cmd">go run ./cmd/archipulse migrate</span></div>
-      <div class="t-output">Running migrations... OK</div>
-      <div><span class="t-prompt">$ </span><span class="t-cmd">./archipulse serve</span></div>
-      <div class="t-info">→  ArchiPulse running at http://localhost:8080</div>
-      <div><span class="t-prompt">$ </span><span class="cursor"></span></div>
-    </div>
+    <div class="tech-badge"><span class="dot dot-go"></span> Go 1.24+</div>
+    <div class="tech-badge"><span class="dot dot-pg"></span> PostgreSQL 17+</div>
+    <div class="tech-badge"><span class="dot dot-open"></span> ArchiMate 3.2</div>
+    <div class="tech-badge"><span class="dot dot-mit"></span> Apache 2.0</div>
   </div>
 </section>
 
 <div class="section-divider"></div>
 
+<!-- ── Problem ───────────────────────────────────────────────────────── -->
 <section>
   <div class="section-label">The problem</div>
   <h2>EA tools are either academic or proprietary.</h2>
@@ -443,6 +507,7 @@
 
 <div class="section-divider"></div>
 
+<!-- ── Features ──────────────────────────────────────────────────────── -->
 <section id="features">
   <div class="section-label">Features</div>
   <h2>Built for working architects.</h2>
@@ -461,18 +526,18 @@
     </div>
     <div class="feature-card">
       <div class="feature-icon">◈</div>
-      <h3>ArchiMate Viewer</h3>
-      <p>Faithful reproduction of ArchiMate views as designed. Plus pre-defined EAM analytical views — capability maps, application landscapes, technology radars — generated from SQL.</p>
+      <h3>EAM Analytical Views</h3>
+      <p>Application Dashboard, Application Landscape Map, Capability Tree, Technology Catalogue — pre-defined views generated from your model data.</p>
     </div>
     <div class="feature-card">
       <div class="feature-icon">⬡</div>
-      <h3>Graph Explorer</h3>
-      <p>Cytoscape.js with visual filters or direct SQL for ad-hoc queries. Navigate your architecture the way it actually connects.</p>
+      <h3>Dependency Graph</h3>
+      <p>Interactive application dependency graph powered by XY Flow. Visualize integrations, pan and zoom, filter by lifecycle and type.</p>
     </div>
     <div class="feature-card">
       <div class="feature-icon">⤢</div>
       <h3>Enrichment Pipeline</h3>
-      <p>Connect real-world resource catalogs — AWS, Confluence, Excel, custom sources — to your ArchiMate workspace. Community-contributed extractor library.</p>
+      <p>Connect real-world resource catalogs — AWS, Confluence, Excel, custom sources — to your ArchiMate workspace. Community-contributed extractors.</p>
     </div>
     <div class="feature-card">
       <div class="feature-icon">↔</div>
@@ -484,6 +549,7 @@
 
 <div class="section-divider"></div>
 
+<!-- ── How it works ───────────────────────────────────────────────────── -->
 <section id="how-it-works">
   <div class="section-label">How it works</div>
   <h2>One insight. Radical simplicity.</h2>
@@ -491,42 +557,44 @@
 
   <div class="steps">
     <div class="step">
-      <div class="step-num">01</div>
+      <div class="step-num">1</div>
       <div class="step-content">
         <h3>Model in your preferred tool</h3>
         <p>Use Archi, archimate-editor, or any AOEF-compatible tool. ArchiPulse works alongside what you already have — it doesn't replace it.</p>
       </div>
     </div>
     <div class="step">
-      <div class="step-num">02</div>
+      <div class="step-num">2</div>
       <div class="step-content">
         <h3>Upload AOEF or AJX</h3>
         <p>ArchiPulse parses the model and stores it in PostgreSQL — one row per element, relationship, and diagram. XSD validated. No transformation magic.</p>
       </div>
     </div>
     <div class="step">
-      <div class="step-num">03</div>
+      <div class="step-num">3</div>
       <div class="step-content">
         <h3>Collaborate and enrich</h3>
         <p>Multiple architects edit the same workspace directly via the web interface or REST API. The enrichment pipeline pulls from external sources and maps resources to ArchiMate elements.</p>
       </div>
     </div>
     <div class="step">
-      <div class="step-num">04</div>
+      <div class="step-num">4</div>
       <div class="step-content">
         <h3>Explore, analyze, export</h3>
-        <p>The viewer renders static diagrams and generates EAM analytical views. The graph explorer lets you navigate ad-hoc. Export back to AOEF at any time — importable in any compliant tool.</p>
+        <p>EAM analytical views, interactive dependency graphs, capability trees. Export back to AOEF at any time — importable in any compliant tool.</p>
       </div>
     </div>
   </div>
 
   <div class="code-block">
-    <span class="code-comment"># Create a workspace</span><br/>
-    <span class="code-cmd">curl</span> -X POST http://localhost:8080/api/v1/workspaces \<br/>
-    &nbsp;&nbsp;-H <span class="code-str">"Content-Type: application/json"</span> \<br/>
-    &nbsp;&nbsp;-d <span class="code-str">'{"name": "Q1-2026-AS-IS", "purpose": "as-is"}'</span><br/>
+    <span class="code-comment"># Start ArchiPulse with Docker Compose</span><br/>
+    <span class="code-cmd">git clone</span> https://github.com/DisruptiveWorks/archipulse.git<br/>
+    <span class="code-cmd">cd</span> archipulse &amp;&amp; <span class="code-cmd">docker compose up</span><br/>
     <br/>
-    <span class="code-comment"># Import an ArchiMate model (AOEF format)</span><br/>
+    <span class="code-comment"># Open the web interface</span><br/>
+    <span class="code-cmd">open</span> http://localhost:8080<br/>
+    <br/>
+    <span class="code-comment"># Import the bundled ArchiSurance example model</span><br/>
     <span class="code-cmd">curl</span> -X POST http://localhost:8080/api/v1/workspaces/{id}/import \<br/>
     &nbsp;&nbsp;<span class="code-flag">-F</span> <span class="code-str">"file=@examples/archisurance.xml"</span>
   </div>
@@ -534,39 +602,40 @@
 
 <div class="section-divider"></div>
 
+<!-- ── Roadmap ────────────────────────────────────────────────────────── -->
 <section id="roadmap">
   <div class="section-label">Roadmap</div>
-  <h2>What's coming.</h2>
-  <p class="section-intro">ArchiPulse is in early development. The roadmap is managed publicly via GitHub Milestones — community input shapes it.</p>
+  <h2>Where we are. Where we're going.</h2>
+  <p class="section-intro">ArchiPulse is in active early development. The roadmap is managed publicly via <a href="https://github.com/DisruptiveWorks/archipulse/milestones" target="_blank" style="color:var(--brand)">GitHub Milestones</a>.</p>
 
   <div class="roadmap">
-    <div class="roadmap-version current">
-      <div class="version-tag">v0.1 <span class="now">· Current</span></div>
-      <h3>Foundation</h3>
+    <div class="roadmap-version done">
+      <div class="version-tag">v0.1 – v0.5 <span class="tag-done">· Done</span></div>
+      <h3>Foundation &amp; UI</h3>
       <ul>
-        <li>AOEF parser &amp; XSD validation</li>
-        <li>AJX parser</li>
+        <li>AOEF &amp; AJX parser + XSD validation</li>
         <li>PostgreSQL schema (AOEF as tables)</li>
-        <li>Workspace CRUD API</li>
-        <li>Element, relationship, diagram API</li>
-        <li>Optimistic locking</li>
-        <li>AOEF &amp; AJX export</li>
-        <li>CI pipeline &amp; test suite</li>
-      </ul>
-    </div>
-    <div class="roadmap-version">
-      <div class="version-tag">v0.2</div>
-      <h3>Viewer &amp; Navigation</h3>
-      <ul>
-        <li>Static ArchiMate viewer</li>
-        <li>Basic EAM views</li>
-        <li>Cytoscape.js graph explorer</li>
+        <li>Workspace, element, relationship CRUD API</li>
+        <li>Optimistic locking &amp; export</li>
+        <li>Embedded SPA (Svelte 5 + Vite 6)</li>
+        <li>Application Landscape, Capability Tree</li>
+        <li>Dependency Graph (XY Flow)</li>
+        <li>Application Dashboard + EAM views</li>
+        <li>Corporate Light theme</li>
         <li>Docker Compose setup</li>
-        <li>Screenshots &amp; demo</li>
       </ul>
     </div>
-    <div class="roadmap-version">
-      <div class="version-tag">v0.3</div>
+    <div class="roadmap-version current">
+      <div class="version-tag">v0.6 <span class="tag-current">· In progress</span></div>
+      <h3>Analysis</h3>
+      <ul>
+        <li>Capability Gap Analysis (coverage heatmap)</li>
+        <li>Technology Stack view</li>
+        <li>Interface Catalogue</li>
+      </ul>
+    </div>
+    <div class="roadmap-version next">
+      <div class="version-tag">v0.7</div>
       <h3>Enrichment Pipeline</h3>
       <ul>
         <li>Catalog storage &amp; API</li>
@@ -576,7 +645,7 @@
         <li>Semantic diff UI</li>
       </ul>
     </div>
-    <div class="roadmap-version">
+    <div class="roadmap-version next">
       <div class="version-tag">v1.0</div>
       <h3>Stable Platform</h3>
       <ul>
@@ -591,22 +660,13 @@
 
 <div class="section-divider"></div>
 
+<!-- ── Contributing ──────────────────────────────────────────────────── -->
 <section id="contributing">
   <div class="section-label">Contributing</div>
   <h2>Shape ArchiPulse.</h2>
   <p class="section-intro">We're in early development and contributions of all kinds are welcome. These are the areas with the most impact right now.</p>
 
   <div class="contribute-grid">
-    <div class="contribute-card">
-      <div class="label">Parser</div>
-      <h4>AOEF / AJX Parser</h4>
-      <p>The Go parser is the first critical piece. If you know ArchiMate's Open Exchange Format, this is where to start.</p>
-    </div>
-    <div class="contribute-card">
-      <div class="label">Database</div>
-      <h4>PostgreSQL Schema</h4>
-      <p>Migrations for the AOEF-as-tables schema. The heart of the platform's simplicity.</p>
-    </div>
     <div class="contribute-card">
       <div class="label">Extractors</div>
       <h4>Data Source Connectors</h4>
@@ -620,7 +680,17 @@
     <div class="contribute-card">
       <div class="label">Frontend</div>
       <h4>Web Interface</h4>
-      <p>Cytoscape.js graph explorer and static viewer. If you work with graph visualization, join here.</p>
+      <p>Svelte 5 components, graph visualization, and UX improvements for the EAM analytical views.</p>
+    </div>
+    <div class="contribute-card">
+      <div class="label">Database</div>
+      <h4>PostgreSQL Schema</h4>
+      <p>Migrations for the AOEF-as-tables schema. The heart of the platform's simplicity and portability.</p>
+    </div>
+    <div class="contribute-card">
+      <div class="label">Parser</div>
+      <h4>AOEF / AJX Parser</h4>
+      <p>The Go parser is the first critical piece. If you know ArchiMate's Open Exchange Format, start here.</p>
     </div>
     <div class="contribute-card">
       <div class="label">Docs</div>
@@ -629,25 +699,24 @@
     </div>
   </div>
 
-  <div style="margin-top: 36px; display: flex; gap: 14px; flex-wrap: wrap;">
+  <div style="margin-top: 32px; display: flex; gap: 12px; flex-wrap: wrap;">
     <a href="https://github.com/DisruptiveWorks/archipulse/blob/main/CONTRIBUTING.md" class="btn-secondary" target="_blank">Read CONTRIBUTING.md →</a>
     <a href="https://github.com/DisruptiveWorks/archipulse/labels/good%20first%20issue" class="btn-secondary" target="_blank">Good first issues →</a>
     <a href="https://github.com/DisruptiveWorks/archipulse/discussions" class="btn-secondary" target="_blank">Join Discussions →</a>
   </div>
 </section>
 
-<div class="section-divider"></div>
-
+<!-- ── CTA ────────────────────────────────────────────────────────────── -->
 <section id="cta">
   <div class="section-label">Get started</div>
-  <h2 style="max-width: 500px; margin: 0 auto 20px;">Your architecture deserves better than a static file.</h2>
-  <p class="section-intro" style="margin: 0 auto 40px;">ArchiPulse is free, open source, and self-hosted. Apache 2.0. Your data stays in your infrastructure.</p>
+  <h2>Your architecture deserves better than a static file.</h2>
+  <p class="section-intro">ArchiPulse is free, open source, and self-hosted. Apache 2.0. Your data stays in your infrastructure.</p>
   <div class="hero-actions">
     <a href="https://github.com/DisruptiveWorks/archipulse" class="btn-primary" target="_blank">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
       Star on GitHub
     </a>
-    <a href="https://github.com/DisruptiveWorks/archipulse/discussions" class="btn-secondary" target="_blank">Get Involved →</a>
+    <a href="https://github.com/DisruptiveWorks/archipulse/releases" class="btn-secondary" target="_blank">View Releases →</a>
   </div>
 </section>
 

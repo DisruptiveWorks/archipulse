@@ -111,7 +111,21 @@ flowchart TD
 
 ## Screenshots
 
-> Full screenshots coming soon. Follow the project or join the [Discussions](https://github.com/DisruptiveWorks/archipulse/discussions) to get notified.
+**Application Dashboard** — lifecycle and criticality breakdown across your application portfolio.
+
+![Application Dashboard](docs/screenshots/dashboard.png)
+
+**Application Landscape Map** — applications mapped to business capabilities with overlay filters.
+
+![Application Landscape Map](docs/screenshots/landscape.png)
+
+**Application Dependency Graph** — interactive graph of application integrations with XY Flow.
+
+![Application Dependency Graph](docs/screenshots/dependency-graph.png)
+
+**Capability Tree** — hierarchical capability model with collapsible levels.
+
+![Capability Tree](docs/screenshots/capability-tree.png)
 
 ---
 
@@ -240,7 +254,14 @@ archipulse/
 - [x] Svelte 5 + Vite 6 component-based frontend
 - [x] Cytoscape as npm dependency
 
-### v0.5 — Analysis _(in progress)_
+### v0.5 — UI & UX ✅
+- [x] Corporate Light theme — professional enterprise UI
+- [x] Application Dashboard with lifecycle/criticality charts
+- [x] Application Dependency Graph rebuilt with XY Flow
+- [x] Table View shared route for catalogue drill-downs
+- [x] Component-based views architecture
+
+### v0.6 — Analysis _(in progress)_
 - [ ] Capability Gap Analysis (coverage heatmap)
 - [ ] Technology Stack view (app → infrastructure mapping)
 - [ ] Interface Catalogue
