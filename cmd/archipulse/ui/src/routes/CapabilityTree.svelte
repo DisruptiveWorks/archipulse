@@ -155,8 +155,8 @@
         id:        `comp_${cap.parent_id}_${cap.id}`,
         source:    cap.parent_id,
         target:    cap.id,
-        style:     'stroke:#c09040; stroke-width:1.8px;',
-        markerEnd: { type: 'arrowclosed', color: '#c09040', width: 12, height: 12 },
+        style:     'stroke:#d97706; stroke-width:1.8px;',
+        markerEnd: { type: 'arrowclosed', color: '#d97706', width: 12, height: 12 },
       });
     });
 
@@ -166,8 +166,8 @@
         id:        `srv_${nodeId}`,
         source:    capId,
         target:    nodeId,
-        style:     'stroke:#4a6fa555; stroke-width:1.4px; stroke-dasharray:5,4;',
-        markerEnd: { type: 'arrowclosed', color: '#4a6fa5', width: 11, height: 11 },
+        style:     'stroke:#2563eb55; stroke-width:1.4px; stroke-dasharray:5,4;',
+        markerEnd: { type: 'arrowclosed', color: '#2563eb', width: 11, height: 11 },
       });
     });
 
@@ -280,7 +280,7 @@
       </div>
 
       <!-- Flow canvas -->
-      <div class="flex-1 min-w-0" style="background:#0d1526;">
+      <div class="flex-1 min-w-0" style="background:#f8fafc;">
         <SvelteFlow
           {nodes}
           {edges}
@@ -290,28 +290,28 @@
           minZoom={0.05}
           maxZoom={3}
           proOptions={{ hideAttribution: true }}
-          style="background:#0d1526; width:100%; height:100%;"
+          style="background:#f8fafc; width:100%; height:100%;"
         >
           <FlowControls onReady={(fn) => { fitView = fn; }} />
 
-          <Controls showInteractive={false} style="background:#122040; border:1px solid #1e3a5f; border-radius:8px;" />
+          <Controls showInteractive={false} style="background:#ffffff; border:1px solid #e2e8f0; border-radius:8px;" />
 
           <MiniMap
             position="bottom-right"
-            style="background:#122040; border:1px solid #1e3a5f; border-radius:8px; margin-bottom:48px;"
-            nodeColor={(n) => n.type === 'capNode' ? '#c09040' : (LIFECYCLE_COLORS[n.data?.lifecycle] ?? '#4a6fa5')}
+            style="background:#ffffff; border:1px solid #e2e8f0; border-radius:8px; margin-bottom:48px;"
+            nodeColor={(n) => n.type === 'capNode' ? '#d97706' : (LIFECYCLE_COLORS[n.data?.lifecycle] ?? '#2563eb')}
             maskColor="rgba(0,0,0,0.55)"
           />
 
-          <Background variant={BackgroundVariant.Dots} gap={22} size={1} color="#112050" />
+          <Background variant={BackgroundVariant.Dots} gap={22} size={1} color="#cbd5e1" />
 
           <!-- Legend -->
           <Panel position="bottom-left">
-            <div class="rounded-lg px-3.5 py-3 text-[11px]" style="background:rgba(13,21,38,0.94); border:1px solid #1e3a5f; min-width:140px;">
-              <div class="text-[10px] font-bold uppercase tracking-wide mb-2" style="color:#6b7280;">Node type</div>
+            <div class="rounded-lg px-3.5 py-3 text-[11px]" style="background:rgba(255,255,255,0.97); border:1px solid #e2e8f0; min-width:140px;">
+              <div class="text-[10px] font-bold uppercase tracking-wide mb-2" style="color:#64748b;">Node type</div>
               <div class="flex items-center gap-2 mb-1.5">
-                <div style="width:20px; height:12px; border-radius:3px; border:2px solid #e0af68; background:#201808; flex-shrink:0;"></div>
-                <span style="color:#fcd990; font-weight:600;">Capability</span>
+                <div style="width:20px; height:12px; border-radius:3px; border:2px solid #d97706; background:#fffbeb; flex-shrink:0;"></div>
+                <span style="color:#78350f; font-weight:600;">Capability</span>
               </div>
               {#each [
                 { label: 'Component', bs: 'solid',  color: '#93b4f0', bold: true  },
@@ -325,14 +325,14 @@
                 </div>
               {/each}
 
-              <div class="text-[10px] font-bold uppercase tracking-wide mt-3 mb-1.5" style="color:#6b7280;">Edges</div>
+              <div class="text-[10px] font-bold uppercase tracking-wide mt-3 mb-1.5" style="color:#64748b;">Edges</div>
               <div class="flex items-center gap-2 mb-1.5">
-                <div style="width:20px; height:2px; background:#c09040; flex-shrink:0;"></div>
-                <span style="color:#8b949e;">Composition</span>
+                <div style="width:20px; height:2px; background:#d97706; flex-shrink:0;"></div>
+                <span style="color:#475569;">Composition</span>
               </div>
               <div class="flex items-center gap-2">
-                <div style="width:20px; height:1px; border-top:1.5px dashed #4a6fa5; flex-shrink:0;"></div>
-                <span style="color:#8b949e;">Supports</span>
+                <div style="width:20px; height:1px; border-top:1.5px dashed #2563eb; flex-shrink:0;"></div>
+                <span style="color:#475569;">Supports</span>
               </div>
             </div>
           </Panel>

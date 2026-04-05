@@ -37,23 +37,23 @@
   }
 
   const LIFECYCLE_COLORS = {
-    'Production':    'bg-[#14301e] text-[#4ade80]',
-    'Pilot':         'bg-[#1e2f55] text-[#60a5fa]',
-    'Planned':       'bg-[#2a1f4a] text-[#a78bfa]',
-    'Retiring':      'bg-[#3a2010] text-[#fb923c]',
-    'Decommissioned':'bg-[#3a1010] text-[#f87171]',
+    'Production':    'bg-[#dcfce7] text-[#166534]',
+    'Pilot':         'bg-[#dbeafe] text-[#1e40af]',
+    'Planned':       'bg-[#ede9fe] text-[#5b21b6]',
+    'Retiring':      'bg-[#ffedd5] text-[#9a3412]',
+    'Decommissioned':'bg-[#fee2e2] text-[#991b1b]',
   };
   const CRIT_COLORS = {
-    'Critical': 'bg-[#3a1010] text-[#f87171]',
-    'High':     'bg-[#3a2010] text-[#fb923c]',
-    'Medium':   'bg-[#3a3010] text-[#facc15]',
-    'Low':      'bg-[#14301e] text-[#4ade80]',
+    'Critical': 'bg-[#fee2e2] text-[#991b1b]',
+    'High':     'bg-[#ffedd5] text-[#9a3412]',
+    'Medium':   'bg-[#fef9c3] text-[#713f12]',
+    'Low':      'bg-[#dcfce7] text-[#166534]',
   };
   const DEPLOY_COLORS = {
-    'On-Premise':   'bg-[#1a2a1a] text-[#4ade80]',
-    'Public Cloud': 'bg-[#1e2f55] text-[#60a5fa]',
-    'SaaS':         'bg-[#14302a] text-[#34d399]',
-    'Hybrid':       'bg-[#2a1f4a] text-[#a78bfa]',
+    'On-Premise':   'bg-[#dcfce7] text-[#166534]',
+    'Public Cloud': 'bg-[#dbeafe] text-[#1e40af]',
+    'SaaS':         'bg-[#ccfbf1] text-[#134e4a]',
+    'Hybrid':       'bg-[#ede9fe] text-[#5b21b6]',
   };
 
   function badgeClass(key, val) {

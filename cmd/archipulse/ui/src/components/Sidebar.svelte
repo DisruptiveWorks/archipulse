@@ -16,11 +16,11 @@
   $: loc = $location;
 
   const dotColors = {
-    'dot-biz':   '#e0af68',
-    'dot-app':   '#7aa2f7',
-    'dot-tech':  '#9ece6a',
-    'dot-cross': '#8b8fa8',
-    'dot-mot':   '#bb9af7',
+    'dot-biz':   '#d97706',
+    'dot-app':   '#2563eb',
+    'dot-tech':  '#16a34a',
+    'dot-cross': '#64748b',
+    'dot-mot':   '#7c3aed',
   };
 
   let importResult = null;
@@ -81,7 +81,7 @@
   {/if}
 
   <div
-    class="flex items-center gap-2 px-2 py-1.5 rounded-md text-sm cursor-pointer transition-colors mx-2 mt-2 {loc === '/ws/' + wsId ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}"
+    class="flex items-center gap-2 px-2 py-1.5 rounded-md text-sm cursor-pointer transition-colors mx-2 mt-2 {loc === '/ws/' + wsId ? 'bg-white text-foreground font-medium shadow-sm' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}"
     on:click={() => push('/ws/' + wsId)}
     on:keydown={e => e.key === 'Enter' && push('/ws/' + wsId)}
     role="button"
@@ -102,7 +102,7 @@
           {@const base = '/ws/' + wsId + '/view/' + key}
           {@const active = loc === base || loc.startsWith(base + '/')}
           <div
-            class="flex items-center gap-2 px-2 py-1.5 rounded-md text-sm cursor-pointer transition-colors {active ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}"
+            class="flex items-center gap-2 px-2 py-1.5 rounded-md text-sm cursor-pointer transition-colors {active ? 'bg-white text-foreground font-medium shadow-sm' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}"
             on:click={() => push('/ws/' + wsId + '/view/' + navTarget(key, v))}
             on:keydown={e => e.key === 'Enter' && push('/ws/' + wsId + '/view/' + navTarget(key, v))}
             role="button"

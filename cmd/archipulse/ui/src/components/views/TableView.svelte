@@ -20,10 +20,10 @@
   const layerCols = new Set(['Layer', 'layer']);
 
   function layerTagClass(val) {
-    if (val === 'Application') return 'bg-[#1e2f55] text-[#7aa2f7] border-0 text-[11px]';
-    if (val === 'Business')    return 'bg-[#2a2414] text-[#e0af68] border-0 text-[11px]';
-    if (val === 'Technology')  return 'bg-[#1a2a1a] text-[#9ece6a] border-0 text-[11px]';
-    if (val === 'Motivation')  return 'bg-[#2a1a2a] text-[#bb9af7] border-0 text-[11px]';
+    if (val === 'Application') return 'bg-[#eff6ff] text-[#1d4ed8] border-0 text-[11px]';
+    if (val === 'Business')    return 'bg-[#fffbeb] text-[#92400e] border-0 text-[11px]';
+    if (val === 'Technology')  return 'bg-[#f0fdf4] text-[#166534] border-0 text-[11px]';
+    if (val === 'Motivation')  return 'bg-[#f5f3ff] text-[#6d28d9] border-0 text-[11px]';
     return null;
   }
 
