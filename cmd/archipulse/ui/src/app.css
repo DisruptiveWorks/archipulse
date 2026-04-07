@@ -214,6 +214,13 @@
 .breadcrumb .sep { color: var(--border); }
 .breadcrumb .current { color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
+/* ── Full-screen flow views (Dependency Graph, Capability Tree) ──────────── */
+@media (max-width: 768px) {
+  .flow-fullscreen {
+    left: 0 !important;
+  }
+}
+
 /* ── Graph ───────────────────────────────────────────────────────────────── */
 .cy-container {
   width: 100%;

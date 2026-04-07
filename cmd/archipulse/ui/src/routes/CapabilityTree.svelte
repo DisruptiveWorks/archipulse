@@ -201,7 +201,7 @@
 </script>
 
 <!-- full-viewport container, same pattern as DependencyGraphView -->
-<div style="position:fixed; top:var(--nav-h); left:var(--sidebar-w); right:0; bottom:0; display:flex; flex-direction:column; overflow:hidden; background:var(--bg);">
+<div class="flow-fullscreen" style="position:fixed; top:var(--nav-h); left:var(--sidebar-w); right:0; bottom:0; display:flex; flex-direction:column; overflow:hidden; background:var(--bg);">
 
   <!-- Header -->
   <div class="flex items-center justify-between gap-4 px-6 pt-5 pb-4 flex-shrink-0">
@@ -230,8 +230,8 @@
   {:else}
     <div class="flex flex-1 min-h-0">
 
-      <!-- Left panel -->
-      <div class="flex flex-col border-r border-border w-52 flex-shrink-0 bg-card/50 overflow-hidden min-h-0 h-full">
+      <!-- Left panel — hidden on mobile -->
+      <div class="hidden sm:flex flex-col border-r border-border w-52 flex-shrink-0 bg-card/50 overflow-hidden min-h-0 h-full">
 
         <!-- Search -->
         <div class="px-3 pt-3 pb-2 flex-shrink-0">
