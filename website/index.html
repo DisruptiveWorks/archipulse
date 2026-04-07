@@ -204,6 +204,32 @@
       margin: 0 auto;
     }
 
+    /* ── Demo banner ─────────────────────────────────────────────────── */
+    .demo-banner {
+      background: var(--brand-lt);
+      border: 1px solid #bfdbfe;
+      border-radius: 12px;
+      padding: 28px 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      max-width: 1100px;
+      margin: 0 auto;
+      flex-wrap: wrap;
+    }
+    .demo-banner-text strong {
+      display: block;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .demo-banner-text span {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
     /* ── Screenshots ─────────────────────────────────────────────────── */
     #screenshots {
       padding: 80px 24px;
@@ -436,6 +462,23 @@
     footer a:hover { color: var(--brand); }
     .footer-links { display: flex; gap: 20px; }
 
+    /* ── Lightbox ─────────────────────────────────────────────────────── */
+    .lightbox {
+      display: none;
+      position: fixed; inset: 0; z-index: 999;
+      background: rgba(15,23,42,0.85);
+      align-items: center; justify-content: center;
+      padding: 24px;
+      cursor: zoom-out;
+    }
+    .lightbox.open { display: flex; }
+    .lightbox img {
+      max-width: 100%; max-height: 90vh;
+      border-radius: 8px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+    }
+    .screenshot-card img { cursor: zoom-in; }
+
     /* ── Animations ───────────────────────────────────────────────────── */
     .fade-up { opacity: 0; transform: translateY(20px); animation: fadeUp 0.6s ease forwards; }
     @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
@@ -480,6 +523,7 @@
     </span>
   </a>
   <ul class="nav-links">
+    <li><a href="https://demo.archipulse.org" target="_blank">Live Demo</a></li>
     <li><a href="#screenshots">Screenshots</a></li>
     <li><a href="#how-it-works">How it works</a></li>
     <li><a href="#features">Features</a></li>
@@ -514,8 +558,8 @@
       <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
       View on GitHub
     </a>
-    <a href="https://github.com/DisruptiveWorks/archipulse/discussions" class="btn-secondary" target="_blank">
-      Join Discussions →
+    <a href="https://demo.archipulse.org" class="btn-secondary" target="_blank">
+      Live Demo →
     </a>
   </div>
 
@@ -526,6 +570,19 @@
     <div class="tech-badge"><span class="dot dot-mit"></span> Apache 2.0</div>
   </div>
 </section>
+
+<div class="section-divider"></div>
+
+<!-- ── Demo banner ───────────────────────────────────────────────────── -->
+<div class="demo-banner">
+  <div class="demo-banner-text">
+    <strong>Try ArchiPulse live</strong>
+    <span>Pre-loaded with the ArchiSurance example model — no sign-up, no install required.</span>
+  </div>
+  <a href="https://demo.archipulse.org" class="btn-primary" target="_blank">
+    Open Live Demo →
+  </a>
+</div>
 
 <div class="section-divider"></div>
 
@@ -814,6 +871,29 @@
   </div>
   <span>ArchiMate® is a trademark of The Open Group. ArchiPulse is not affiliated with The Open Group.</span>
 </footer>
+
+<div class="lightbox" id="lightbox">
+  <img id="lightbox-img" src="" alt="" />
+</div>
+
+<script>
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightbox-img');
+
+  document.querySelectorAll('.screenshot-card img').forEach(img => {
+    img.addEventListener('click', () => {
+      lightboxImg.src = img.src;
+      lightboxImg.alt = img.alt;
+      lightbox.classList.add('open');
+    });
+  });
+
+  lightbox.addEventListener('click', () => lightbox.classList.remove('open'));
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') lightbox.classList.remove('open');
+  });
+</script>
 
 </body>
 </html>
