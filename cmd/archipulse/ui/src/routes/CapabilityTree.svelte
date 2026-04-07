@@ -201,7 +201,7 @@
 </script>
 
 <!-- full-viewport container, same pattern as DependencyGraphView -->
-<div style="position:fixed; top:var(--nav-h); left:var(--sidebar-w); right:0; bottom:0; display:flex; flex-direction:column; overflow:hidden; background:var(--bg);">
+<div class="flow-fullscreen" style="position:fixed; top:var(--nav-h); left:var(--sidebar-w); right:0; bottom:0; display:flex; flex-direction:column; overflow:hidden; background:var(--bg);">
 
   <!-- Header -->
   <div class="flex items-center justify-between gap-4 px-6 pt-5 pb-4 flex-shrink-0">
@@ -228,10 +228,10 @@
       <p class="text-[14px]">No Capability elements found — import or create Capability elements first.</p>
     </div>
   {:else}
-    <div class="flex flex-1 min-h-0">
+    <div class="flex flex-1 min-h-0 relative">
 
-      <!-- Left panel -->
-      <div class="flex flex-col border-r border-border w-52 flex-shrink-0 bg-card/50 overflow-hidden min-h-0 h-full">
+      <!-- Left panel — hidden on mobile -->
+      <div class="hidden sm:flex flex-col border-r border-border w-52 flex-shrink-0 bg-card/50 overflow-hidden min-h-0 h-full">
 
         <!-- Search -->
         <div class="px-3 pt-3 pb-2 flex-shrink-0">
@@ -279,8 +279,24 @@
         </div>
       </div>
 
+      <!-- Mobile capability selector -->
+      <div class="sm:hidden absolute top-0 left-0 right-0 z-10 px-3 py-2 bg-card/95 border-b border-border flex items-center gap-2">
+        <select
+          class="flex-1 bg-background border border-border rounded-md px-2.5 py-1.5 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+          onchange={e => e.target.value === '' ? clearSelection() : selectCap(e.target.value)}
+        >
+          <option value="">All capabilities</option>
+          {#each allCaps as cap}
+            <option value={cap.id} selected={cap.id === selectedId}>{cap.name}</option>
+          {/each}
+        </select>
+        {#if selectedId}
+          <button class="text-[12px] text-muted-foreground hover:text-foreground px-2 py-1.5 border border-border rounded-md bg-background" onclick={clearSelection}>✕</button>
+        {/if}
+      </div>
+
       <!-- Flow canvas -->
-      <div class="flex-1 min-w-0" style="background:#f8fafc;">
+      <div class="flex-1 min-w-0 relative" style="background:#f8fafc;">
         <SvelteFlow
           {nodes}
           {edges}

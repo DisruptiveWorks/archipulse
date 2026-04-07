@@ -185,8 +185,8 @@
       <!-- Two-column layout: app list | donuts -->
       <div class="flex gap-5 items-start">
 
-        <!-- App list panel -->
-        <div class="flex-shrink-0 w-48 bg-card border border-border rounded-xl overflow-hidden shadow-sm">
+        <!-- App list panel — hidden on mobile -->
+        <div class="hidden sm:flex flex-shrink-0 w-48 bg-card border border-border rounded-xl overflow-hidden shadow-sm flex-col">
           <div class="text-[10px] font-bold tracking-[0.6px] uppercase text-muted-foreground px-3 py-2.5 border-b border-border">
             Applications ({data.apps.length})
           </div>
@@ -205,7 +205,7 @@
         </div>
 
         <!-- Donuts grid -->
-        <div class="flex-1 grid grid-cols-1 xl:grid-cols-2 gap-4">
+        <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
           {#each sortedPropKeys(data.properties) as key}
             {@const buckets = data.properties[key]}
             {@const slices = arcData(buckets)}
