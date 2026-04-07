@@ -252,7 +252,7 @@
       <p class="text-[14px]">No application elements — import a model first.</p>
     </div>
   {:else}
-    <div class="flex flex-1 min-h-0">
+    <div class="flex flex-1 min-h-0 relative">
 
       <!-- Left panel — hidden on mobile -->
       <div class="hidden sm:flex flex-col border-r border-border w-52 flex-shrink-0 bg-card/50 overflow-hidden min-h-0 h-full">
@@ -308,8 +308,41 @@
         </div>
       </div>
 
+      <!-- Mobile search + chips bar -->
+      <div class="sm:hidden absolute top-0 left-0 right-0 z-10 bg-card/95 border-b border-border px-3 py-2 flex flex-col gap-1.5">
+        <input type="search" bind:value={searchQ} placeholder="Find application…"
+          class="w-full bg-background border border-border rounded-md px-2.5 py-1.5 text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
+        {#if selectedApps.size > 0}
+          <div class="flex flex-wrap gap-1 items-center">
+            {#each [...selectedApps] as id}
+              {@const node = allNodes.find(n => n.id === id)}
+              {@const color = LIFECYCLE_COLORS[node?.lifecycle_status] ?? '#6b7280'}
+              <span class="inline-flex items-center gap-1 pl-1.5 pr-1 py-0.5 rounded-full text-[11px] font-medium"
+                    style="background:{color}22; border:1px solid {color}55; color:{color};">
+                <span class="max-w-[100px] truncate">{node?.name ?? id}</span>
+                <button class="flex-shrink-0 rounded-full p-0.5 leading-none" onclick={() => toggleApp(id)}>×</button>
+              </span>
+            {/each}
+            <button class="text-[10px] text-muted-foreground hover:text-foreground px-1" onclick={clearFocus}>clear</button>
+          </div>
+        {:else if searchQ}
+          <div class="flex flex-col gap-0.5 max-h-36 overflow-y-auto">
+            {#each filteredNodes as node}
+              {@const color = LIFECYCLE_COLORS[node.lifecycle_status] ?? '#6b7280'}
+              <button
+                class="w-full text-left flex items-center gap-1.5 px-2 py-1 rounded text-[12px] text-foreground hover:bg-muted/50 transition-colors"
+                onclick={() => { toggleApp(node.id); searchQ = ''; }}
+              >
+                <span class="size-2 rounded-full flex-shrink-0" style="background:{color}"></span>
+                <span class="truncate">{node.name}</span>
+              </button>
+            {/each}
+          </div>
+        {/if}
+      </div>
+
       <!-- Flow canvas -->
-      <div class="flex-1 min-w-0" style="background:#f8fafc;">
+      <div class="flex-1 min-w-0 relative" style="background:#f8fafc;">
         <SvelteFlow
           {nodes}
           {edges}
