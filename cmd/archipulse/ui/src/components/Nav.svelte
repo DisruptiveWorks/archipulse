@@ -1,18 +1,33 @@
 <script>
   import { push } from 'svelte-spa-router';
   import { Button } from '$lib/components/ui/button';
+  import { createEventDispatcher } from 'svelte';
 
   export let wsId = null;
   export let wsName = null;
   export let viewLabel = null;
 
+  const dispatch = createEventDispatcher();
+
   function showCreateWs() {
-    // Dispatch event to App.svelte to open modal
     window.dispatchEvent(new CustomEvent('archipulse:create-ws'));
+  }
+
+  function toggleSidebar() {
+    dispatch('toggleSidebar');
   }
 </script>
 
 <nav>
+  {#if wsId}
+    <button class="nav-hamburger" onclick={toggleSidebar} aria-label="Toggle menu">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <line x1="3" y1="12" x2="21" y2="12"/>
+        <line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+  {/if}
   <a class="nav-logo" href="#/" use:push={'/'}>
     <svg width="22" height="22" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
       <polygon points="16,2 27,8 27,22 16,28 5,22 5,8" fill="#E85D3A"/>

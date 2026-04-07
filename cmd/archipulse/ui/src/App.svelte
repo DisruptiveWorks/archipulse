@@ -87,15 +87,31 @@
   function routeEvent(e) {
     currentParams = extractParams($location);
   }
+
+  let sidebarOpen = false;
+
+  function toggleSidebar() {
+    sidebarOpen = !sidebarOpen;
+  }
+
+  function closeSidebar() {
+    sidebarOpen = false;
+  }
+
+  // Close sidebar on navigation
+  $: if ($location) sidebarOpen = false;
 </script>
 
-<Nav wsId={wsId} wsName={ws ? ws.name : null} {viewLabel} />
+<Nav wsId={wsId} wsName={ws ? ws.name : null} {viewLabel} on:toggleSidebar={toggleSidebar} />
 
 <div class="app-shell">
   {#if wsId}
+    <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
+    <div class="sidebar-overlay {sidebarOpen ? 'open' : ''}" onclick={closeSidebar}></div>
     <Sidebar
       {wsId}
       {ws}
+      open={sidebarOpen}
       on:imported={handleImported}
     />
     <div style="flex:1;display:flex;flex-direction:column;min-width:0">

@@ -113,6 +113,7 @@
     left: 0;
     overflow-y: auto;
     z-index: 90;
+    transition: transform 0.25s ease;
   }
 
   /* ── Content areas ────────────────────────────────────────────────────── */
@@ -128,6 +129,34 @@
     max-width: 1080px;
     margin: 0 auto;
     width: 100%;
+  }
+
+  /* ── Sidebar overlay (mobile) ─────────────────────────────────────────── */
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,0.4);
+    z-index: 89;
+  }
+
+  @media (max-width: 768px) {
+    .sidebar {
+      transform: translateX(-100%);
+    }
+    .sidebar.open {
+      transform: translateX(0);
+    }
+    .sidebar-overlay.open {
+      display: block;
+    }
+    .content {
+      margin-left: 0;
+      padding: 16px;
+    }
+    .content-full {
+      padding: 16px;
+    }
   }
 }
 
@@ -152,6 +181,25 @@
 .w-pulse  { font-weight: 700; color: var(--brand); }
 .nav-sep  { width: 1px; height: 20px; background: var(--border); margin: 0 4px; }
 .nav-spacer { flex: 1; }
+
+.nav-hamburger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: none;
+  color: var(--text);
+  cursor: pointer;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+.nav-hamburger:hover { background: var(--border); }
+
+@media (max-width: 768px) {
+  .nav-hamburger { display: flex; }
+}
 
 .breadcrumb {
   display: flex;

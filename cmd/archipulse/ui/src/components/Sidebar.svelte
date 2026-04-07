@@ -8,6 +8,7 @@
 
   export let wsId;
   export let ws = null;
+  export let open = false;
 
   const dispatch = createEventDispatcher();
 
@@ -72,7 +73,7 @@
   }
 </script>
 
-<aside class="sidebar">
+<aside class="sidebar {open ? 'open' : ''}">
   {#if ws}
     <div class="px-4 pt-4 pb-3 border-b border-border">
       <div class="text-[13px] font-semibold text-foreground whitespace-nowrap overflow-hidden text-ellipsis mb-1">{ws.name}</div>
