@@ -462,6 +462,23 @@
     footer a:hover { color: var(--brand); }
     .footer-links { display: flex; gap: 20px; }
 
+    /* ── Lightbox ─────────────────────────────────────────────────────── */
+    .lightbox {
+      display: none;
+      position: fixed; inset: 0; z-index: 999;
+      background: rgba(15,23,42,0.85);
+      align-items: center; justify-content: center;
+      padding: 24px;
+      cursor: zoom-out;
+    }
+    .lightbox.open { display: flex; }
+    .lightbox img {
+      max-width: 100%; max-height: 90vh;
+      border-radius: 8px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+    }
+    .screenshot-card img { cursor: zoom-in; }
+
     /* ── Animations ───────────────────────────────────────────────────── */
     .fade-up { opacity: 0; transform: translateY(20px); animation: fadeUp 0.6s ease forwards; }
     @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
@@ -854,6 +871,29 @@
   </div>
   <span>ArchiMate® is a trademark of The Open Group. ArchiPulse is not affiliated with The Open Group.</span>
 </footer>
+
+<div class="lightbox" id="lightbox">
+  <img id="lightbox-img" src="" alt="" />
+</div>
+
+<script>
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightbox-img');
+
+  document.querySelectorAll('.screenshot-card img').forEach(img => {
+    img.addEventListener('click', () => {
+      lightboxImg.src = img.src;
+      lightboxImg.alt = img.alt;
+      lightbox.classList.add('open');
+    });
+  });
+
+  lightbox.addEventListener('click', () => lightbox.classList.remove('open'));
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') lightbox.classList.remove('open');
+  });
+</script>
 
 </body>
 </html>
