@@ -14,9 +14,13 @@ Built on ArchiMate · Powered by Go · PostgreSQL · Open Source
 [![ArchiMate](https://img.shields.io/badge/ArchiMate-3.2-orange?style=flat-square)](https://www.opengroup.org/archimate-forum)
 [![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen?style=flat-square)](./CONTRIBUTING.md)
 
-[Getting Started](#getting-started) · [Features](#features) · [How It Works](#how-it-works) · [Roadmap](#roadmap) · [Contributing](#contributing) · [Support](#support)
+[Live Demo](https://demo.archipulse.org) · [Getting Started](#getting-started) · [Features](#features) · [How It Works](#how-it-works) · [Roadmap](#roadmap) · [Contributing](#contributing) · [Support](#support)
 
 </div>
+
+---
+
+> **Try it:** [demo.archipulse.org](https://demo.archipulse.org) — pre-loaded with the ArchiSurance example model. No sign-up required.
 
 ---
 
