@@ -182,6 +182,12 @@ func importInTx(db *sql.DB, wsID uuid.UUID, m *parser.Model) (*ImportResult, err
 	return result, nil
 }
 
+// ImportModel imports a parsed model into the given workspace.
+// It is exported so the seed command can use it without going through HTTP.
+func ImportModel(db *sql.DB, wsID uuid.UUID, m *parser.Model) (*ImportResult, error) {
+	return importInTx(db, wsID, m)
+}
+
 func registerImportRoutes(r chi.Router, db *sql.DB) {
 	h := &importHandler{db: db}
 	r.Post("/workspaces/{id}/import", h.importModel)

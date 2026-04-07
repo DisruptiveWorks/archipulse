@@ -33,6 +33,7 @@ WORKDIR /app
 
 COPY --from=builder /archipulse ./archipulse
 COPY migrations/ ./migrations/
+COPY examples/ ./examples/
 COPY entrypoint.sh ./entrypoint.sh
 RUN chmod +x ./entrypoint.sh
 
