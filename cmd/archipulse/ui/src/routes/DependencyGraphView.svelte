@@ -48,13 +48,27 @@
   ];
   let activeRels = $state(new Set(REL_TYPES.map(r => r.key)));
 
-  const LIFECYCLE_COLORS = {
+  // Fixed palette for known lifecycle values; unknown values get a deterministic hash color.
+  const LIFECYCLE_FIXED = {
     'Production':     '#16a34a',
     'Pilot':          '#2563eb',
     'Planned':        '#7c3aed',
     'Retiring':       '#ea580c',
     'Decommissioned': '#dc2626',
   };
+  const EXTRA_PALETTE = ['#0891b2','#db2777','#ca8a04','#9333ea','#059669','#d97706','#6366f1'];
+
+  // Built dynamically from data so any lifecycle value gets a consistent color.
+  let LIFECYCLE_COLORS = {};
+  function buildLifecycleColors(nodes) {
+    const vals = [...new Set(nodes.map(n => n.lifecycle_status).filter(Boolean))];
+    const result = {};
+    let extraIdx = 0;
+    for (const v of vals) {
+      result[v] = LIFECYCLE_FIXED[v] ?? EXTRA_PALETTE[extraIdx++ % EXTRA_PALETTE.length];
+    }
+    return result;
+  }
 
   const REL_META = {
     serving:     { label: 'Serves',         color: '#7aa2f7', animated: false },
@@ -81,6 +95,25 @@
     return 'other';
   }
 
+  // ── Bidirectional edge deduplication ─────────────────────────────────────
+  // If A→B and B→A exist with the same rel type, collapse into one bidirectional edge.
+  function deduplicateEdges(edges) {
+    const seen = new Map(); // key → edge index in result
+    const result = [];
+    for (const e of edges) {
+      const fwd = `${e.source}|${e.target}|${relKey(e.relationship)}`;
+      const rev = `${e.target}|${e.source}|${relKey(e.relationship)}`;
+      if (seen.has(rev)) {
+        // Mark the existing edge as bidirectional
+        result[seen.get(rev)]._bidirectional = true;
+      } else if (!seen.has(fwd)) {
+        seen.set(fwd, result.length);
+        result.push({ ...e, _bidirectional: false });
+      }
+    }
+    return result;
+  }
+
   // ── Dagre layout ──────────────────────────────────────────────────────────
   function layoutNodes(rawNodes, rawEdges, visibleIds = null) {
     const g = new dagre.graphlib.Graph();
@@ -97,14 +130,27 @@
       g.setNode(n.id, { width: nw(tier), height: nh(tier) });
     });
 
-    rawEdges.forEach(e => {
-      if (!activeRels.has(relKey(e.relationship))) return;
-      if (nodeSet && (!nodeSet.has(e.source) || !nodeSet.has(e.target))) return;
-      if (e.source === e.target) return;
+    // Use pre-deduplicated edges for layout (bidirectional shown as one edge)
+    const layoutEdges = deduplicateEdges(
+      rawEdges.filter(e => {
+        if (!activeRels.has(relKey(e.relationship))) return false;
+        if (nodeSet && (!nodeSet.has(e.source) || !nodeSet.has(e.target))) return false;
+        return e.source !== e.target;
+      })
+    );
+    layoutEdges.forEach(e => {
       if (g.hasNode(e.source) && g.hasNode(e.target)) g.setEdge(e.source, e.target);
     });
 
     dagre.layout(g);
+
+    const dedupedEdges = deduplicateEdges(
+      rawEdges.filter(e => {
+        if (!activeRels.has(relKey(e.relationship))) return false;
+        if (nodeSet && (!nodeSet.has(e.source) || !nodeSet.has(e.target))) return false;
+        return e.source !== e.target;
+      })
+    );
 
     const nameById = Object.fromEntries(rawNodes.map(n => [n.id, n.name]));
 
@@ -122,25 +168,23 @@
         };
       });
 
-    const flowEdges = rawEdges
-      .filter(e => {
-        if (!activeRels.has(relKey(e.relationship))) return false;
-        if (nodeSet && (!nodeSet.has(e.source) || !nodeSet.has(e.target))) return false;
-        return e.source !== e.target;
-      })
-      .map(e => {
-        const rk   = relKey(e.relationship);
-        const meta = REL_META[rk];
-        return {
-          id:        e.id,
-          source:    e.source,
-          target:    e.target,
-          animated:  meta.animated,
-          style:     `stroke:${meta.color}; stroke-width:1.8px;`,
-          markerEnd: { type: 'arrowclosed', color: meta.color, width: 14, height: 14 },
-          data:      { relLabel: meta.label, sourceName: nameById[e.source] ?? '', targetName: nameById[e.target] ?? '', rk },
-        };
-      });
+    const flowEdges = dedupedEdges.map(e => {
+      const rk   = relKey(e.relationship);
+      const meta = REL_META[rk];
+      const edge = {
+        id:        e.id,
+        source:    e.source,
+        target:    e.target,
+        animated:  meta.animated,
+        style:     `stroke:${meta.color}; stroke-width:1.8px;`,
+        markerEnd: { type: 'arrowclosed', color: meta.color, width: 14, height: 14 },
+        data:      { relLabel: meta.label, sourceName: nameById[e.source] ?? '', targetName: nameById[e.target] ?? '', rk, bidirectional: e._bidirectional },
+      };
+      if (e._bidirectional) {
+        edge.markerStart = { type: 'arrowclosed', color: meta.color, width: 14, height: 14 };
+      }
+      return edge;
+    });
 
     return { flowNodes, flowEdges };
   }
@@ -208,6 +252,7 @@
       const data = await api.get('/workspaces/' + params.wsId + '/views/application-dependency/graph');
       allNodes = data.nodes ?? [];
       allEdges = data.edges ?? [];
+      LIFECYCLE_COLORS = buildLifecycleColors(allNodes);
       applyLayout();
     } catch (e) {
       error = e.message;
@@ -386,6 +431,7 @@
                 </div>
               {/each}
 
+              {#if Object.keys(LIFECYCLE_COLORS).length > 0}
               <div class="text-[10px] font-bold uppercase tracking-wide mt-3 mb-2" style="color:#64748b;">Lifecycle</div>
               {#each Object.entries(LIFECYCLE_COLORS) as [lc, color]}
                 <div class="flex items-center gap-2 mb-1.5">
@@ -393,6 +439,7 @@
                   <span style="color:#475569;">{lc}</span>
                 </div>
               {/each}
+              {/if}
             </div>
           </Panel>
         </SvelteFlow>
