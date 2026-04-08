@@ -10,7 +10,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/DisruptiveWorks/archipulse/internal/api"
 	"github.com/DisruptiveWorks/archipulse/internal/workspace"
 )
 
@@ -28,9 +27,10 @@ func TestImport_AOEF_ArchiSurance(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost,
 		"/api/v1/workspaces/"+ws.ID.String()+"/import", body)
 	req.Header.Set("Content-Type", ct)
+	addAuthCookie(t, req)
 
 	rr := httptest.NewRecorder()
-	api.NewRouter(conn).ServeHTTP(rr, req)
+	testRouter(t, conn).ServeHTTP(rr, req)
 
 	if rr.Code != http.StatusOK {
 		t.Fatalf("import status = %d, body = %s", rr.Code, rr.Body.String())
@@ -57,9 +57,10 @@ func TestImport_InvalidXML(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost,
 		"/api/v1/workspaces/"+ws.ID.String()+"/import", &buf)
 	req.Header.Set("Content-Type", w.FormDataContentType())
+	addAuthCookie(t, req)
 
 	rr := httptest.NewRecorder()
-	api.NewRouter(conn).ServeHTTP(rr, req)
+	testRouter(t, conn).ServeHTTP(rr, req)
 
 	if rr.Code != http.StatusUnprocessableEntity {
 		t.Errorf("expected 422, got %d: %s", rr.Code, rr.Body.String())
@@ -73,9 +74,10 @@ func TestImport_WorkspaceNotFound(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost,
 		"/api/v1/workspaces/"+nonExistentUUID().String()+"/import", body)
 	req.Header.Set("Content-Type", ct)
+	addAuthCookie(t, req)
 
 	rr := httptest.NewRecorder()
-	api.NewRouter(conn).ServeHTTP(rr, req)
+	testRouter(t, conn).ServeHTTP(rr, req)
 
 	if rr.Code != http.StatusNotFound {
 		t.Errorf("expected 404, got %d", rr.Code)
