@@ -36,31 +36,61 @@
     return PROP_LABELS[k] ?? k.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
   }
 
-  const LIFECYCLE_COLORS = {
-    'Production':    'bg-[#dcfce7] text-[#166534]',
-    'Pilot':         'bg-[#dbeafe] text-[#1e40af]',
-    'Planned':       'bg-[#ede9fe] text-[#5b21b6]',
-    'Retiring':      'bg-[#ffedd5] text-[#9a3412]',
-    'Decommissioned':'bg-[#fee2e2] text-[#991b1b]',
-  };
-  const CRIT_COLORS = {
-    'Critical': 'bg-[#fee2e2] text-[#991b1b]',
-    'High':     'bg-[#ffedd5] text-[#9a3412]',
-    'Medium':   'bg-[#fef9c3] text-[#713f12]',
-    'Low':      'bg-[#dcfce7] text-[#166534]',
-  };
-  const DEPLOY_COLORS = {
-    'On-Premise':   'bg-[#dcfce7] text-[#166534]',
-    'Public Cloud': 'bg-[#dbeafe] text-[#1e40af]',
-    'SaaS':         'bg-[#ccfbf1] text-[#134e4a]',
-    'Hybrid':       'bg-[#ede9fe] text-[#5b21b6]',
+  // Known-value badge classes for common ArchiMate property values.
+  const KNOWN_BADGES = {
+    lifecycle_status: {
+      'Production':    'bg-[#dcfce7] text-[#166534]',
+      'Pilot':         'bg-[#dbeafe] text-[#1e40af]',
+      'Planned':       'bg-[#ede9fe] text-[#5b21b6]',
+      'Retiring':      'bg-[#ffedd5] text-[#9a3412]',
+      'Decommissioned':'bg-[#fee2e2] text-[#991b1b]',
+    },
+    criticality: {
+      'Critical': 'bg-[#fee2e2] text-[#991b1b]',
+      'High':     'bg-[#ffedd5] text-[#9a3412]',
+      'Medium':   'bg-[#fef9c3] text-[#713f12]',
+      'Low':      'bg-[#dcfce7] text-[#166534]',
+    },
+    deployment_model: {
+      'On-Premise':   'bg-[#dcfce7] text-[#166534]',
+      'Public Cloud': 'bg-[#dbeafe] text-[#1e40af]',
+      'SaaS':         'bg-[#ccfbf1] text-[#134e4a]',
+      'Hybrid':       'bg-[#ede9fe] text-[#5b21b6]',
+    },
   };
 
+  // Palette for dynamically assigning colors to unknown property values.
+  const DYNAMIC_PALETTE = [
+    { bg: '#dbeafe', text: '#1e40af' },
+    { bg: '#dcfce7', text: '#166534' },
+    { bg: '#ede9fe', text: '#5b21b6' },
+    { bg: '#ffedd5', text: '#9a3412' },
+    { bg: '#ccfbf1', text: '#134e4a' },
+    { bg: '#fef9c3', text: '#713f12' },
+    { bg: '#fce7f3', text: '#9d174d' },
+    { bg: '#e0f2fe', text: '#0369a1' },
+  ];
+  // Cache: key → (value → style string)
+  const dynamicBadgeCache = {};
+  function dynamicBadgeStyle(key, val) {
+    if (!dynamicBadgeCache[key]) dynamicBadgeCache[key] = {};
+    if (!dynamicBadgeCache[key][val]) {
+      const idx = Object.keys(dynamicBadgeCache[key]).length % DYNAMIC_PALETTE.length;
+      dynamicBadgeCache[key][val] = idx;
+    }
+    const p = DYNAMIC_PALETTE[dynamicBadgeCache[key][val]];
+    return `background:${p.bg}; color:${p.text};`;
+  }
+
+  // Returns a Tailwind class string for known values, null to fall through to inline style.
   function badgeClass(key, val) {
-    if (key === 'lifecycle_status') return LIFECYCLE_COLORS[val] ?? 'bg-muted text-muted-foreground';
-    if (key === 'criticality')      return CRIT_COLORS[val]      ?? 'bg-muted text-muted-foreground';
-    if (key === 'deployment_model') return DEPLOY_COLORS[val]    ?? 'bg-muted text-muted-foreground';
-    return null;
+    return KNOWN_BADGES[key]?.[val] ?? null;
+  }
+
+  // Returns an inline style string for dynamic (unknown) values.
+  function badgeStyle(key, val) {
+    if (KNOWN_BADGES[key]?.[val]) return null; // handled by badgeClass
+    return dynamicBadgeStyle(key, val);
   }
 
   // ── Type display ───────────────────────────────────────────────────────────
@@ -248,9 +278,12 @@
                 {#each activePropCols as k}
                   {@const val = entry.properties[k] ?? ''}
                   {@const bc = val ? badgeClass(k, val) : null}
+                  {@const bs = val && !bc ? badgeStyle(k, val) : null}
                   <td class="px-3 py-2.5 whitespace-nowrap">
                     {#if bc}
                       <span class="inline-block px-2 py-0.5 rounded text-[11px] font-medium {bc}">{val}</span>
+                    {:else if bs}
+                      <span class="inline-block px-2 py-0.5 rounded text-[11px] font-medium" style={bs}>{val}</span>
                     {:else if val}
                       <span class="text-foreground">{val}</span>
                     {:else}

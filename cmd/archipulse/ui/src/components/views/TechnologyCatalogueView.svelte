@@ -16,30 +16,53 @@
 
   // ── Type → category label ──────────────────────────────────────────────────
   const TYPE_CATEGORY = {
-    'Node':              'Infrastructure Node',
-    'Device':            'Device',
-    'SystemSoftware':    'System Software',
-    'TechnologyService': 'Technology Service',
-    'Artifact':          'Artifact',
-    'Path':              'Network Path',
-    'CommunicationNetwork': 'Network',
+    'Node':                   'Infrastructure Node',
+    'Device':                 'Device',
+    'SystemSoftware':         'System Software',
+    'TechnologyService':      'Technology Service',
+    'TechnologyProcess':      'Technology Process',
+    'TechnologyFunction':     'Technology Function',
+    'TechnologyInteraction':  'Technology Interaction',
+    'TechnologyInterface':    'Technology Interface',
+    'TechnologyCollaboration':'Technology Collaboration',
+    'Artifact':               'Artifact',
+    'Path':                   'Network Path',
+    'CommunicationNetwork':   'Network',
   };
   function categoryLabel(t) {
     return TYPE_CATEGORY[t] ?? t.replace(/([A-Z])/g, ' $1').trim();
   }
 
   const CATEGORY_BADGE = {
-    'Node':              { bg: '#dbeafe', text: '#1e40af' },
-    'Device':            { bg: '#dbeafe', text: '#1e40af' },
-    'SystemSoftware':    { bg: '#dcfce7', text: '#166534' },
-    'TechnologyService': { bg: '#ffedd5', text: '#9a3412' },
-    'Artifact':          { bg: '#ede9fe', text: '#5b21b6' },
-    'CommunicationNetwork': { bg: '#f1f5f9', text: '#475569' },
-    'Path':              { bg: '#f1f5f9', text: '#475569' },
+    'Node':                   { bg: '#dbeafe', text: '#1e40af' },
+    'Device':                 { bg: '#dbeafe', text: '#1e40af' },
+    'SystemSoftware':         { bg: '#dcfce7', text: '#166534' },
+    'TechnologyService':      { bg: '#ffedd5', text: '#9a3412' },
+    'TechnologyProcess':      { bg: '#fef9c3', text: '#713f12' },
+    'TechnologyFunction':     { bg: '#ccfbf1', text: '#134e4a' },
+    'TechnologyInteraction':  { bg: '#e0f2fe', text: '#0369a1' },
+    'TechnologyInterface':    { bg: '#e0f2fe', text: '#0369a1' },
+    'TechnologyCollaboration':{ bg: '#fce7f3', text: '#9d174d' },
+    'Artifact':               { bg: '#ede9fe', text: '#5b21b6' },
+    'CommunicationNetwork':   { bg: '#f1f5f9', text: '#475569' },
+    'Path':                   { bg: '#f1f5f9', text: '#475569' },
   };
+  const _EXTRA_PALETTE = [
+    { bg: '#dbeafe', text: '#1e40af' }, { bg: '#dcfce7', text: '#166534' },
+    { bg: '#ede9fe', text: '#5b21b6' }, { bg: '#ffedd5', text: '#9a3412' },
+    { bg: '#ccfbf1', text: '#134e4a' }, { bg: '#fef9c3', text: '#713f12' },
+    { bg: '#fce7f3', text: '#9d174d' }, { bg: '#e0f2fe', text: '#0369a1' },
+  ];
+  const _extraCache = {};
   function categoryBadgeStyle(t) {
-    const b = CATEGORY_BADGE[t] ?? { bg: '#f1f5f9', text: '#475569' };
-    return `background:${b.bg}; color:${b.text};`;
+    const b = CATEGORY_BADGE[t];
+    if (b) return `background:${b.bg}; color:${b.text};`;
+    if (!_extraCache[t]) {
+      const idx = Object.keys(_extraCache).length % _EXTRA_PALETTE.length;
+      _extraCache[t] = _EXTRA_PALETTE[idx];
+    }
+    const p = _extraCache[t];
+    return `background:${p.bg}; color:${p.text};`;
   }
 
   // ── Filtering & sorting ────────────────────────────────────────────────────

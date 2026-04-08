@@ -182,6 +182,7 @@
         <p class="text-[14px] leading-relaxed">No applications found for this scope.</p>
       </div>
     {:else}
+      {@const propKeys = sortedPropKeys(data.properties)}
       <!-- Two-column layout: app list | donuts -->
       <div class="flex gap-5 items-start">
 
@@ -204,52 +205,61 @@
           </div>
         </div>
 
-        <!-- Donuts grid -->
-        <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
-          {#each sortedPropKeys(data.properties) as key}
-            {@const buckets = data.properties[key]}
-            {@const slices = arcData(buckets)}
-            <div class="bg-card border border-border rounded-xl p-4 shadow-sm">
-              <div class="text-[11px] font-bold tracking-[0.6px] uppercase text-muted-foreground mb-3">{propLabel(key)}</div>
-              <div class="flex gap-4 items-center">
-                <!-- Donut -->
-                <div class="size-[150px] flex-shrink-0">
-                  <ArcChart
-                    data={slices}
-                    key="key"
-                    label="label"
-                    value="value"
-                    c="color"
-                    innerRadius={0.60}
-                    padAngle={0.02}
-                    cornerRadius={2}
-                  />
-                </div>
-                <!-- Legend with hover tooltip -->
-                <div class="flex flex-col gap-0.5 min-w-0 flex-1">
-                  {#each slices as slice}
-                    {@const isHighlighted = selectedApp != null
-                      && (data.apps.find(a => a.id === selectedApp)?.properties?.[key] ?? '') === (slice.key === '(unset)' ? '' : slice.key)}
-                    <div
-                      role="button"
-                      tabindex="0"
-                      class="flex items-center gap-2 text-[12px] rounded px-1.5 py-1 cursor-default transition-colors hover:bg-muted/60
-                        {isHighlighted ? 'bg-primary/8 ring-1 ring-inset ring-primary/30' : ''}"
-                      onmouseenter={(e) => showTooltip(e, key, slice)}
-                      onmouseleave={hideTooltip}
-                      onfocus={(e) => showTooltip(e, key, slice)}
-                      onblur={hideTooltip}
-                    >
-                      <span class="size-2.5 rounded-full flex-shrink-0" style="background:{slice.color}"></span>
-                      <span class="text-muted-foreground truncate flex-1" title={slice.label}>{slice.label}</span>
-                      <span class="font-semibold tabular-nums text-foreground">{slice.value}</span>
-                    </div>
-                  {/each}
+        <!-- Right side: donuts or empty-property notice -->
+        {#if propKeys.length === 0}
+          <div class="flex-1 flex flex-col items-center justify-center py-16 text-muted-foreground text-center">
+            <div class="text-[32px] mb-3">📊</div>
+            <p class="text-[14px] font-medium text-foreground mb-1">No property data available</p>
+            <p class="text-[13px] max-w-xs">This model doesn't include application properties (lifecycle, criticality, etc.). Charts will appear once properties are defined.</p>
+          </div>
+        {:else}
+          <!-- Donuts grid -->
+          <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+            {#each propKeys as key}
+              {@const buckets = data.properties[key]}
+              {@const slices = arcData(buckets)}
+              <div class="bg-card border border-border rounded-xl p-4 shadow-sm">
+                <div class="text-[11px] font-bold tracking-[0.6px] uppercase text-muted-foreground mb-3">{propLabel(key)}</div>
+                <div class="flex gap-4 items-center">
+                  <!-- Donut -->
+                  <div class="size-[150px] flex-shrink-0">
+                    <ArcChart
+                      data={slices}
+                      key="key"
+                      label="label"
+                      value="value"
+                      c="color"
+                      innerRadius={0.60}
+                      padAngle={0.02}
+                      cornerRadius={2}
+                    />
+                  </div>
+                  <!-- Legend with hover tooltip -->
+                  <div class="flex flex-col gap-0.5 min-w-0 flex-1">
+                    {#each slices as slice}
+                      {@const isHighlighted = selectedApp != null
+                        && (data.apps.find(a => a.id === selectedApp)?.properties?.[key] ?? '') === (slice.key === '(unset)' ? '' : slice.key)}
+                      <div
+                        role="button"
+                        tabindex="0"
+                        class="flex items-center gap-2 text-[12px] rounded px-1.5 py-1 cursor-default transition-colors hover:bg-muted/60
+                          {isHighlighted ? 'bg-primary/8 ring-1 ring-inset ring-primary/30' : ''}"
+                        onmouseenter={(e) => showTooltip(e, key, slice)}
+                        onmouseleave={hideTooltip}
+                        onfocus={(e) => showTooltip(e, key, slice)}
+                        onblur={hideTooltip}
+                      >
+                        <span class="size-2.5 rounded-full flex-shrink-0" style="background:{slice.color}"></span>
+                        <span class="text-muted-foreground truncate flex-1" title={slice.label}>{slice.label}</span>
+                        <span class="font-semibold tabular-nums text-foreground">{slice.value}</span>
+                      </div>
+                    {/each}
+                  </div>
                 </div>
               </div>
-            </div>
-          {/each}
-        </div>
+            {/each}
+          </div>
+        {/if}
 
       </div>
     {/if}
