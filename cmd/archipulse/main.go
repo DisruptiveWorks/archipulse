@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"os"
@@ -10,6 +11,7 @@ import (
 	"github.com/joho/godotenv"
 
 	"github.com/DisruptiveWorks/archipulse/internal/api"
+	"github.com/DisruptiveWorks/archipulse/internal/auth"
 	"github.com/DisruptiveWorks/archipulse/internal/db"
 	"github.com/DisruptiveWorks/archipulse/internal/parser"
 	"github.com/DisruptiveWorks/archipulse/internal/workspace"
@@ -53,6 +55,25 @@ func runServe() error {
 		return err
 	}
 
+	// Initialise auth.
+	cfg, err := auth.ConfigFromEnv()
+	if err != nil {
+		return fmt.Errorf("auth config: %w", err)
+	}
+	svc, err := auth.NewService(conn, cfg)
+	if err != nil {
+		return fmt.Errorf("auth service: %w", err)
+	}
+	if err := auth.Bootstrap(svc); err != nil {
+		return fmt.Errorf("auth bootstrap: %w", err)
+	}
+
+	// Optional OIDC provider.
+	oidcProvider, err := auth.NewOIDCProvider(context.Background(), cfg)
+	if err != nil {
+		return fmt.Errorf("oidc provider: %w", err)
+	}
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
@@ -60,7 +81,7 @@ func runServe() error {
 
 	addr := ":" + port
 	fmt.Printf("listening on %s\n", addr)
-	return http.ListenAndServe(addr, api.NewRouter(conn, staticFiles))
+	return http.ListenAndServe(addr, api.NewRouter(conn, svc, oidcProvider, staticFiles))
 }
 
 func runMigrate() error {

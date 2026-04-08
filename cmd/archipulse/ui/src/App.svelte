@@ -9,13 +9,16 @@
   import DependencyGraphView from './routes/DependencyGraphView.svelte';
   import CapabilityTree from './routes/CapabilityTree.svelte';
   import ApplicationLandscapeMap from './routes/ApplicationLandscapeMap.svelte';
+  import Login from './routes/Login.svelte';
 
   import { api } from './lib/api.js';
   import { VIEWS } from './lib/views.js';
+  import { user, fetchMe } from './lib/auth.js';
   import { onMount } from 'svelte';
 
   // Route definitions
   const routes = {
+    '/login': Login,
     '/': Home,
     '/ws/:wsId': WorkspaceOverview,
     '/ws/:wsId/view/:viewName': ViewRouter,
@@ -23,6 +26,18 @@
     '/ws/:wsId/view/:viewName/tree': CapabilityTree,
     '/ws/:wsId/view/:viewName/map': ApplicationLandscapeMap,
   };
+
+  // Auth state
+  let authLoading = true;
+
+  onMount(async () => {
+    await fetchMe();
+    authLoading = false;
+    // If not logged in and not already on login page, redirect.
+    if (!$user && $location !== '/login') {
+      push('/login');
+    }
+  });
 
   // Current route state derived from location
   let currentParams = {};
@@ -78,10 +93,7 @@
   $: viewLabel = viewName ? (VIEWS[viewName] ? VIEWS[viewName].label : viewName) : null;
 
   function handleImported() {
-    // Force reload current route by navigating to same path
-    if (wsId) {
-      loadWs(wsId);
-    }
+    if (wsId) loadWs(wsId);
   }
 
   function routeEvent(e) {
@@ -100,24 +112,34 @@
 
   // Close sidebar on navigation
   $: if ($location) sidebarOpen = false;
+
+  // Whether to show the shell (nav + sidebar) — hide on the login page.
+  $: isLoginPage = $location === '/login';
 </script>
 
-<Nav wsId={wsId} wsName={ws ? ws.name : null} {viewLabel} on:toggleSidebar={toggleSidebar} />
+{#if authLoading}
+  <!-- Blank while we check the session to avoid flash. -->
+  <div></div>
+{:else if isLoginPage}
+  <Router {routes} on:routeEvent={routeEvent} />
+{:else}
+  <Nav wsId={wsId} wsName={ws ? ws.name : null} {viewLabel} on:toggleSidebar={toggleSidebar} />
 
-<div class="app-shell">
-  {#if wsId}
-    <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-    <div class="sidebar-overlay {sidebarOpen ? 'open' : ''}" onclick={closeSidebar}></div>
-    <Sidebar
-      {wsId}
-      {ws}
-      open={sidebarOpen}
-      on:imported={handleImported}
-    />
-    <div style="flex:1;display:flex;flex-direction:column;min-width:0">
-      <Router {routes} on:routeEvent={routeEvent} />
-    </div>
-  {:else}
-    <Router {routes} />
-  {/if}
-</div>
+  <div class="app-shell">
+    {#if wsId}
+      <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
+      <div class="sidebar-overlay {sidebarOpen ? 'open' : ''}" onclick={closeSidebar}></div>
+      <Sidebar
+        {wsId}
+        {ws}
+        open={sidebarOpen}
+        on:imported={handleImported}
+      />
+      <div style="flex:1;display:flex;flex-direction:column;min-width:0">
+        <Router {routes} on:routeEvent={routeEvent} />
+      </div>
+    {:else}
+      <Router {routes} />
+    {/if}
+  </div>
+{/if}
