@@ -2,12 +2,15 @@
   import { push } from 'svelte-spa-router';
   import { Button } from '$lib/components/ui/button';
   import { createEventDispatcher } from 'svelte';
+  import { user, logout } from '../lib/auth.js';
 
   export let wsId = null;
   export let wsName = null;
   export let viewLabel = null;
 
   const dispatch = createEventDispatcher();
+
+  let userMenuOpen = false;
 
   function showCreateWs() {
     window.dispatchEvent(new CustomEvent('archipulse:create-ws'));
@@ -16,7 +19,24 @@
   function toggleSidebar() {
     dispatch('toggleSidebar');
   }
+
+  function toggleUserMenu() {
+    userMenuOpen = !userMenuOpen;
+  }
+
+  function closeUserMenu() {
+    userMenuOpen = false;
+  }
+
+  async function handleLogout() {
+    userMenuOpen = false;
+    await logout();
+  }
 </script>
+
+<svelte:window onclick={(e) => {
+  if (!e.target.closest('.user-menu-wrap')) userMenuOpen = false;
+}} />
 
 <nav>
   {#if wsId}
@@ -53,5 +73,38 @@
     {/if}
   </div>
   <div class="nav-spacer"></div>
-  <Button size="sm" onclick={showCreateWs}>+ New workspace</Button>
+
+  <!-- User menu -->
+  {#if $user}
+    <div class="user-menu-wrap" style="position:relative;">
+      <button
+        class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[13px] text-foreground hover:bg-muted transition-colors border border-border bg-card"
+        onclick={toggleUserMenu}
+        aria-label="User menu"
+      >
+        <span class="size-5 rounded-full bg-primary/20 text-primary flex items-center justify-center text-[11px] font-bold flex-shrink-0">
+          {$user.email[0].toUpperCase()}
+        </span>
+        <span class="hidden sm:inline max-w-[120px] truncate">{$user.email}</span>
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" class="flex-shrink-0 opacity-60">
+          <path d="M2 4l4 4 4-4"/>
+        </svg>
+      </button>
+
+      {#if userMenuOpen}
+        <div class="absolute right-0 top-full mt-1 w-52 bg-popover border border-border rounded-lg shadow-lg py-1 z-50 text-[13px]">
+          <div class="px-3 py-2 border-b border-border">
+            <div class="font-medium text-foreground truncate">{$user.email}</div>
+            <div class="text-[11px] text-muted-foreground capitalize">{$user.role}</div>
+          </div>
+          <button
+            class="w-full text-left px-3 py-2 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            onclick={handleLogout}
+          >Sign out</button>
+        </div>
+      {/if}
+    </div>
+  {:else}
+    <Button size="sm" onclick={showCreateWs}>+ New workspace</Button>
+  {/if}
 </nav>

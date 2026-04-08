@@ -6,7 +6,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/DisruptiveWorks/archipulse/internal/api"
 	"github.com/DisruptiveWorks/archipulse/internal/workspace"
 )
 
@@ -27,8 +26,9 @@ func setupArchiSurance(t *testing.T) string {
 	req := httptest.NewRequest(http.MethodPost,
 		"/api/v1/workspaces/"+ws.ID.String()+"/import", body)
 	req.Header.Set("Content-Type", ct)
+	addAuthCookie(t, req)
 	rr := httptest.NewRecorder()
-	api.NewRouter(conn).ServeHTTP(rr, req)
+	testRouter(t, conn).ServeHTTP(rr, req)
 	if rr.Code != http.StatusOK {
 		t.Fatalf("import failed: %d %s", rr.Code, rr.Body.String())
 	}
@@ -46,8 +46,9 @@ func TestViewer_ListViews(t *testing.T) {
 
 	req := httptest.NewRequest(http.MethodGet,
 		"/api/v1/workspaces/"+ws.ID.String()+"/views", nil)
+	addAuthCookie(t, req)
 	rr := httptest.NewRecorder()
-	api.NewRouter(conn).ServeHTTP(rr, req)
+	testRouter(t, conn).ServeHTTP(rr, req)
 
 	if rr.Code != http.StatusOK {
 		t.Fatalf("list views status = %d", rr.Code)
@@ -68,8 +69,9 @@ func TestViewer_ElementCatalogue(t *testing.T) {
 
 	req := httptest.NewRequest(http.MethodGet,
 		"/api/v1/workspaces/"+wsID+"/views/element-catalogue", nil)
+	addAuthCookie(t, req)
 	rr := httptest.NewRecorder()
-	api.NewRouter(conn).ServeHTTP(rr, req)
+	testRouter(t, conn).ServeHTTP(rr, req)
 
 	if rr.Code != http.StatusOK {
 		t.Fatalf("element-catalogue status = %d: %s", rr.Code, rr.Body.String())
@@ -94,8 +96,9 @@ func TestViewer_ApplicationCatalogue(t *testing.T) {
 
 	req := httptest.NewRequest(http.MethodGet,
 		"/api/v1/workspaces/"+wsID+"/views/application-catalogue", nil)
+	addAuthCookie(t, req)
 	rr := httptest.NewRecorder()
-	api.NewRouter(conn).ServeHTTP(rr, req)
+	testRouter(t, conn).ServeHTTP(rr, req)
 
 	if rr.Code != http.StatusOK {
 		t.Fatalf("application-catalogue status = %d", rr.Code)
@@ -118,8 +121,9 @@ func TestViewer_ApplicationLandscape(t *testing.T) {
 
 	req := httptest.NewRequest(http.MethodGet,
 		"/api/v1/workspaces/"+wsID+"/views/application-landscape", nil)
+	addAuthCookie(t, req)
 	rr := httptest.NewRecorder()
-	api.NewRouter(conn).ServeHTTP(rr, req)
+	testRouter(t, conn).ServeHTTP(rr, req)
 
 	if rr.Code != http.StatusOK {
 		t.Fatalf("application-landscape status = %d", rr.Code)
@@ -133,8 +137,9 @@ func TestViewer_DependencyGraph(t *testing.T) {
 
 	req := httptest.NewRequest(http.MethodGet,
 		"/api/v1/workspaces/"+wsID+"/views/application-dependency/graph", nil)
+	addAuthCookie(t, req)
 	rr := httptest.NewRecorder()
-	api.NewRouter(conn).ServeHTTP(rr, req)
+	testRouter(t, conn).ServeHTTP(rr, req)
 
 	if rr.Code != http.StatusOK {
 		t.Fatalf("dependency graph status = %d: %s", rr.Code, rr.Body.String())
@@ -157,8 +162,9 @@ func TestViewer_UnknownView(t *testing.T) {
 
 	req := httptest.NewRequest(http.MethodGet,
 		"/api/v1/workspaces/"+ws.ID.String()+"/views/nonexistent-view", nil)
+	addAuthCookie(t, req)
 	rr := httptest.NewRecorder()
-	api.NewRouter(conn).ServeHTTP(rr, req)
+	testRouter(t, conn).ServeHTTP(rr, req)
 
 	if rr.Code != http.StatusNotFound {
 		t.Errorf("expected 404, got %d", rr.Code)

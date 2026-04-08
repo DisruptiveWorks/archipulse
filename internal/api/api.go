@@ -11,25 +11,35 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 
+	"github.com/DisruptiveWorks/archipulse/internal/auth"
 	"github.com/DisruptiveWorks/archipulse/internal/workspace"
 )
 
 // NewRouter builds and returns the root HTTP router with all routes registered.
 // Pass an embed.FS as the optional second argument to also serve the frontend SPA.
-func NewRouter(db *sql.DB, static ...embed.FS) http.Handler {
+func NewRouter(db *sql.DB, svc *auth.Service, oidc *auth.OIDCProvider, static ...embed.FS) http.Handler {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 
 	r.Route("/api/v1", func(r chi.Router) {
 		r.Use(middleware.SetHeader("Content-Type", "application/json"))
-		registerWorkspaceRoutes(r, workspace.NewStore(db))
-		registerElementRoutes(r, db)
-		registerRelationshipRoutes(r, db)
-		registerDiagramRoutes(r, db)
-		registerExportRoutes(r, db)
-		registerImportRoutes(r, db)
-		registerViewerRoutes(r, db)
+
+		// Public auth endpoints — no authentication required.
+		svc.RegisterRoutes(r, oidc)
+
+		// Protected API: require a valid session + RBAC check.
+		r.Group(func(r chi.Router) {
+			r.Use(svc.RequireAuth)
+			r.Use(svc.RequireRole)
+			registerWorkspaceRoutes(r, workspace.NewStore(db))
+			registerElementRoutes(r, db)
+			registerRelationshipRoutes(r, db)
+			registerDiagramRoutes(r, db)
+			registerExportRoutes(r, db)
+			registerImportRoutes(r, db)
+			registerViewerRoutes(r, db)
+		})
 	})
 
 	if len(static) > 0 {
