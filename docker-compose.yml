@@ -20,9 +20,22 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    env_file:
+      - path: .env
+        required: false   # optional — values below are used when .env is absent
     environment:
       DATABASE_URL: postgres://archipulse:archipulse@db:5432/archipulse?sslmode=disable
       PORT: 8080
+      # Auth — override in .env or set directly here for local dev.
+      # JWT_SECRET is required; the app will refuse to start without it.
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+      ARCHIPULSE_BOOTSTRAP_EMAIL: ${ARCHIPULSE_BOOTSTRAP_EMAIL:-}
+      ARCHIPULSE_BOOTSTRAP_PASSWORD: ${ARCHIPULSE_BOOTSTRAP_PASSWORD:-}
+      # Optional OIDC (leave empty to disable)
+      OIDC_ISSUER_URL: ${OIDC_ISSUER_URL:-}
+      OIDC_CLIENT_ID: ${OIDC_CLIENT_ID:-}
+      OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET:-}
+      OIDC_REDIRECT_URL: ${OIDC_REDIRECT_URL:-}
     ports:
       - "8080:8080"
 
