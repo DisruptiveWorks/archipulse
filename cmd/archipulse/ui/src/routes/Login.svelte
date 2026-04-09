@@ -73,9 +73,9 @@
     {#if demoMode}
       <div class="mb-4 rounded-xl border border-primary/30 bg-primary/5 px-4 py-3">
         <div class="flex items-center gap-2 mb-2">
-          <span class="text-[12px] font-semibold text-primary uppercase tracking-wide">Demo pública</span>
+          <span class="text-[12px] font-semibold text-primary uppercase tracking-wide">Public demo</span>
         </div>
-        <div class="text-[12px] text-muted-foreground mb-1">Entra con las credenciales de prueba:</div>
+        <div class="text-[12px] text-muted-foreground mb-1">Use these credentials to explore:</div>
         <div class="font-mono text-[12px] text-foreground mb-3 space-y-0.5">
           <div>{demoEmail}</div>
           <div>{demoPassword}</div>
@@ -85,7 +85,7 @@
           disabled={loading}
           class="w-full text-center text-[12px] font-medium bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 rounded-md py-1.5 transition-colors disabled:opacity-60"
         >
-          Entrar como demo →
+          Try the demo →
         </button>
       </div>
     {/if}
