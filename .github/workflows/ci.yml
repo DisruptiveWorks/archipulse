@@ -69,7 +69,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
-          version: latest
+          version: v1.65.0
 
       - name: Run migrations
         run: go run ./cmd/archipulse migrate
