@@ -90,6 +90,15 @@ func (s *UserStore) Exists() (bool, error) {
 	return n > 0, nil
 }
 
+// UpdatePasswordHash replaces a user's bcrypt password hash.
+func (s *UserStore) UpdatePasswordHash(id, hash string) error {
+	_, err := s.db.Exec(
+		"UPDATE users SET password_hash = $1, updated_at = NOW() WHERE id = $2",
+		hash, id,
+	)
+	return err
+}
+
 // UpdateRole changes a user's role.
 func (s *UserStore) UpdateRole(id, role string) error {
 	_, err := s.db.Exec(
