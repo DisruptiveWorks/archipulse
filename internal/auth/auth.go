@@ -25,10 +25,10 @@ type Config struct {
 	BootstrapPassword string
 
 	// OIDC (all three must be set to enable)
-	OIDCIssuerURL   string
-	OIDCClientID    string
+	OIDCIssuerURL    string
+	OIDCClientID     string
 	OIDCClientSecret string
-	OIDCRedirectURL string
+	OIDCRedirectURL  string
 }
 
 // OIDCEnabled reports whether OIDC is configured.

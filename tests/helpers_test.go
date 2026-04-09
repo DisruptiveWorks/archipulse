@@ -63,8 +63,8 @@ func testRouter(t *testing.T, conn *sql.DB) http.Handler {
 func addAuthCookie(t *testing.T, req *http.Request) {
 	t.Helper()
 	cfg := &auth.Config{
-		JWTSecret: testJWTSecret,
-		TokenTTL:  time.Hour,
+		JWTSecret:  testJWTSecret,
+		TokenTTL:   time.Hour,
 		CookieName: "ap_session",
 	}
 	token, err := auth.IssueToken(cfg, fmt.Sprintf("%s", uuid.New()), "test@example.com", "admin")
