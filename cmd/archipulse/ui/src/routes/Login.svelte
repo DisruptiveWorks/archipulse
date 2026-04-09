@@ -8,13 +8,18 @@
   let error = null;
   let loading = false;
   let oidcEnabled = false;
+  let demoMode = false;
+  let demoEmail = '';
+  let demoPassword = '';
 
   onMount(async () => {
-    // If already logged in, go straight to home.
     const u = $user;
     if (u) { push('/'); return; }
     const cfg = await fetchAuthConfig();
     oidcEnabled = cfg.oidc_enabled;
+    demoMode = cfg.demo_mode ?? false;
+    demoEmail = cfg.demo_email ?? '';
+    demoPassword = cfg.demo_password ?? '';
   });
 
   async function handleSubmit(e) {
@@ -23,6 +28,24 @@
     loading = true;
     try {
       await login(email, password);
+      push('/');
+    } catch (err) {
+      error = err.message;
+    } finally {
+      loading = false;
+    }
+  }
+
+  function fillDemo() {
+    email = demoEmail;
+    password = demoPassword;
+  }
+
+  async function loginAsDemo() {
+    error = null;
+    loading = true;
+    try {
+      await login(demoEmail, demoPassword);
       push('/');
     } catch (err) {
       error = err.message;
@@ -45,6 +68,27 @@
         <span style="color:var(--text-muted)">Archi</span><span style="color:var(--foreground)">Pulse</span>
       </span>
     </div>
+
+    <!-- Demo banner -->
+    {#if demoMode}
+      <div class="mb-4 rounded-xl border border-primary/30 bg-primary/5 px-4 py-3">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-[12px] font-semibold text-primary uppercase tracking-wide">Demo pública</span>
+        </div>
+        <div class="text-[12px] text-muted-foreground mb-1">Entra con las credenciales de prueba:</div>
+        <div class="font-mono text-[12px] text-foreground mb-3 space-y-0.5">
+          <div>{demoEmail}</div>
+          <div>{demoPassword}</div>
+        </div>
+        <button
+          onclick={loginAsDemo}
+          disabled={loading}
+          class="w-full text-center text-[12px] font-medium bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 rounded-md py-1.5 transition-colors disabled:opacity-60"
+        >
+          Entrar como demo →
+        </button>
+      </div>
+    {/if}
 
     <div class="bg-card border border-border rounded-xl p-6 shadow-sm">
       <h1 class="text-[16px] font-semibold text-foreground mb-1">Sign in</h1>

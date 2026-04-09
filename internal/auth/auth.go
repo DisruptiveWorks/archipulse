@@ -24,6 +24,11 @@ type Config struct {
 	BootstrapEmail    string
 	BootstrapPassword string
 
+	// Demo mode — shows pre-filled credentials on the login page.
+	DemoMode     bool
+	DemoEmail    string
+	DemoPassword string
+
 	// OIDC (all three must be set to enable)
 	OIDCIssuerURL    string
 	OIDCClientID     string
@@ -51,6 +56,9 @@ func ConfigFromEnv() (*Config, error) {
 		}
 	}
 
+	demoEmail := os.Getenv("DEMO_EMAIL")
+	demoPassword := os.Getenv("DEMO_PASSWORD")
+
 	return &Config{
 		JWTSecret:         secret,
 		TokenTTL:          ttl,
@@ -58,6 +66,9 @@ func ConfigFromEnv() (*Config, error) {
 		CookieSecure:      os.Getenv("COOKIE_SECURE") != "false",
 		BootstrapEmail:    os.Getenv("ARCHIPULSE_BOOTSTRAP_EMAIL"),
 		BootstrapPassword: os.Getenv("ARCHIPULSE_BOOTSTRAP_PASSWORD"),
+		DemoMode:          os.Getenv("DEMO_MODE") == "true" && demoEmail != "" && demoPassword != "",
+		DemoEmail:         demoEmail,
+		DemoPassword:      demoPassword,
 		OIDCIssuerURL:     os.Getenv("OIDC_ISSUER_URL"),
 		OIDCClientID:      os.Getenv("OIDC_CLIENT_ID"),
 		OIDCClientSecret:  os.Getenv("OIDC_CLIENT_SECRET"),

@@ -114,9 +114,15 @@ func (svc *Service) handleMe(w http.ResponseWriter, r *http.Request) {
 
 func (svc *Service) handleConfig(oidc *OIDCProvider) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		writeJSON(w, http.StatusOK, map[string]any{
+		resp := map[string]any{
 			"oidc_enabled": oidc != nil,
-		})
+			"demo_mode":    svc.Cfg.DemoMode,
+		}
+		if svc.Cfg.DemoMode {
+			resp["demo_email"] = svc.Cfg.DemoEmail
+			resp["demo_password"] = svc.Cfg.DemoPassword
+		}
+		writeJSON(w, http.StatusOK, resp)
 	}
 }
 
