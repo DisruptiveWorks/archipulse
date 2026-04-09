@@ -1,0 +1,35 @@
+# Dex OIDC provider — local development config
+# Works with both:
+#   docker compose --profile oidc up
+#   dex serve dex.yaml  (native binary)
+
+issuer: http://localhost:5556/dex
+
+storage:
+  type: memory  # no database needed for local dev
+
+web:
+  http: 0.0.0.0:5556
+
+oauth2:
+  skipApprovalScreen: true
+
+staticClients:
+  - id: archipulse-local
+    secret: archipulse-local-secret
+    name: ArchiPulse (local)
+    redirectURIs:
+      - http://localhost:8080/api/v1/auth/oidc/callback
+
+# Static users — no external IdP needed.
+# Passwords are bcrypt hashes. This one is "password".
+enablePasswordDB: true
+staticPasswords:
+  - email: admin@example.com
+    hash: "$2a$10$2b2cU8CPhOTaGrs1HRQuAueS7JTT5ZHsHSzYiFPm1leZck7Mc8T4u"
+    username: admin
+    userID: "08a8684b-db88-4b73-90a9-3cd1661f5466"
+  - email: viewer@example.com
+    hash: "$2a$10$2b2cU8CPhOTaGrs1HRQuAueS7JTT5ZHsHSzYiFPm1leZck7Mc8T4u"
+    username: viewer
+    userID: "08a8684b-db88-4b73-90a9-3cd1661f5467"

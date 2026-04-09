@@ -14,6 +14,18 @@ services:
       timeout: 5s
       retries: 10
 
+  # Optional OIDC provider for local development.
+  # Enable with: docker compose --profile oidc up
+  dex:
+    profiles: [oidc]
+    image: ghcr.io/dexidp/dex:v2.45.1
+    restart: unless-stopped
+    volumes:
+      - ./dex.yaml:/etc/dex/config.yaml:ro
+    ports:
+      - "5556:5556"
+    command: dex serve /etc/dex/config.yaml
+
   app:
     build: .
     restart: unless-stopped
