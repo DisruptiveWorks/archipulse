@@ -26,7 +26,7 @@ func (a *dbAdapter) LoadPolicy(m model.Model) error {
 	if err != nil {
 		return fmt.Errorf("load casbin policy: %w", err)
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	for rows.Next() {
 		var ptype, v0, v1, v2, v3, v4, v5 sql.NullString
@@ -39,7 +39,9 @@ func (a *dbAdapter) LoadPolicy(m model.Model) error {
 		for n > 0 && parts[n-1] == "" {
 			n--
 		}
-		persist.LoadPolicyLine(strings.Join(parts[:n], ", "), m)
+		if err := persist.LoadPolicyLine(strings.Join(parts[:n], ", "), m); err != nil {
+			return err
+		}
 	}
 	return rows.Err()
 }

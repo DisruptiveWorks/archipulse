@@ -2,7 +2,6 @@ package tests
 
 import (
 	"database/sql"
-	"fmt"
 	"net/http"
 	"path/filepath"
 	"runtime"
@@ -67,7 +66,7 @@ func addAuthCookie(t *testing.T, req *http.Request) {
 		TokenTTL:   time.Hour,
 		CookieName: "ap_session",
 	}
-	token, err := auth.IssueToken(cfg, fmt.Sprintf("%s", uuid.New()), "test@example.com", "admin")
+	token, err := auth.IssueToken(cfg, uuid.New().String(), "test@example.com", "admin")
 	if err != nil {
 		t.Fatalf("addAuthCookie: %v", err)
 	}
