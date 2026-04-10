@@ -8,7 +8,6 @@ import (
 	"github.com/DisruptiveWorks/archipulse/internal/auth"
 )
 
-
 func TestBootstrapAdmin_CreatesAdminWhenEmpty(t *testing.T) {
 	conn := openTestDB(t)
 	email := fmt.Sprintf("bootstrap-admin-%s@example.com", t.Name())
