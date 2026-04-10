@@ -8,15 +8,6 @@ import (
 	"github.com/DisruptiveWorks/archipulse/internal/auth"
 )
 
-func newTestServiceWithCfg(t *testing.T, cfg *auth.Config) *auth.Service {
-	t.Helper()
-	conn := openTestDB(t)
-	svc, err := auth.NewService(conn, cfg)
-	if err != nil {
-		t.Fatalf("NewService: %v", err)
-	}
-	return svc
-}
 
 func TestBootstrapAdmin_CreatesAdminWhenEmpty(t *testing.T) {
 	conn := openTestDB(t)
