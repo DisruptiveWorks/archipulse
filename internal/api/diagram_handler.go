@@ -124,11 +124,30 @@ func (h *diagramHandler) delete(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+func (h *diagramHandler) render(w http.ResponseWriter, r *http.Request) {
+	id, err := parseUUID(r, "id")
+	if err != nil {
+		respondError(w, http.StatusBadRequest, err)
+		return
+	}
+	rd, err := h.store.Render(id)
+	if errors.Is(err, diagram.ErrNotFound) {
+		respondError(w, http.StatusNotFound, err)
+		return
+	}
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, err)
+		return
+	}
+	respondJSON(w, http.StatusOK, rd)
+}
+
 func registerDiagramRoutes(r chi.Router, db *sql.DB) {
 	h := &diagramHandler{store: diagram.NewStore(db)}
 	r.Get("/workspaces/{wsID}/diagrams", h.list)
 	r.Post("/workspaces/{wsID}/diagrams", h.create)
 	r.Get("/workspaces/{wsID}/diagrams/{id}", h.get)
+	r.Get("/workspaces/{wsID}/diagrams/{id}/render", h.render)
 	r.Put("/workspaces/{wsID}/diagrams/{id}", h.update)
 	r.Delete("/workspaces/{wsID}/diagrams/{id}", h.delete)
 }

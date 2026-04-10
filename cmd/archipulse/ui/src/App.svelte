@@ -10,6 +10,9 @@
   import CapabilityTree from './components/views/CapabilityTree.svelte';
   import ApplicationLandscapeMap from './components/views/ApplicationLandscapeMap.svelte';
   import Login from './routes/Login.svelte';
+  import DiagramList from './routes/DiagramList.svelte';
+  import DiagramViewer from './routes/DiagramViewer.svelte';
+  import EditorPlaceholder from './routes/EditorPlaceholder.svelte';
 
   import { api } from './lib/api.js';
   import { VIEWS } from './lib/views.js';
@@ -21,6 +24,9 @@
     '/login': Login,
     '/': Home,
     '/ws/:wsId': WorkspaceOverview,
+    '/ws/:wsId/editor': EditorPlaceholder,
+    '/ws/:wsId/diagrams': DiagramList,
+    '/ws/:wsId/diagrams/:diagId': DiagramViewer,
     '/ws/:wsId/view/:viewName': ViewRouter,
     '/ws/:wsId/view/application-dependency/graph': DependencyGraphView,
     '/ws/:wsId/view/:viewName/tree': CapabilityTree,

@@ -121,6 +121,18 @@
           </div>
         {/each}
       </div>
+
+      <div class="text-[11px] font-bold tracking-[0.6px] uppercase text-muted-foreground mb-3 mt-6">Model diagrams</div>
+      <div
+        class="bg-card border border-border rounded-lg px-4 py-3.5 cursor-pointer transition-colors hover:border-primary inline-flex items-center gap-2"
+        onclick={() => push('/ws/' + wsId + '/diagrams')}
+        role="button"
+        tabindex="0"
+        onkeydown={e => e.key === 'Enter' && push('/ws/' + wsId + '/diagrams')}
+      >
+        <span class="text-[13px] font-semibold">Browse diagrams</span>
+        <span class="text-[12px] text-muted-foreground">— original ArchiMate views from the imported file</span>
+      </div>
     {/if}
   {/if}
 </div>
