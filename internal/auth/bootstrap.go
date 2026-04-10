@@ -1,9 +1,6 @@
 package auth
 
-import (
-	"errors"
-	"fmt"
-)
+import "fmt"
 
 // Bootstrap ensures the first admin user exists when the DB is empty,
 // and upserts the demo viewer account when demo mode is enabled.
@@ -71,20 +68,4 @@ func bootstrapDemo(svc *Service) error {
 		return fmt.Errorf("demo bootstrap update: %w", err)
 	}
 	return nil
-}
-
-// LoginLocal authenticates a user by email + password.
-// Returns the signed JWT string on success.
-func LoginLocal(svc *Service, email, password string) (string, error) {
-	u, err := svc.Users.GetByEmail(email)
-	if errors.Is(err, ErrNotFound) {
-		return "", fmt.Errorf("invalid credentials")
-	}
-	if err != nil {
-		return "", err
-	}
-	if u.PasswordHash == nil || !CheckPassword(*u.PasswordHash, password) {
-		return "", fmt.Errorf("invalid credentials")
-	}
-	return IssueToken(svc.Cfg, u.ID.String(), u.Email, u.Role)
 }
