@@ -19,4 +19,15 @@ export default defineConfig({
     emptyOutDir: true,
     assetsDir: 'assets',
   },
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: ['src/test/setup.js'],
+    include: ['src/**/*.test.js'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'lcov'],
+      include: ['src/lib/**/*.js'],
+    },
+  },
 });
