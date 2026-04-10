@@ -5,10 +5,10 @@
   import Sidebar from './components/Sidebar.svelte';
   import Home from './routes/Home.svelte';
   import WorkspaceOverview from './routes/WorkspaceOverview.svelte';
-  import ViewRouter from './routes/ViewRouter.svelte';
-  import DependencyGraphView from './routes/DependencyGraphView.svelte';
-  import CapabilityTree from './routes/CapabilityTree.svelte';
-  import ApplicationLandscapeMap from './routes/ApplicationLandscapeMap.svelte';
+  import ViewRouter from './components/views/ViewRouter.svelte';
+  import DependencyGraphView from './components/views/DependencyGraphView.svelte';
+  import CapabilityTree from './components/views/CapabilityTree.svelte';
+  import ApplicationLandscapeMap from './components/views/ApplicationLandscapeMap.svelte';
   import Login from './routes/Login.svelte';
 
   import { api } from './lib/api.js';

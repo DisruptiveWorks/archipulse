@@ -1,12 +1,11 @@
 <script>
   import { push } from 'svelte-spa-router';
-  import { VIEWS } from '../lib/views.js';
-  import TableView from '../components/views/TableView.svelte';
-  import ApplicationDashboard from '../components/views/ApplicationDashboard.svelte';
-  import ApplicationLandscapeMap from './ApplicationLandscapeMap.svelte';
-  import ApplicationCatalogueView from '../components/views/ApplicationCatalogueView.svelte';
-  import TechnologyCatalogueView from '../components/views/TechnologyCatalogueView.svelte';
-  import ElementCatalogueView from '../components/views/ElementCatalogueView.svelte';
+  import { VIEWS } from '../../lib/views.js';
+  import TableView from './TableView.svelte';
+  import ApplicationDashboard from './ApplicationDashboard.svelte';
+  import ApplicationCatalogueView from './ApplicationCatalogueView.svelte';
+  import TechnologyCatalogueView from './TechnologyCatalogueView.svelte';
+  import ElementCatalogueView from './ElementCatalogueView.svelte';
 
   export let params = {};
 
