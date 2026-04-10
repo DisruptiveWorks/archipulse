@@ -89,6 +89,14 @@
       return { wsId: m[1], viewName: vn, activeView: target };
     }
 
+    // Match /ws/:wsId/diagrams/:diagId
+    m = loc.match(/^\/ws\/([^/]+)\/diagrams\/([^/]+)$/);
+    if (m) return { wsId: m[1], viewName: null, activeView: null };
+
+    // Match /ws/:wsId/diagrams or /ws/:wsId/editor
+    m = loc.match(/^\/ws\/([^/]+)\/(diagrams|editor)$/);
+    if (m) return { wsId: m[1], viewName: null, activeView: null };
+
     // Match /ws/:wsId
     m = loc.match(/^\/ws\/([^/]+)$/);
     if (m) return { wsId: m[1], viewName: null, activeView: null };

@@ -1,6 +1,5 @@
 <script>
   import { push } from 'svelte-spa-router';
-  import { writable } from 'svelte/store';
   import { SvelteFlow, Controls, Background, MiniMap } from '@xyflow/svelte';
   import '@xyflow/svelte/dist/style.css';
 
@@ -17,8 +16,8 @@
   let loading = true;
   let error = null;
 
-  const nodes = writable([]);
-  const edges = writable([]);
+  let nodes = [];
+  let edges = [];
 
   const nodeTypes = { archimate: ArchiMateNode };
 
@@ -28,33 +27,28 @@
     loading = true;
     error = null;
     data = null;
-    nodes.set([]);
-    edges.set([]);
+    nodes = [];
+    edges = [];
     try {
       data = await api.get('/workspaces/' + wsId + '/diagrams/' + diagId + '/render');
-      nodes.set(
-        (data.nodes || []).map(n => ({
-          id: n.element_id,
-          type: 'archimate',
-          position: { x: n.x, y: n.y },
-          data: { label: n.element_name, elementType: n.element_type },
-          style: `width:${n.w}px;height:${n.h}px;`,
-          draggable: false,
-          selectable: false,
-          connectable: false,
-        }))
-      );
-      edges.set(
-        (data.connections || []).map(c => ({
-          id: c.relationship_id,
-          source: c.source_element_id,
-          target: c.target_element_id,
-          style: 'stroke:#565f89;stroke-width:1.5px;',
-          markerEnd: { type: 'arrowClosed', color: '#565f89', width: 14, height: 10 },
-          animated: false,
-          selectable: false,
-        }))
-      );
+      nodes = (data.nodes || []).map(n => ({
+        id: n.element_id,
+        type: 'archimate',
+        position: { x: n.x, y: n.y },
+        data: { label: n.element_name, elementType: n.element_type },
+        style: `width:${n.w}px;height:${n.h}px;`,
+        draggable: false,
+        selectable: false,
+        connectable: false,
+      }));
+      edges = (data.connections || []).map(c => ({
+        id: c.relationship_id,
+        source: c.source_element_id,
+        target: c.target_element_id,
+        style: 'stroke:#565f89;stroke-width:1.5px;',
+        markerEnd: { type: 'arrowClosed', color: '#565f89', width: 14, height: 10 },
+        selectable: false,
+      }));
     } catch (e) {
       error = e.message;
     } finally {
@@ -83,8 +77,8 @@
 
     <div class="flex-1 border border-border rounded-lg overflow-hidden bg-[#0d0e14]">
       <SvelteFlow
-        {nodes}
-        {edges}
+        bind:nodes
+        bind:edges
         {nodeTypes}
         fitView
         fitViewOptions={{ padding: 0.12 }}
