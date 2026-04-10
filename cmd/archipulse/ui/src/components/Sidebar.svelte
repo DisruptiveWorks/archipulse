@@ -117,6 +117,29 @@
     {/if}
   {/each}
 
+  <div class="mx-2 mt-3">
+    <Separator />
+  </div>
+  <div class="px-2 pt-3 pb-1">
+    <div class="text-[10px] font-bold tracking-[0.8px] uppercase text-muted-foreground px-2 mb-1">ArchiMate Editor</div>
+    {#each [
+      { path: '/ws/' + wsId + '/editor', label: 'Editor', icon: '✎' },
+      { path: '/ws/' + wsId + '/diagrams', label: 'Diagram List', icon: '⊟' },
+    ] as item}
+      {@const active = loc === item.path || loc.startsWith(item.path + '/')}
+      <div
+        class="flex items-center gap-2 px-2 py-1.5 rounded-md text-sm cursor-pointer transition-colors {active ? 'bg-white text-foreground font-medium shadow-sm' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}"
+        on:click={() => push(item.path)}
+        on:keydown={e => e.key === 'Enter' && push(item.path)}
+        role="button"
+        tabindex="0"
+      >
+        <span class="text-[12px] flex-shrink-0 w-[18px] text-center">{item.icon}</span>
+        {item.label}
+      </div>
+    {/each}
+  </div>
+
   <div class="mt-auto px-2 py-3 border-t border-border">
     <div
       class="border-2 border-dashed border-border rounded-lg p-3.5 text-center text-muted-foreground cursor-pointer transition-colors {dropOver ? 'border-primary text-foreground' : 'hover:border-primary hover:text-foreground'}"
