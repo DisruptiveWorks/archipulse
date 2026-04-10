@@ -47,7 +47,7 @@ func ApplicationDashboard(db *sql.DB, workspaceID uuid.UUID, capabilityName stri
 		return nil, err
 	}
 
-	props := propertyDistributions(apps)
+	props := PropertyDistributions(apps)
 
 	return &ApplicationDashboardData{
 		TotalApps:    len(apps),
@@ -169,9 +169,9 @@ func appsInScope(db *sql.DB, workspaceID uuid.UUID, capabilityName string) ([]Ap
 	return apps, propRows.Err()
 }
 
-// propertyDistributions derives bucket counts from the in-memory app list.
+// PropertyDistributions derives bucket counts from the in-memory app list.
 // No additional DB query needed since apps already carry their properties.
-func propertyDistributions(apps []AppEntry) map[string][]PropertyBucket {
+func PropertyDistributions(apps []AppEntry) map[string][]PropertyBucket {
 	if len(apps) == 0 {
 		return map[string][]PropertyBucket{}
 	}
