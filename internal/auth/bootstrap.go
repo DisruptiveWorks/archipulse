@@ -69,4 +69,3 @@ func bootstrapDemo(svc *Service) error {
 	}
 	return nil
 }
-
