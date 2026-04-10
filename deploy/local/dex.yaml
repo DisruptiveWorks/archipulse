@@ -1,7 +1,7 @@
 # Dex OIDC provider — local development config
 # Works with both:
 #   docker compose --profile oidc up
-#   dex serve dex.yaml  (native binary)
+#   dex serve deploy/local/dex.yaml  (native binary, desde la raíz del repo)
 
 issuer: http://localhost:5556/dex
 
