@@ -82,6 +82,7 @@ func seedPolicy(e *casbinv2.Enforcer) error {
 		{"viewer", "/api/v1/workspaces/:id", "GET"},
 		{"viewer", "/api/v1/workspaces/:id/:sub", "GET"},
 		{"viewer", "/api/v1/workspaces/:id/:sub/:p1", "GET"},
+		{"viewer", "/api/v1/workspaces/:id/:sub/:p1/:p2", "GET"},
 	}
 	for _, p := range policies {
 		if _, err := e.AddPolicy(p[0], p[1], p[2]); err != nil {

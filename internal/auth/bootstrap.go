@@ -38,7 +38,7 @@ func bootstrapAdmin(svc *Service) error {
 	return nil
 }
 
-// bootstrapDemo creates or resets the demo viewer account on every startup
+// bootstrapDemo creates or resets the demo architect account on every startup
 // when DEMO_MODE=true, so the password is always in sync with DEMO_PASSWORD.
 func bootstrapDemo(svc *Service) error {
 	if !svc.Cfg.DemoMode {
@@ -52,7 +52,7 @@ func bootstrapDemo(svc *Service) error {
 
 	existing, err := svc.Users.GetByEmail(svc.Cfg.DemoEmail)
 	if err == ErrNotFound {
-		_, err = svc.Users.Create(svc.Cfg.DemoEmail, hash, "viewer")
+		_, err = svc.Users.Create(svc.Cfg.DemoEmail, hash, "architect")
 		if err != nil {
 			return fmt.Errorf("demo bootstrap create: %w", err)
 		}
@@ -66,6 +66,12 @@ func bootstrapDemo(svc *Service) error {
 	// Update hash in case DEMO_PASSWORD changed.
 	if err := svc.Users.UpdatePasswordHash(existing.ID.String(), hash); err != nil {
 		return fmt.Errorf("demo bootstrap update: %w", err)
+	}
+	// Ensure role is architect (may have been created as viewer previously).
+	if existing.Role != "architect" {
+		if err := svc.Users.UpdateRole(existing.ID.String(), "architect"); err != nil {
+			return fmt.Errorf("demo bootstrap role: %w", err)
+		}
 	}
 	return nil
 }
