@@ -1,59 +1,97 @@
 <script>
-  import { NodeResizer } from '@xyflow/svelte';
+  import { Handle, Position } from '@xyflow/svelte';
+  import { getIcon, getColor } from './archimate-icons.js';
 
   export let data;
 
-  const LAYER_COLORS = {
-    ApplicationComponent:     { fill: '#1a2b4a', stroke: '#7aa2f7', text: '#7aa2f7' },
-    ApplicationService:       { fill: '#1a2b4a', stroke: '#7aa2f7', text: '#7aa2f7' },
-    ApplicationFunction:      { fill: '#1a2b4a', stroke: '#7aa2f7', text: '#7aa2f7' },
-    ApplicationInterface:     { fill: '#1a2b4a', stroke: '#7aa2f7', text: '#7aa2f7' },
-    ApplicationCollaboration: { fill: '#1a2b4a', stroke: '#7aa2f7', text: '#7aa2f7' },
-    BusinessActor:            { fill: '#2a1f0a', stroke: '#e0af68', text: '#e0af68' },
-    BusinessRole:             { fill: '#2a1f0a', stroke: '#e0af68', text: '#e0af68' },
-    BusinessProcess:          { fill: '#2a1f0a', stroke: '#e0af68', text: '#e0af68' },
-    BusinessFunction:         { fill: '#2a1f0a', stroke: '#e0af68', text: '#e0af68' },
-    BusinessService:          { fill: '#2a1f0a', stroke: '#e0af68', text: '#e0af68' },
-    BusinessObject:           { fill: '#2a1f0a', stroke: '#e0af68', text: '#e0af68' },
-    Capability:               { fill: '#2a1f0a', stroke: '#e0af68', text: '#e0af68' },
-    TechnologyService:        { fill: '#0f2a1a', stroke: '#9ece6a', text: '#9ece6a' },
-    TechnologyComponent:      { fill: '#0f2a1a', stroke: '#9ece6a', text: '#9ece6a' },
-    Node:                     { fill: '#0f2a1a', stroke: '#9ece6a', text: '#9ece6a' },
-    SystemSoftware:           { fill: '#0f2a1a', stroke: '#9ece6a', text: '#9ece6a' },
-    Grouping:                 { fill: 'transparent', stroke: '#565f89', text: '#a9b1d6' },
-  };
-
-  const DEFAULT_COLOR = { fill: '#1a1b26', stroke: '#565f89', text: '#a9b1d6' };
-
-  $: c = LAYER_COLORS[data.elementType] || DEFAULT_COLOR;
+  $: c = getColor(data.elementType);
+  $: icon = getIcon(data.elementType);
+  $: isContainer = data.isContainer || false;
+  $: dashed = c.dashed || false;
 </script>
 
+<Handle type="source" position={Position.Right} style="opacity:0;pointer-events:none;" />
+<Handle type="target" position={Position.Left} style="opacity:0;pointer-events:none;" />
 <div
-  class="archimate-node"
   style="
     width: 100%;
     height: 100%;
     background: {c.fill};
-    border: 1.5px solid {c.stroke};
-    border-radius: 3px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 4px 6px;
+    border: 1.5px {dashed ? 'dashed' : 'solid'} {c.stroke};
+    border-radius: 4px;
+    position: relative;
+    font-family: ui-sans-serif, system-ui, sans-serif;
     box-sizing: border-box;
-    overflow: hidden;
+    overflow: visible;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
   "
 >
-  <span
+  <!-- Type icon — always top-right -->
+  <svg
+    viewBox="0 0 16 16"
+    width="16"
+    height="16"
     style="
-      color: {c.text};
-      font-size: 11px;
-      font-family: ui-sans-serif, system-ui, sans-serif;
-      text-align: center;
-      line-height: 1.3;
-      word-break: break-word;
-      hyphens: auto;
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      color: {c.stroke};
+      stroke: {c.stroke};
+      fill: none;
+      flex-shrink: 0;
+      overflow: visible;
+      pointer-events: none;
     "
-  >{data.label}</span>
+  >
+    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+    {@html icon}
+  </svg>
+
+  {#if isContainer}
+    <!-- Container: label at top, children rendered by XY Flow inside -->
+    <div style="
+      position: absolute;
+      top: 6px;
+      left: 0;
+      right: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 8px;
+      box-sizing: border-box;
+    ">
+      <span style="
+        color: {c.text};
+        font-size: 11px;
+        font-weight: 600;
+        text-align: center;
+        line-height: 1.3;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+      ">{data.label}</span>
+    </div>
+  {:else}
+    <!-- Leaf: label centered -->
+    <div style="
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 22px 4px 6px;
+      box-sizing: border-box;
+    ">
+      <span style="
+        color: {c.text};
+        font-size: 11px;
+        font-weight: 500;
+        text-align: center;
+        line-height: 1.35;
+        word-break: break-word;
+        hyphens: auto;
+      ">{data.label}</span>
+    </div>
+  {/if}
 </div>

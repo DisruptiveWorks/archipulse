@@ -119,7 +119,7 @@ func (m *aoefModel) toModel() *Model {
 			Name:          v.Name,
 			Documentation: v.Documentation,
 		}
-		collectNodes(v.Nodes, &d.Layout.Nodes)
+		collectNodes(v.Nodes, "", &d.Layout.Nodes)
 		for _, c := range v.Connections {
 			cl := ConnectionLayout{RelationshipID: c.RelationshipRef}
 			for _, bp := range c.Bendpoints {
@@ -133,18 +133,21 @@ func (m *aoefModel) toModel() *Model {
 	return out
 }
 
-// collectNodes recursively traverses nested AOEF nodes (Containers, Groups)
-// and collects only nodes that reference an element (elementRef != "").
-func collectNodes(nodes []aoefNode, out *[]NodeLayout) {
+// collectNodes recursively traverses nested AOEF nodes and collects all nodes
+// that reference an element (elementRef != ""), preserving the parent-child
+// relationship via ParentElementID.
+func collectNodes(nodes []aoefNode, parentElementID string, out *[]NodeLayout) {
 	for _, n := range nodes {
 		if n.ElementRef != "" {
 			*out = append(*out, NodeLayout{
-				ElementID: n.ElementRef,
-				X:         n.X, Y: n.Y, W: n.W, H: n.H,
+				ElementID:       n.ElementRef,
+				ParentElementID: parentElementID,
+				X:               n.X, Y: n.Y, W: n.W, H: n.H,
 			})
-		}
-		if len(n.Children) > 0 {
-			collectNodes(n.Children, out)
+			collectNodes(n.Children, n.ElementRef, out)
+		} else {
+			// Node without elementRef (pure grouping container) — pass parent through
+			collectNodes(n.Children, parentElementID, out)
 		}
 	}
 }
