@@ -114,13 +114,14 @@ func (s *Store) Update(id uuid.UUID, name, documentation string, layout json.Raw
 
 // RenderNode is a node enriched with element metadata for rendering.
 type RenderNode struct {
-	ElementID   string `json:"element_id"`
-	ElementName string `json:"element_name"`
-	ElementType string `json:"element_type"`
-	X           int    `json:"x"`
-	Y           int    `json:"y"`
-	W           int    `json:"w"`
-	H           int    `json:"h"`
+	ElementID       string `json:"element_id"`
+	ParentElementID string `json:"parent_element_id,omitempty"`
+	ElementName     string `json:"element_name"`
+	ElementType     string `json:"element_type"`
+	X               int    `json:"x"`
+	Y               int    `json:"y"`
+	W               int    `json:"w"`
+	H               int    `json:"h"`
 }
 
 // RenderConnection is a connection enriched with relationship metadata.
@@ -157,11 +158,12 @@ func (s *Store) Render(diagramID uuid.UUID) (*RenderData, error) {
 	// Parse the stored layout JSON.
 	var layout struct {
 		Nodes []struct {
-			ElementID string `json:"ElementID"`
-			X         int    `json:"X"`
-			Y         int    `json:"Y"`
-			W         int    `json:"W"`
-			H         int    `json:"H"`
+			ElementID       string `json:"ElementID"`
+			ParentElementID string `json:"ParentElementID"`
+			X               int    `json:"X"`
+			Y               int    `json:"Y"`
+			W               int    `json:"W"`
+			H               int    `json:"H"`
 		} `json:"Nodes"`
 		Connections []struct {
 			RelationshipID string `json:"RelationshipID"`
@@ -251,13 +253,14 @@ func (s *Store) Render(diagramID uuid.UUID) (*RenderData, error) {
 	for _, n := range layout.Nodes {
 		meta := elemMeta[n.ElementID]
 		rd.Nodes = append(rd.Nodes, RenderNode{
-			ElementID:   n.ElementID,
-			ElementName: meta[0],
-			ElementType: meta[1],
-			X:           n.X,
-			Y:           n.Y,
-			W:           n.W,
-			H:           n.H,
+			ElementID:       n.ElementID,
+			ParentElementID: n.ParentElementID,
+			ElementName:     meta[0],
+			ElementType:     meta[1],
+			X:               n.X,
+			Y:               n.Y,
+			W:               n.W,
+			H:               n.H,
 		})
 	}
 

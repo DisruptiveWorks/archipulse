@@ -50,9 +50,10 @@ type DiagramLayout struct {
 
 // NodeLayout holds the position and size of an element within a diagram.
 type NodeLayout struct {
-	ElementID string
-	X, Y      int
-	W, H      int
+	ElementID       string
+	ParentElementID string // empty if top-level node
+	X, Y            int
+	W, H            int
 }
 
 // ConnectionLayout holds the visual path of a relationship within a diagram.

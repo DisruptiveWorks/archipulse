@@ -43,9 +43,12 @@ func NewEnforcer(db *sql.DB, cfg *Config) (*Enforcer, error) {
 	return &Enforcer{e: e}, nil
 }
 
-// seedPolicy writes the default role hierarchy and resource policies.
-// It is idempotent — Casbin skips duplicates automatically.
+// seedPolicy rewrites the complete policy set from scratch on every startup.
+// This ensures stale policies (e.g. from a previous matcher syntax) are removed.
 func seedPolicy(e *casbinv2.Enforcer) error {
+	// Wipe everything stored, then rebuild from the canonical definition below.
+	e.ClearPolicy()
+
 	// Role hierarchy: admin > architect > viewer
 	roleHierarchy := [][2]string{
 		{"admin", "architect"},
@@ -57,18 +60,28 @@ func seedPolicy(e *casbinv2.Enforcer) error {
 		}
 	}
 
-	// Policies: (role, resource_glob, action)
+	// Policies: (role, resource_pattern, action)
+	// Uses keyMatch2 syntax: :param matches exactly one path segment.
+	// Multiple patterns cover varying nesting depths.
 	policies := [][3]string{
-		// admin can do everything
-		{"admin", "/api/v1/*", "*"},
+		// admin can do everything under /api/v1 (up to 4 segments deep)
+		{"admin", "/api/v1/:p1", "*"},
+		{"admin", "/api/v1/:p1/:p2", "*"},
+		{"admin", "/api/v1/:p1/:p2/:p3", "*"},
+		{"admin", "/api/v1/:p1/:p2/:p3/:p4", "*"},
 
-		// architect: full read+write on workspace resources, no user mgmt
+		// architect: full read+write on workspace resources, no user management
 		{"architect", "/api/v1/workspaces", "GET"},
-		{"architect", "/api/v1/workspaces/*", "*"},
+		{"architect", "/api/v1/workspaces/:id", "*"},
+		{"architect", "/api/v1/workspaces/:id/:sub", "*"},
+		{"architect", "/api/v1/workspaces/:id/:sub/:p1", "*"},
+		{"architect", "/api/v1/workspaces/:id/:sub/:p1/:p2", "*"},
 
 		// viewer: read-only on workspaces
 		{"viewer", "/api/v1/workspaces", "GET"},
-		{"viewer", "/api/v1/workspaces/*", "GET"},
+		{"viewer", "/api/v1/workspaces/:id", "GET"},
+		{"viewer", "/api/v1/workspaces/:id/:sub", "GET"},
+		{"viewer", "/api/v1/workspaces/:id/:sub/:p1", "GET"},
 	}
 	for _, p := range policies {
 		if _, err := e.AddPolicy(p[0], p[1], p[2]); err != nil {

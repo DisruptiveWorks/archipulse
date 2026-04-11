@@ -48,7 +48,7 @@
       </svg>
     </button>
   {/if}
-  <a class="nav-logo" href="#/" use:push={'/'}>
+  <a class="nav-logo" href="#/">
     <svg width="22" height="22" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
       <polygon points="16,2 27,8 27,22 16,28 5,22 5,8" fill="#E85D3A"/>
       <polygon points="16,9 22,13 22,21 16,25 10,21 10,13" fill="none" stroke="white" stroke-width="0.8" stroke-linejoin="round" opacity="0.4"/>
