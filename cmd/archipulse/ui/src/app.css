@@ -123,6 +123,21 @@
     padding: 28px 32px;
     min-width: 0;
   }
+  /* Full-height fill layout — no padding, accounts for fixed sidebar */
+  .content-fill {
+    position: fixed;
+    top: var(--nav-h);
+    left: var(--sidebar-w);
+    right: 0;
+    bottom: 0;
+    display: flex;
+    overflow: hidden;
+  }
+  @media (max-width: 768px) {
+    .content-fill {
+      left: 0;
+    }
+  }
   .content-full {
     flex: 1;
     padding: 32px 28px;

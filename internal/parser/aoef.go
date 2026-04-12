@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
+	"strings"
 )
 
 // ParseAOEF parses an ArchiMate Open Exchange Format (XML) document
@@ -25,6 +26,7 @@ type aoefModel struct {
 	Elements      []aoefElement      `xml:"elements>element"`
 	Relationships []aoefRelationship `xml:"relationships>relationship"`
 	Views         []aoefView         `xml:"views>diagrams>view"`
+	Organizations []aoefOrgItem      `xml:"organizations>item"`
 }
 
 type aoefPropertyDef struct {
@@ -81,6 +83,18 @@ type aoefPoint struct {
 	Y int `xml:"y,attr"`
 }
 
+// aoefOrgItem represents a node in <organizations>. Items with identifierRef
+// are leaves (elements or views); items with <label> and children are folders.
+type aoefOrgItem struct {
+	IdentifierRef string           `xml:"identifierRef,attr"`
+	Labels        []aoefLangString `xml:"label"`
+	Children      []aoefOrgItem    `xml:"item"`
+}
+
+type aoefLangString struct {
+	Value string `xml:",chardata"`
+}
+
 func (m *aoefModel) toModel() *Model {
 	out := &Model{Name: m.Name}
 
@@ -130,7 +144,89 @@ func (m *aoefModel) toModel() *Model {
 		out.Diagrams = append(out.Diagrams, d)
 	}
 
+	// Build view ID set for organization traversal.
+	viewIDs := make(map[string]bool, len(m.Views))
+	for _, v := range m.Views {
+		viewIDs[v.ID] = true
+	}
+
+	// Extract view folder hierarchy from <organizations>.
+	for i, org := range m.Organizations {
+		folders, diagFolders, hasViews := collectViewOrg(org, "", viewIDs, i)
+		if hasViews {
+			out.ViewFolders = append(out.ViewFolders, folders...)
+			out.DiagramFolders = append(out.DiagramFolders, diagFolders...)
+		}
+	}
+
 	return out
+}
+
+// collectViewOrg recursively traverses an organization item.
+// Returns (folders, diagramFolderAssignments, containsAnyViewRef).
+// Folders are returned in pre-order (parent before children) for safe DB insertion.
+func collectViewOrg(item aoefOrgItem, parentSourceID string, viewIDs map[string]bool, pos int) ([]ViewFolder, []DiagramFolder, bool) {
+	// Leaf: has identifierRef.
+	if item.IdentifierRef != "" {
+		if viewIDs[item.IdentifierRef] {
+			return nil, []DiagramFolder{{
+				DiagramSourceID: item.IdentifierRef,
+				FolderSourceID:  parentSourceID,
+			}}, true
+		}
+		return nil, nil, false // element ref — skip
+	}
+
+	// Folder item: compute this folder's source ID.
+	label := orgItemLabel(item)
+	sourceID := label
+	if parentSourceID != "" && label != "" {
+		sourceID = parentSourceID + "/" + label
+	} else if parentSourceID != "" {
+		sourceID = parentSourceID
+	}
+
+	var childFolders []ViewFolder
+	var diagFolders []DiagramFolder
+	containsViews := false
+
+	for i, child := range item.Children {
+		childParent := sourceID
+		if label == "" {
+			childParent = parentSourceID
+		}
+		cf, cd, hasViews := collectViewOrg(child, childParent, viewIDs, i)
+		if hasViews {
+			childFolders = append(childFolders, cf...)
+			diagFolders = append(diagFolders, cd...)
+			containsViews = true
+		}
+	}
+
+	if !containsViews || label == "" {
+		// No views here, or anonymous grouping — pass through without creating a folder.
+		return childFolders, diagFolders, containsViews
+	}
+
+	// Prepend this folder so it appears before its children (parent-first order).
+	folder := ViewFolder{
+		SourceID: sourceID,
+		Name:     label,
+		ParentID: parentSourceID,
+		Position: pos,
+	}
+	return append([]ViewFolder{folder}, childFolders...), diagFolders, true
+}
+
+// orgItemLabel returns the first non-empty label from an org item.
+func orgItemLabel(item aoefOrgItem) string {
+	for _, l := range item.Labels {
+		v := strings.TrimSpace(l.Value)
+		if v != "" {
+			return v
+		}
+	}
+	return ""
 }
 
 // collectNodes recursively traverses nested AOEF nodes and collects all nodes

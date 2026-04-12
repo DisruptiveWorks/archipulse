@@ -36,6 +36,7 @@ func NewRouter(db *sql.DB, svc *auth.Service, oidc *auth.OIDCProvider, static ..
 			registerElementRoutes(r, db)
 			registerRelationshipRoutes(r, db)
 			registerDiagramRoutes(r, db)
+			registerFolderRoutes(r, db)
 			registerExportRoutes(r, db)
 			registerImportRoutes(r, db)
 			registerViewerRoutes(r, db)
