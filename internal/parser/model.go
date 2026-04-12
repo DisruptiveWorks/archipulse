@@ -3,10 +3,26 @@ package parser
 // Model is the in-memory representation of a parsed ArchiMate model.
 // It is format-agnostic — produced by both the AOEF and AJX parsers.
 type Model struct {
-	Name          string
-	Elements      []Element
-	Relationships []Relationship
-	Diagrams      []Diagram
+	Name           string
+	Elements       []Element
+	Relationships  []Relationship
+	Diagrams       []Diagram
+	ViewFolders    []ViewFolder    // folder hierarchy from <views> organization
+	DiagramFolders []DiagramFolder // diagram → folder assignments
+}
+
+// ViewFolder represents a folder node in the diagram view hierarchy.
+type ViewFolder struct {
+	SourceID string
+	Name     string
+	ParentID string // empty if root-level
+	Position int
+}
+
+// DiagramFolder links a diagram to its folder.
+type DiagramFolder struct {
+	DiagramSourceID string
+	FolderSourceID  string // empty if diagram is at root (no folder)
 }
 
 // Element represents an ArchiMate element (AOEF <element>).

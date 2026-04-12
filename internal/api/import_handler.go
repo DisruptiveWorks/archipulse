@@ -27,6 +27,7 @@ type ImportResult struct {
 	Elements      int    `json:"elements"`
 	Relationships int    `json:"relationships"`
 	Diagrams      int    `json:"diagrams"`
+	Folders       int    `json:"folders"`
 }
 
 func (h *importHandler) importModel(w http.ResponseWriter, r *http.Request) {
@@ -157,19 +158,61 @@ func importInTx(db *sql.DB, wsID uuid.UUID, m *parser.Model) (*ImportResult, err
 		result.Relationships++
 	}
 
+	// Upsert diagram folders (parser returns them parent-first).
+	// Build a map from source_id → DB UUID for assigning folder_id to diagrams.
+	folderUUIDs := make(map[string]uuid.UUID, len(m.ViewFolders))
+	for _, f := range m.ViewFolders {
+		var parentID *uuid.UUID
+		if f.ParentID != "" {
+			if pid, ok := folderUUIDs[f.ParentID]; ok {
+				parentID = &pid
+			}
+		}
+		var id uuid.UUID
+		err := tx.QueryRow(`
+			INSERT INTO diagram_folders (workspace_id, parent_id, name, source_id, position)
+			VALUES ($1, $2, $3, $4, $5)
+			ON CONFLICT (workspace_id, source_id) DO UPDATE
+			  SET parent_id = EXCLUDED.parent_id,
+			      name      = EXCLUDED.name,
+			      position  = EXCLUDED.position
+			RETURNING id`,
+			wsID, parentID, f.Name, f.SourceID, f.Position,
+		).Scan(&id)
+		if err != nil {
+			return nil, errorf("upsert folder %q: %w", f.SourceID, err)
+		}
+		folderUUIDs[f.SourceID] = id
+		result.Folders++
+	}
+
+	// Build diagram source_id → folder_id lookup from DiagramFolders.
+	diagFolderID := make(map[string]*uuid.UUID, len(m.DiagramFolders))
+	for _, df := range m.DiagramFolders {
+		if df.FolderSourceID == "" {
+			diagFolderID[df.DiagramSourceID] = nil
+			continue
+		}
+		if fid, ok := folderUUIDs[df.FolderSourceID]; ok {
+			id := fid
+			diagFolderID[df.DiagramSourceID] = &id
+		}
+	}
+
 	for _, d := range m.Diagrams {
 		layoutJSON, err := json.Marshal(d.Layout)
 		if err != nil {
 			return nil, errorf("marshal layout for diagram %q: %w", d.ID, err)
 		}
+		folderID := diagFolderID[d.ID] // nil if no folder
 		_, err = tx.Exec(`
-			INSERT INTO diagrams (workspace_id, source_id, name, documentation, layout)
-			VALUES ($1, $2, $3, $4, $5)
+			INSERT INTO diagrams (workspace_id, source_id, name, documentation, layout, folder_id)
+			VALUES ($1, $2, $3, $4, $5, $6)
 			ON CONFLICT (workspace_id, source_id) DO UPDATE
 			  SET name = EXCLUDED.name, documentation = EXCLUDED.documentation,
-			      layout = EXCLUDED.layout,
+			      layout = EXCLUDED.layout, folder_id = EXCLUDED.folder_id,
 			      version = diagrams.version + 1, updated_at = now()`,
-			wsID, d.ID, d.Name, d.Documentation, layoutJSON)
+			wsID, d.ID, d.Name, d.Documentation, layoutJSON, folderID)
 		if err != nil {
 			return nil, errorf("upsert diagram %q: %w", d.ID, err)
 		}
