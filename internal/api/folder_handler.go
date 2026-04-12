@@ -53,7 +53,7 @@ func (h *folderHandler) diagramTree(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusInternalServerError, errorf("list folders: %w", err))
 		return
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	folders := map[string]*FolderNode{}
 	var rootFolderIDs []string
@@ -79,14 +79,14 @@ func (h *folderHandler) diagramTree(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Re-query to wire parent→child relationships (need parentID per row).
+	// Re-query to wire parent→child relationships.
 	rows2, err := h.db.Query(`
 		SELECT id, parent_id FROM diagram_folders WHERE workspace_id = $1`, wsID)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, err)
 		return
 	}
-	defer rows2.Close()
+	defer func() { _ = rows2.Close() }()
 	for rows2.Next() {
 		var id string
 		var parentID sql.NullString
@@ -100,7 +100,10 @@ func (h *folderHandler) diagramTree(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	_ = rows2.Close()
+	if err := rows2.Close(); err != nil {
+		respondError(w, http.StatusInternalServerError, err)
+		return
+	}
 
 	// Load all diagrams with their folder assignment.
 	dRows, err := h.db.Query(`
@@ -112,7 +115,7 @@ func (h *folderHandler) diagramTree(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusInternalServerError, errorf("list diagrams: %w", err))
 		return
 	}
-	defer dRows.Close()
+	defer func() { _ = dRows.Close() }()
 
 	var rootDiagrams []DiagramLeaf
 
@@ -134,9 +137,11 @@ func (h *folderHandler) diagramTree(w http.ResponseWriter, r *http.Request) {
 			rootDiagrams = append(rootDiagrams, leaf)
 		}
 	}
-	_ = dRows.Close()
+	if err := dRows.Close(); err != nil {
+		respondError(w, http.StatusInternalServerError, err)
+		return
+	}
 
-	// Build root-level response.
 	type treeResponse struct {
 		Folders  []*FolderNode `json:"folders"`
 		Diagrams []DiagramLeaf `json:"diagrams"`

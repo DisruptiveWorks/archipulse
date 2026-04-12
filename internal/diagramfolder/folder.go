@@ -60,7 +60,7 @@ func (s *Store) ListByWorkspace(workspaceID uuid.UUID) ([]Folder, error) {
 	if err != nil {
 		return nil, fmt.Errorf("list folders: %w", err)
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var folders []Folder
 	for rows.Next() {
