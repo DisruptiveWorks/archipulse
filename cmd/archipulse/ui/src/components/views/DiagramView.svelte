@@ -11,6 +11,7 @@
   import { getColor } from '../diagram/archimate-icons.js';
 
   export let params = {};
+  export let embedded = false; // true when used inside DiagramList split layout
 
   $: wsId = params.wsId;
   $: diagId = params.diagId;
@@ -168,25 +169,29 @@
   </defs>
 </svg>
 
-<div class="content h-full flex flex-col">
-  <BackButton onclick={() => push('/ws/' + wsId + '/diagrams')} label="Diagrams" />
+<div class="{embedded ? 'h-full flex flex-col' : 'content h-full flex flex-col'}">
+  {#if !embedded}
+    <BackButton onclick={() => push('/ws/' + wsId + '/diagrams')} label="Diagrams" />
+  {/if}
 
   {#if loading}
-    <div class="flex items-center gap-2 text-muted-foreground py-6">
+    <div class="flex items-center gap-2 text-muted-foreground py-6 {embedded ? 'px-4' : ''}">
       <div class="size-4 rounded-full border-2 border-border border-t-primary animate-spin flex-shrink-0"></div>
       Loading diagram…
     </div>
   {:else if error}
-    <div class="mt-4 text-sm text-destructive bg-destructive/10 border border-destructive/30 rounded-md px-3 py-2">
+    <div class="text-sm text-destructive bg-destructive/10 border border-destructive/30 rounded-md px-3 py-2 {embedded ? 'm-4' : 'mt-4'}">
       {error}
     </div>
   {:else if data}
-    <div class="flex items-center justify-between mb-3">
-      <h2 class="text-[15px] font-semibold">{data.name || 'Diagram'}</h2>
-      <span class="text-[11px] text-muted-foreground">{data.nodes?.length ?? 0} elements · {data.connections?.length ?? 0} connections</span>
-    </div>
+    {#if !embedded}
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-[15px] font-semibold">{data.name || 'Diagram'}</h2>
+        <span class="text-[11px] text-muted-foreground">{data.nodes?.length ?? 0} elements · {data.connections?.length ?? 0} connections</span>
+      </div>
+    {/if}
 
-    <div class="flex-1 border border-border rounded-lg overflow-hidden" style="background:#F8FAFC;">
+    <div class="flex-1 {embedded ? '' : 'border border-border rounded-lg'} overflow-hidden" style="background:#F8FAFC;">
       <SvelteFlow
         bind:nodes
         bind:edges
