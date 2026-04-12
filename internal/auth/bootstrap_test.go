@@ -93,8 +93,8 @@ func TestBootstrapDemo_CreatesOrSyncsDemoUser(t *testing.T) {
 	if err != nil {
 		t.Fatalf("GetByEmail after create: %v", err)
 	}
-	if u.Role != "viewer" {
-		t.Errorf("Role: got %q, want viewer", u.Role)
+	if u.Role != "architect" {
+		t.Errorf("Role: got %q, want architect", u.Role)
 	}
 	if !auth.CheckPassword(*u.PasswordHash, "demopass") {
 		t.Error("password hash incorrect after create")
