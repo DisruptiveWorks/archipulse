@@ -13,10 +13,16 @@
 
   export let data;
 
-  $: style     = getRelationshipStyle(data?.relationshipType);
+  $: style     = getRelationshipStyle(data?.relationshipType, {
+    accessType: data?.accessType,
+    isDirected: data?.isDirected,
+  });
   $: bps       = data?.bendpoints || [];
   $: srcBounds = data?.sourceBounds;
   $: tgtBounds = data?.targetBounds;
+
+  // Edge label: prefer explicit label, fall back to modifier (Influence strength).
+  $: edgeLabel = data?.label || data?.modifier || '';
 
   $: srcCenter = srcBounds
     ? { x: srcBounds.x + srcBounds.w / 2, y: srcBounds.y + srcBounds.h / 2 }
@@ -25,8 +31,6 @@
     ? { x: tgtBounds.x + tgtBounds.w / 2, y: tgtBounds.y + tgtBounds.h / 2 }
     : { x: 0, y: 0 };
 
-  // Use orthogonal snapping only when bendpoints define a routing lane.
-  // Direct connections (no bendpoints) use natural diagonal intersection.
   $: hasBps = bps.length > 0;
 
   $: startPt = intersectNodeBoundary(
@@ -44,12 +48,11 @@
 
   $: allPts = [startPt, ...bps, endPt];
 
-  // Build a smooth polyline: straight segments but with small rounded corners
-  // at intermediate bendpoints so the path looks clean rather than jagged.
+  // Build a smooth polyline with small rounded corners at intermediate bendpoints.
   function smoothPath(pts) {
     if (pts.length < 2) return '';
     if (pts.length === 2) return `M${pts[0].x},${pts[0].y} L${pts[1].x},${pts[1].y}`;
-    const r = 8; // corner radius in diagram units
+    const r = 8;
     let d = `M${pts[0].x},${pts[0].y}`;
     for (let i = 1; i < pts.length - 1; i++) {
       const prev = pts[i - 1];
@@ -71,11 +74,20 @@
 
   $: pathD = smoothPath(allPts);
 
+  // Midpoint of the path for label placement.
+  $: midPt = (() => {
+    if (allPts.length < 2) return { x: 0, y: 0 };
+    const mid = Math.floor((allPts.length - 1) / 2);
+    const a = allPts[mid];
+    const b = allPts[mid + 1];
+    return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+  })();
+
   $: markerEnd   = style.end   ? `url(#am-${style.end})`   : undefined;
   $: markerStart = style.start ? `url(#am-${style.start})` : undefined;
 </script>
 
-<!-- Invisible wider stroke for future hover/selection interactions -->
+<!-- Invisible wider stroke for hover/selection interactions -->
 <path d={pathD} fill="none" stroke="transparent" stroke-width="14" />
 
 <!-- Main edge path — stroke color propagates to markers via context-stroke -->
@@ -88,3 +100,21 @@
   marker-end={markerEnd}
   marker-start={markerStart}
 />
+
+<!-- Edge label (relationship label or influence modifier) -->
+{#if edgeLabel}
+  <g transform="translate({midPt.x},{midPt.y})">
+    <rect
+      x="-18" y="-9" width="36" height="16" rx="3"
+      fill="white" fill-opacity="0.88"
+      stroke={style.stroke} stroke-width="0.8" stroke-opacity="0.4"
+    />
+    <text
+      x="0" y="4"
+      text-anchor="middle"
+      font-size="9"
+      font-family="ui-sans-serif,system-ui,sans-serif"
+      fill={style.stroke}
+    >{edgeLabel}</text>
+  </g>
+{/if}

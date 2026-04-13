@@ -244,6 +244,8 @@ archipulse/
 
 For the full design rationale see [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md). Read it before opening proposals that affect the schema, API, or core architecture.
 
+For the database schema with an ER diagram see [docs/schema.md](./docs/schema.md).
+
 ---
 
 ## Workflow

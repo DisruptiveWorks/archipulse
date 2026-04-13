@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
+	"strconv"
 	"strings"
 )
 
@@ -21,7 +22,9 @@ func ParseAOEF(r io.Reader) (*Model, error) {
 
 type aoefModel struct {
 	XMLName       xml.Name           `xml:"model"`
-	Name          string             `xml:"name"`
+	Identifier    string             `xml:"identifier,attr"`
+	Version       string             `xml:"version,attr"`
+	Names         []aoefLangString   `xml:"name"`
 	PropertyDefs  []aoefPropertyDef  `xml:"propertyDefinitions>propertyDefinition"`
 	Elements      []aoefElement      `xml:"elements>element"`
 	Relationships []aoefRelationship `xml:"relationships>relationship"`
@@ -30,52 +33,64 @@ type aoefModel struct {
 }
 
 type aoefPropertyDef struct {
-	ID   string `xml:"identifier,attr"`
-	Name string `xml:"name"`
+	ID       string `xml:"identifier,attr"`
+	DataType string `xml:"type,attr"`
+	Name     string `xml:"name"`
 }
 
 type aoefElement struct {
-	ID            string         `xml:"identifier,attr"`
-	Type          string         `xml:"type,attr"`
-	Name          string         `xml:"name"`
-	Documentation string         `xml:"documentation"`
-	Properties    []aoefProperty `xml:"properties>property"`
+	ID             string           `xml:"identifier,attr"`
+	Type           string           `xml:"type,attr"`
+	Names          []aoefLangString `xml:"name"`
+	Documentations []aoefLangString `xml:"documentation"`
+	Properties     []aoefProperty   `xml:"properties>property"`
 }
 
 type aoefProperty struct {
-	DefinitionRef string `xml:"propertyDefinitionRef,attr"`
-	Value         string `xml:"value"`
+	DefinitionRef string           `xml:"propertyDefinitionRef,attr"`
+	Values        []aoefLangString `xml:"value"`
 }
 
 type aoefRelationship struct {
-	ID            string `xml:"identifier,attr"`
-	Type          string `xml:"type,attr"`
-	Source        string `xml:"source,attr"`
-	Target        string `xml:"target,attr"`
-	Name          string `xml:"name"`
-	Documentation string `xml:"documentation"`
+	ID             string           `xml:"identifier,attr"`
+	Type           string           `xml:"type,attr"`
+	Source         string           `xml:"source,attr"`
+	Target         string           `xml:"target,attr"`
+	Names          []aoefLangString `xml:"name"`
+	Documentations []aoefLangString `xml:"documentation"`
+	// Type-specific attributes.
+	AccessType string `xml:"accessType,attr"` // Access relationship
+	IsDirected string `xml:"isDirected,attr"` // Association relationship ("true"/"false")
+	Modifier   string `xml:"modifier,attr"`   // Influence relationship
 }
 
 type aoefView struct {
-	ID            string     `xml:"identifier,attr"`
-	Name          string     `xml:"name"`
-	Documentation string     `xml:"documentation"`
-	Nodes         []aoefNode `xml:"node"`
-	Connections   []aoefConn `xml:"connection"`
+	ID             string           `xml:"identifier,attr"`
+	Viewpoint      string           `xml:"viewpoint,attr"`
+	ViewpointRef   string           `xml:"viewpointRef,attr"`
+	Names          []aoefLangString `xml:"name"`
+	Documentations []aoefLangString `xml:"documentation"`
+	Nodes          []aoefNode       `xml:"node"`
+	Connections    []aoefConn       `xml:"connection"`
 }
 
 type aoefNode struct {
-	ElementRef string     `xml:"elementRef,attr"`
-	X          int        `xml:"x,attr"`
-	Y          int        `xml:"y,attr"`
-	W          int        `xml:"w,attr"`
-	H          int        `xml:"h,attr"`
-	Children   []aoefNode `xml:"node"` // nested nodes (Container, Group...)
+	NodeType   string           `xml:"http://www.w3.org/2001/XMLSchema-instance type,attr"`
+	ElementRef string           `xml:"elementRef,attr"`
+	X          int              `xml:"x,attr"`
+	Y          int              `xml:"y,attr"`
+	W          int              `xml:"w,attr"`
+	H          int              `xml:"h,attr"`
+	Children   []aoefNode       `xml:"node"`
+	Style      *aoefStyle       `xml:"style"`
+	Labels     []aoefLangString `xml:"label"`
 }
 
 type aoefConn struct {
-	RelationshipRef string      `xml:"relationshipRef,attr"`
-	Bendpoints      []aoefPoint `xml:"bendpoint"`
+	RelationshipRef string           `xml:"relationshipRef,attr"`
+	Bendpoints      []aoefPoint      `xml:"bendpoint"`
+	Style           *aoefStyle       `xml:"style"`
+	Labels          []aoefLangString `xml:"label"`
 }
 
 type aoefPoint struct {
@@ -83,8 +98,30 @@ type aoefPoint struct {
 	Y int `xml:"y,attr"`
 }
 
-// aoefOrgItem represents a node in <organizations>. Items with identifierRef
-// are leaves (elements or views); items with <label> and children are folders.
+type aoefStyle struct {
+	LineWidth int           `xml:"lineWidth,attr"`
+	LineColor *aoefRGBColor `xml:"lineColor"`
+	FillColor *aoefRGBColor `xml:"fillColor"`
+	Font      *aoefFont     `xml:"font"`
+}
+
+type aoefRGBColor struct {
+	R int    `xml:"r,attr"`
+	G int    `xml:"g,attr"`
+	B int    `xml:"b,attr"`
+	A string `xml:"a,attr"` // optional 0–100; empty string means not set
+}
+
+type aoefFont struct {
+	Name  string        `xml:"name,attr"`
+	Size  string        `xml:"size,attr"`
+	Style string        `xml:"style,attr"`
+	Color *aoefRGBColor `xml:"color"`
+}
+
+// aoefOrgItem represents a node in <organizations>.
+// Items with identifierRef are leaves (elements or views); items with <label>
+// and children are folders.
 type aoefOrgItem struct {
 	IdentifierRef string           `xml:"identifierRef,attr"`
 	Labels        []aoefLangString `xml:"label"`
@@ -92,50 +129,104 @@ type aoefOrgItem struct {
 }
 
 type aoefLangString struct {
+	Lang  string `xml:"http://www.w3.org/XML/1998/namespace lang,attr"`
 	Value string `xml:",chardata"`
 }
 
-func (m *aoefModel) toModel() *Model {
-	out := &Model{Name: m.Name}
+// firstLang returns the first non-empty value from a slice of lang strings.
+// If lang is specified, it prefers the matching entry, falling back to the first non-empty.
+func firstLang(ss []aoefLangString, prefer string) string {
+	fallback := ""
+	for _, s := range ss {
+		v := strings.TrimSpace(s.Value)
+		if v == "" {
+			continue
+		}
+		if fallback == "" {
+			fallback = v
+		}
+		if prefer == "" || s.Lang == prefer || s.Lang == "" {
+			return v
+		}
+	}
+	return fallback
+}
 
-	// Build property definition ID → name lookup.
-	propNames := make(map[string]string, len(m.PropertyDefs))
+func (m *aoefModel) toModel() *Model {
+	out := &Model{
+		Name:    firstLang(m.Names, ""),
+		Version: m.Version,
+	}
+
+	// Build property definition ID → (name, dataType) lookup and populate output.
+	type propDef struct{ name, dataType string }
+	propDefs := make(map[string]propDef, len(m.PropertyDefs))
 	for _, pd := range m.PropertyDefs {
-		propNames[pd.ID] = pd.Name
+		dt := pd.DataType
+		if dt == "" {
+			dt = "string"
+		}
+		propDefs[pd.ID] = propDef{name: pd.Name, dataType: dt}
+		out.PropertyDefinitions = append(out.PropertyDefinitions, PropertyDefinition{
+			ID:       pd.ID,
+			Name:     pd.Name,
+			DataType: dt,
+		})
 	}
 
 	for _, e := range m.Elements {
 		elem := Element{
 			ID:            e.ID,
 			Type:          e.Type,
-			Name:          e.Name,
-			Documentation: e.Documentation,
+			Name:          firstLang(e.Names, ""),
+			Documentation: firstLang(e.Documentations, ""),
 		}
 		for _, p := range e.Properties {
-			key := propNames[p.DefinitionRef]
+			def := propDefs[p.DefinitionRef]
+			key := def.name
 			if key == "" {
 				key = p.DefinitionRef
 			}
-			if key != "" && p.Value != "" {
-				elem.Properties = append(elem.Properties, Property{Key: key, Value: p.Value})
+			val := firstLang(p.Values, "")
+			if key != "" && val != "" {
+				elem.Properties = append(elem.Properties, Property{Key: key, Value: val})
 			}
 		}
 		out.Elements = append(out.Elements, elem)
 	}
 
 	for _, r := range m.Relationships {
-		out.Relationships = append(out.Relationships, Relationship(r))
+		rel := Relationship{
+			ID:            r.ID,
+			Type:          r.Type,
+			Source:        r.Source,
+			Target:        r.Target,
+			Name:          firstLang(r.Names, ""),
+			Documentation: firstLang(r.Documentations, ""),
+			AccessType:    r.AccessType,
+			Modifier:      r.Modifier,
+		}
+		if strings.EqualFold(r.IsDirected, "true") {
+			rel.IsDirected = true
+		}
+		out.Relationships = append(out.Relationships, rel)
 	}
 
 	for _, v := range m.Views {
 		d := Diagram{
 			ID:            v.ID,
-			Name:          v.Name,
-			Documentation: v.Documentation,
+			Name:          firstLang(v.Names, ""),
+			Documentation: firstLang(v.Documentations, ""),
+			Viewpoint:     v.Viewpoint,
+			ViewpointRef:  v.ViewpointRef,
 		}
 		collectNodes(v.Nodes, "", &d.Layout.Nodes)
 		for _, c := range v.Connections {
-			cl := ConnectionLayout{RelationshipID: c.RelationshipRef}
+			cl := ConnectionLayout{
+				RelationshipID: c.RelationshipRef,
+				Label:          firstLang(c.Labels, ""),
+				Style:          convertConnStyle(c.Style),
+			}
 			for _, bp := range c.Bendpoints {
 				cl.Bendpoints = append(cl.Bendpoints, Point(bp))
 			}
@@ -162,6 +253,68 @@ func (m *aoefModel) toModel() *Model {
 	return out
 }
 
+// convertRGBColor converts an AOEF colour to the model type.
+func convertRGBColor(c *aoefRGBColor) *RGBColor {
+	if c == nil {
+		return nil
+	}
+	col := &RGBColor{R: c.R, G: c.G, B: c.B}
+	if c.A != "" {
+		v, err := strconv.Atoi(c.A)
+		if err == nil {
+			col.A = &v
+		}
+	}
+	return col
+}
+
+// convertFont converts an AOEF font to the model type.
+func convertFont(f *aoefFont) *FontStyle {
+	if f == nil {
+		return nil
+	}
+	return &FontStyle{
+		Name:  f.Name,
+		Size:  f.Size,
+		Style: f.Style,
+		Color: convertRGBColor(f.Color),
+	}
+}
+
+// convertNodeStyle converts an AOEF style to a NodeStyle.
+func convertNodeStyle(s *aoefStyle) *NodeStyle {
+	if s == nil {
+		return nil
+	}
+	ns := &NodeStyle{
+		FillColor: convertRGBColor(s.FillColor),
+		LineColor: convertRGBColor(s.LineColor),
+		Font:      convertFont(s.Font),
+		LineWidth: s.LineWidth,
+	}
+	// Return nil if nothing was set.
+	if ns.FillColor == nil && ns.LineColor == nil && ns.Font == nil && ns.LineWidth == 0 {
+		return nil
+	}
+	return ns
+}
+
+// convertConnStyle converts an AOEF style to a ConnStyle.
+func convertConnStyle(s *aoefStyle) *ConnStyle {
+	if s == nil {
+		return nil
+	}
+	cs := &ConnStyle{
+		LineColor: convertRGBColor(s.LineColor),
+		Font:      convertFont(s.Font),
+		LineWidth: s.LineWidth,
+	}
+	if cs.LineColor == nil && cs.Font == nil && cs.LineWidth == 0 {
+		return nil
+	}
+	return cs
+}
+
 // collectViewOrg recursively traverses an organization item.
 // Returns (folders, diagramFolderAssignments, containsAnyViewRef).
 // Folders are returned in pre-order (parent before children) for safe DB insertion.
@@ -174,7 +327,7 @@ func collectViewOrg(item aoefOrgItem, parentSourceID string, viewIDs map[string]
 				FolderSourceID:  parentSourceID,
 			}}, true
 		}
-		return nil, nil, false // element ref — skip
+		return nil, nil, false // element/relationship ref — skip
 	}
 
 	// Folder item: compute this folder's source ID.
@@ -238,11 +391,13 @@ func collectNodes(nodes []aoefNode, parentElementID string, out *[]NodeLayout) {
 			*out = append(*out, NodeLayout{
 				ElementID:       n.ElementRef,
 				ParentElementID: parentElementID,
+				NodeType:        n.NodeType,
 				X:               n.X, Y: n.Y, W: n.W, H: n.H,
+				Style: convertNodeStyle(n.Style),
 			})
 			collectNodes(n.Children, n.ElementRef, out)
 		} else {
-			// Node without elementRef (pure grouping container) — pass parent through
+			// Node without elementRef (pure grouping container) — pass parent through.
 			collectNodes(n.Children, parentElementID, out)
 		}
 	}

@@ -108,6 +108,10 @@
           type: 'archimate',
           data: {
             relationshipType: c.relationship_type,
+            accessType:       c.access_type || null,
+            isDirected:       c.is_directed  || false,
+            label:            c.label        || '',
+            modifier:         c.modifier     || '',
             bendpoints: c.bendpoints || [],
             sourceBounds: src ? { x: src.x, y: src.y, w: src.w, h: src.h } : null,
             targetBounds: tgt ? { x: tgt.x, y: tgt.y, w: tgt.w, h: tgt.h } : null,
