@@ -75,6 +75,7 @@ type aoefView struct {
 }
 
 type aoefNode struct {
+	Identifier string           `xml:"identifier,attr"`
 	NodeType   string           `xml:"http://www.w3.org/2001/XMLSchema-instance type,attr"`
 	ElementRef string           `xml:"elementRef,attr"`
 	X          int              `xml:"x,attr"`
@@ -88,6 +89,8 @@ type aoefNode struct {
 
 type aoefConn struct {
 	RelationshipRef string           `xml:"relationshipRef,attr"`
+	Source          string           `xml:"source,attr"`
+	Target          string           `xml:"target,attr"`
 	Bendpoints      []aoefPoint      `xml:"bendpoint"`
 	Style           *aoefStyle       `xml:"style"`
 	Labels          []aoefLangString `xml:"label"`
@@ -220,12 +223,27 @@ func (m *aoefModel) toModel() *Model {
 			Viewpoint:     v.Viewpoint,
 			ViewpointRef:  v.ViewpointRef,
 		}
+		// Build node-identifier → element-ID map for connection source/target resolution.
+		nodeToElem := map[string]string{}
+		var buildNodeMap func(nodes []aoefNode)
+		buildNodeMap = func(nodes []aoefNode) {
+			for _, n := range nodes {
+				if n.Identifier != "" && n.ElementRef != "" {
+					nodeToElem[n.Identifier] = n.ElementRef
+				}
+				buildNodeMap(n.Children)
+			}
+		}
+		buildNodeMap(v.Nodes)
+
 		collectNodes(v.Nodes, "", &d.Layout.Nodes)
 		for _, c := range v.Connections {
 			cl := ConnectionLayout{
-				RelationshipID: c.RelationshipRef,
-				Label:          firstLang(c.Labels, ""),
-				Style:          convertConnStyle(c.Style),
+				RelationshipID:  c.RelationshipRef,
+				SourceElementID: nodeToElem[c.Source],
+				TargetElementID: nodeToElem[c.Target],
+				Label:           firstLang(c.Labels, ""),
+				Style:           convertConnStyle(c.Style),
 			}
 			for _, bp := range c.Bendpoints {
 				cl.Bendpoints = append(cl.Bendpoints, Point(bp))

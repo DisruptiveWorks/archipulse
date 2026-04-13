@@ -83,8 +83,15 @@
     return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
   })();
 
-  $: markerEnd   = style.end   ? `url(#am-${style.end})`   : undefined;
-  $: markerStart = style.start ? `url(#am-${style.start})` : undefined;
+  $: reversed    = data?.reversed || false;
+  // When the connection is drawn opposite to the semantic relationship direction,
+  // swap the markers so the arrowhead stays at the semantic target.
+  $: markerEnd   = reversed
+    ? (style.start ? `url(#am-${style.start})` : undefined)
+    : (style.end   ? `url(#am-${style.end})`   : undefined);
+  $: markerStart = reversed
+    ? (style.end   ? `url(#am-${style.end})`   : undefined)
+    : (style.start ? `url(#am-${style.start})` : undefined);
 </script>
 
 <!-- Invisible wider stroke for hover/selection interactions -->
