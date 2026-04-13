@@ -11,8 +11,8 @@
   // Both container and leaf: flat left (vertical), arrow right.
   // Container uses a shallower arrow; leaf a proportionally deeper one.
   $: points = data.isContainer
-    ? '0,0 88,0 100,20 88,40 0,40'
-    : '0,0 86,0 100,20 86,40 0,40';
+    ? '0,0 88,0 100,20 88,40 0,40, 5,20'
+    : '0,0 86,0 100,20 86,40 0,40 15,20';
 </script>
 
 <Handle type="source" position={Position.Right} style="opacity:0;pointer-events:none;" />
