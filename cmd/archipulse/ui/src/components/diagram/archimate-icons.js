@@ -14,7 +14,7 @@
 //   Object/Data → rectangle with lines
 //   Component  → rect with two plug tabs on left
 //   Node       → 3D box
-//   Cylinder   → vertical cylinder (Role, Stakeholder, SystemSoftware)
+//   Cylinder   → vertical cylinder (Role, Stakeholder)
 //   Grouping   → dashed rect
 
 export const ICONS = {
@@ -30,12 +30,12 @@ export const ICONS = {
     <line x1="8" y1="10.5" x2="10.5" y2="14" stroke-width="1.2"/>
   `,
 
-  // Vertical cylinder
+  // Horizontal cylinder — ellipse on right, half-arc on left, two rails
   BusinessRole: `
-    <ellipse cx="8" cy="4.5" rx="5" ry="1.8" stroke-width="1.2" fill="none"/>
-    <line x1="3" y1="4.5" x2="3" y2="12" stroke-width="1.2"/>
-    <line x1="13" y1="4.5" x2="13" y2="12" stroke-width="1.2"/>
-    <ellipse cx="8" cy="12" rx="5" ry="1.8" stroke-width="1.2" fill="none"/>
+    <ellipse cx="12" cy="8" rx="3" ry="5" stroke-width="1.2" fill="none"/>
+    <line x1="4" y1="3" x2="12" y2="3" stroke-width="1.2"/>
+    <line x1="4" y1="13" x2="12" y2="13" stroke-width="1.2"/>
+    <path d="M4,3 a3,5 0 0 0 0,10" stroke-width="1.2" fill="none"/>
   `,
 
   // Two overlapping circles
@@ -44,11 +44,10 @@ export const ICONS = {
     <circle cx="10.5" cy="8" r="4" stroke-width="1.2" fill="none"/>
   `,
 
-  // Lollipop — circle + stem + T-bar
+  // Circle on right + horizontal line on left
   BusinessInterface: `
-    <circle cx="8" cy="5" r="3" stroke-width="1.2" fill="none"/>
-    <line x1="8" y1="8" x2="8" y2="13.5" stroke-width="1.2"/>
-    <line x1="5.5" y1="13.5" x2="10.5" y2="13.5" stroke-width="1.2"/>
+    <circle cx="10.7" cy="8" r="3.3" stroke-width="1.2" fill="none"/>
+    <line x1="1.3" y1="8" x2="7.4" y2="8" stroke-width="1.2"/>
   `,
 
   // Notched right-pointing arrow — ArchiMate process symbol (confirmed correct)
@@ -58,7 +57,11 @@ export const ICONS = {
 
   // Thick open chevron pointing up — ArchiMate function symbol
   BusinessFunction: `
-    <polygon points="8,3 14,8 14,13 8,8 2,13 2,8" stroke-width="1.4" fill="none" stroke-linejoin="round"/>
+    <polygon points="8,3 14,6 14,13 8,10 2,13 2,6" 
+            stroke="currentColor" 
+            stroke-width="1.4" 
+            fill="none" 
+            stroke-linejoin="round"/>
   `,
 
   // Two overlapping circles (same shape as collaboration)
@@ -72,9 +75,9 @@ export const ICONS = {
     <rect x="2" y="5.5" width="12" height="5" rx="2.5" stroke-width="1.2" fill="none"/>
   `,
 
-  // Trigger: flat right, notch on left (mirror of process)
+  // Flag shape: notch on left, arc on right
   BusinessEvent: `
-    <polygon points="4,5 14,5 14,11 4,11 1,8" stroke-width="1.2" fill="none" stroke-linejoin="round"/>
+    <path d="M1.3,2.7 l2.7,5.3 -2.7,5.3 h9.3 a4,4 0 0 0 0,-10.7 z" stroke-width="1.2" fill="none" stroke-linejoin="round"/>
   `,
 
   // Rectangle with header line — standard BusinessObject notation
@@ -116,11 +119,10 @@ export const ICONS = {
     <circle cx="10.5" cy="8" r="4" stroke-width="1.2" fill="none"/>
   `,
 
-  // Lollipop
+  // Circle on right + horizontal line on left
   ApplicationInterface: `
-    <circle cx="8" cy="5" r="3" stroke-width="1.2" fill="none"/>
-    <line x1="8" y1="8" x2="8" y2="13.5" stroke-width="1.2"/>
-    <line x1="5.5" y1="13.5" x2="10.5" y2="13.5" stroke-width="1.2"/>
+    <circle cx="10.7" cy="8" r="3.3" stroke-width="1.2" fill="none"/>
+    <line x1="1.3" y1="8" x2="7.4" y2="8" stroke-width="1.2"/>
   `,
 
   // Hollow right-pointing arrow
@@ -144,9 +146,9 @@ export const ICONS = {
     <rect x="2" y="5.5" width="12" height="5" rx="2.5" stroke-width="1.2" fill="none"/>
   `,
 
-  // Trigger
+  // Flag shape: notch on left, arc on right
   ApplicationEvent: `
-    <polygon points="4,5 14,5 14,11 4,11 1,8" stroke-width="1.2" fill="none" stroke-linejoin="round"/>
+    <path d="M1.3,2.7 l2.7,5.3 -2.7,5.3 h9.3 a4,4 0 0 0 0,-10.7 z" stroke-width="1.2" fill="none" stroke-linejoin="round"/>
   `,
 
   // Rectangle with header line (mirrors BusinessObject)
@@ -172,12 +174,16 @@ export const ICONS = {
     <line x1="12" y1="6" x2="13" y2="3" stroke-width="1.2"/>
   `,
 
-  // Vertical cylinder
+  // Two overlapping circles with depth mask (ArchiMate SystemSoftware)
   SystemSoftware: `
-    <ellipse cx="8" cy="4.5" rx="5" ry="1.8" stroke-width="1.2" fill="none"/>
-    <line x1="3" y1="4.5" x2="3" y2="12" stroke-width="1.2"/>
-    <line x1="13" y1="4.5" x2="13" y2="12" stroke-width="1.2"/>
-    <ellipse cx="8" cy="12" rx="5" ry="1.8" stroke-width="1.2" fill="none"/>
+    <defs>
+      <mask id="ss-mask">
+        <rect width="16" height="16" fill="white"/>
+        <circle cx="6.67" cy="9.33" r="4" fill="black"/>
+      </mask>
+    </defs>
+    <circle cx="8.67" cy="7.33" r="4" stroke-width="1.2" fill="none" mask="url(#ss-mask)"/>
+    <circle cx="6.67" cy="9.33" r="4" stroke-width="1.2" fill="none"/>
   `,
 
   // Two overlapping circles
@@ -186,11 +192,10 @@ export const ICONS = {
     <circle cx="10.5" cy="8" r="4" stroke-width="1.2" fill="none"/>
   `,
 
-  // Lollipop
+  // Circle on right + horizontal line on left
   TechnologyInterface: `
-    <circle cx="8" cy="5" r="3" stroke-width="1.2" fill="none"/>
-    <line x1="8" y1="8" x2="8" y2="13.5" stroke-width="1.2"/>
-    <line x1="5.5" y1="13.5" x2="10.5" y2="13.5" stroke-width="1.2"/>
+    <circle cx="10.7" cy="8" r="3.3" stroke-width="1.2" fill="none"/>
+    <line x1="1.3" y1="8" x2="7.4" y2="8" stroke-width="1.2"/>
   `,
 
   // Notched right-pointing arrow — same as BusinessProcess
@@ -214,9 +219,9 @@ export const ICONS = {
     <rect x="2" y="5.5" width="12" height="5" rx="2.5" stroke-width="1.2" fill="none"/>
   `,
 
-  // Trigger
+  // Flag shape: notch on left, arc on right
   TechnologyEvent: `
-    <polygon points="4,5 14,5 14,11 4,11 1,8" stroke-width="1.2" fill="none" stroke-linejoin="round"/>
+    <path d="M1.3,2.7 l2.7,5.3 -2.7,5.3 h9.3 a4,4 0 0 0 0,-10.7 z" stroke-width="1.2" fill="none" stroke-linejoin="round"/>
   `,
 
   // Rect with two plug tabs (same as ApplicationComponent)
@@ -239,23 +244,22 @@ export const ICONS = {
     <polyline points="2,13 2,7 5,7 5,10 8,7 8,10 11,7 11,10 14,7 14,13 2,13" stroke-width="1.2" fill="none" stroke-linejoin="round"/>
   `,
 
-  // Gear
+  // Two interlocking gears — original paths scaled from 152×144 viewBox
   Equipment: `
-    <circle cx="8" cy="8" r="2.5" stroke-width="1.2" fill="none"/>
-    <circle cx="8" cy="8" r="4.5" stroke-width="0" fill="none"/>
-    <line x1="8" y1="1.5" x2="8" y2="3.5" stroke-width="2"/>
-    <line x1="8" y1="12.5" x2="8" y2="14.5" stroke-width="2"/>
-    <line x1="1.5" y1="8" x2="3.5" y2="8" stroke-width="2"/>
-    <line x1="12.5" y1="8" x2="14.5" y2="8" stroke-width="2"/>
-    <line x1="3.5" y1="3.5" x2="4.9" y2="4.9" stroke-width="2"/>
-    <line x1="11.1" y1="11.1" x2="12.5" y2="12.5" stroke-width="2"/>
-    <line x1="12.5" y1="3.5" x2="11.1" y2="4.9" stroke-width="2"/>
-    <line x1="4.9" y1="11.1" x2="3.5" y2="12.5" stroke-width="2"/>
+    <g transform="scale(0.10526,0.11111)" stroke-width="11" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M77.5,64.5 C80.5,58.6 79.2,55 73.5,53.5 C72.2,53.2 70.8,53.3 69.5,53 C67,52.2 65.5,52 64.9,55.5 C64,59.9 61.4,62.6 56,62.3 C53.9,62.2 52.4,61.9 51.6,60.5 C50.3,58.1 48.5,56.5 47,55.1 C44.3,54.6 42.8,56.4 41.1,57.2 C39.3,58 37.2,59 36,61.3 C36.9,63.5 38.1,66 39,68.5 C40.3,72.1 34.8,78 31,76.9 C28.6,76.2 26,74.9 24.1,77.1 C21.7,79.6 21.8,83.3 21.2,86.5 C20.7,88.7 23.4,89.3 25,89.9 C28,91.1 30.8,91.5 31.2,96 C31.6,100.1 30.7,102.4 27,104 C25.6,104.7 24.5,105.8 23.6,106.4 C25.5,111.8 26.9,113.9 31,117.5 C33.9,116.4 36.7,115.2 39.8,114 C40.1,114.2 40.5,114.7 41,115 C46,117.5 47.5,121.3 45.6,126.5 C45.3,127.2 45.1,128.3 46,129 C49,131.1 52.5,131.7 56,131.9 C58.9,132 59.2,129.1 60,127 C61.5,123.3 67.2,120.4 70.4,122.1 C72.2,123.1 73.2,125.3 74.5,127 C75.2,127.8 75.8,128.7 76.5,129.7 C80.6,128.2 84.3,126.3 87.6,123.5 C87,118.6 81.4,113.9 87.9,108.9 C91.7,106.1 95,109.1 98.6,108.4 C100.4,106.8 100.9,104.4 101.5,102 C102.7,97.2 102.1,95 97.5,94.2 C93.1,93.4 92.8,90.5 92.1,87.5 C91.3,84.6 92.6,82.7 95.5,81.4 C97.2,80.7 98.5,79.2 100,78 C99.9,74.3 97.4,71.5 96.3,68.1 C95.7,66.2 93,64.8 91.1,66.6 C86.2,71 82.5,69.3 79,65 Z"/>
+      <path d="M100,75.5 C101,75.3 102,74.9 103,75 C107.8,75.8 110.1,74.2 110.1,69 C110.1,65.8 115,64 118,65.5 C119.7,66.3 120.4,68.4 123.2,68.4 C125.5,67.1 127.4,64.4 129.6,62.5 C129.2,59 126.2,57.9 125.1,55.9 C125.5,51.1 128.4,49.3 132.5,49 C137.4,48.6 135.1,44.9 135.4,42.5 C135.8,40 134.7,37.7 132,38.1 C126.9,38.9 126.3,35.2 124.9,32 C125.6,29.2 129,28.3 129.4,25.7 C127.9,22.4 125.6,20.1 122.3,18.6 C121.1,19.1 120.1,20 119,20.96 C115.1,24.1 110.6,22.5 110.1,17.5 C109.6,12.8 106.5,12.7 103,12.4 C99,12.1 98,14.8 98.1,17.5 C98.3,22.2 94.1,21.3 92.1,23.4 C89.7,21.7 87.6,20.1 85.5,18.5 C82.4,19.8 80.7,22.7 78.7,24.3 C78,27.2 80.1,27.7 81,29 C83.7,32.8 81.6,37.6 77,37.9 C74,38.2 71.7,38.7 72,42.5 C72.2,45.6 71,49.4 76.5,49.1 C79.4,49 81.1,50.9 82.1,54 C83.1,57 81.2,57.8 79.5,59 Z"/>
+      <path d="M61.5,74 C56.3,75 51.7,76.5 47.9,80.9 C42.3,87.4 42.3,98 48.6,104.4 C55.2,111 63.6,112.2 72,106.9 C78.5,102.8 81.7,94.9 79.9,88 C78.2,81 71,74.2 64,74.5 C63.3,74.5 62.7,74.2 62,74 Z"/>
+      <path d="M103.5,29 C98,29.6 93.7,31.8 91,37 C86.9,44.6 89.3,52 97.5,56.5 C104.4,60.3 113.3,56.9 117.1,50.6 C122.2,42 115.9,28.9 104,29 Z"/>
+    </g>
   `,
 
-  // Hexagon outline
+  // Hexagon with internal facet lines (gem/crystal shape)
   Material: `
-    <polygon points="8,1.5 13.5,4.5 13.5,11.5 8,14.5 2.5,11.5 2.5,4.5" stroke-width="1.2" fill="none"/>
+    <path d="M4.5,2 L11.5,2 L14.5,8 L11.5,14 L4.5,14 L1.5,8 Z" stroke-width="1.2" fill="none"/>
+    <line x1="4" y1="7.5" x2="6" y2="3.5" stroke-width="1.2"/>
+    <line x1="12" y1="7.5" x2="10" y2="3.5" stroke-width="1.2"/>
+    <line x1="6" y1="12" x2="10" y2="12" stroke-width="1.2"/>
   `,
 
   // Network: dots connected
@@ -290,12 +294,12 @@ export const ICONS = {
 
   // ── Motivation layer ─────────────────────────────────────────────────────
 
-  // Cylinder (same as role)
+  // Horizontal cylinder (same as BusinessRole)
   Stakeholder: `
-    <ellipse cx="8" cy="4.5" rx="5" ry="1.8" stroke-width="1.2" fill="none"/>
-    <line x1="3" y1="4.5" x2="3" y2="12" stroke-width="1.2"/>
-    <line x1="13" y1="4.5" x2="13" y2="12" stroke-width="1.2"/>
-    <ellipse cx="8" cy="12" rx="5" ry="1.8" stroke-width="1.2" fill="none"/>
+    <ellipse cx="12" cy="8" rx="3" ry="5" stroke-width="1.2" fill="none"/>
+    <line x1="4" y1="3" x2="12" y2="3" stroke-width="1.2"/>
+    <line x1="4" y1="13" x2="12" y2="13" stroke-width="1.2"/>
+    <path d="M4,3 a3,5 0 0 0 0,10" stroke-width="1.2" fill="none"/>
   `,
 
   // Compass wheel
@@ -363,11 +367,14 @@ export const ICONS = {
     <rect x="11" y="5.5" width="3" height="7.5" rx="0.5" stroke-width="1.2" fill="none"/>
   `,
 
-  // Stacked rectangles
+  // Capability map staircase — 3 cells bottom row, 2 middle, 1 top-right
   Capability: `
-    <rect x="2" y="9.5" width="12" height="3.5" rx="0.5" stroke-width="1.2" fill="none"/>
-    <rect x="3.5" y="6" width="9" height="3.5" rx="0.5" stroke-width="1.2" fill="none"/>
-    <rect x="5" y="2.5" width="6" height="3.5" rx="0.5" stroke-width="1.2" fill="none"/>
+    <rect x="2" y="10" width="4" height="4" stroke-width="1.2" fill="none"/>
+    <rect x="6" y="10" width="4" height="4" stroke-width="1.2" fill="none"/>
+    <rect x="10" y="10" width="4" height="4" stroke-width="1.2" fill="none"/>
+    <rect x="6" y="6" width="4" height="4" stroke-width="1.2" fill="none"/>
+    <rect x="10" y="6" width="4" height="4" stroke-width="1.2" fill="none"/>
+    <rect x="10" y="2" width="4" height="4" stroke-width="1.2" fill="none"/>
   `,
 
   // Chevron (same as Function — ValueStream reuses)
@@ -391,9 +398,9 @@ export const ICONS = {
     <line x1="5.5" y1="10" x2="9" y2="10" stroke-width="1"/>
   `,
 
-  // Trigger (same shape as event)
+  // Flag shape: notch on left, arc on right
   ImplementationEvent: `
-    <polygon points="4,5 14,5 14,11 4,11 1,8" stroke-width="1.2" fill="none" stroke-linejoin="round"/>
+    <path d="M1.3,2.7 l2.7,5.3 -2.7,5.3 h9.3 a4,4 0 0 0 0,-10.7 z" stroke-width="1.2" fill="none" stroke-linejoin="round"/>
   `,
 
   // Wave / scroll shape

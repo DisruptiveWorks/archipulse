@@ -56,7 +56,7 @@ export function getRelationshipStyle(relType, { accessType, isDirected } = {}) {
   if (relType === 'AccessRelationship' || relType === 'Access') {
     switch (accessType) {
       case 'Read':
-        base.start = 'open-arrow';
+        base.start = 'open-arrow-rev';
         base.end   = null;
         break;
       case 'Write':
@@ -64,7 +64,7 @@ export function getRelationshipStyle(relType, { accessType, isDirected } = {}) {
         base.end   = 'open-arrow';
         break;
       case 'ReadWrite':
-        base.start = 'open-arrow';
+        base.start = 'open-arrow-rev';
         base.end   = 'open-arrow';
         break;
       default: // 'Access' or unset → arrow at end

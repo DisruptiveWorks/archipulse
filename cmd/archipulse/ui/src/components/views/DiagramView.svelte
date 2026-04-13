@@ -110,6 +110,7 @@
             relationshipType: c.relationship_type,
             accessType:       c.access_type || null,
             isDirected:       c.is_directed  || false,
+            reversed:         c.reversed     || false,
             label:            c.label        || '',
             modifier:         c.modifier     || '',
             bendpoints: c.bendpoints || [],
@@ -141,9 +142,15 @@
       <polygon points="0,0 8,3 0,6" fill="context-stroke" />
     </marker>
 
-    <!-- Open V arrowhead — Association, Serving, Access, Influence -->
+    <!-- Open V arrowhead — Association, Serving, Access Write, Influence -->
     <marker id="am-open-arrow" viewBox="0 0 8 8" markerWidth="8" markerHeight="8"
       refX="7" refY="4" orient="auto">
+      <path d="M 0,0 L 7,4 L 0,8" fill="none" stroke="context-stroke" stroke-width="1.4" />
+    </marker>
+
+    <!-- Open V arrowhead reversed — Access Read (marker-start, points INTO source) -->
+    <marker id="am-open-arrow-rev" viewBox="0 0 8 8" markerWidth="8" markerHeight="8"
+      refX="7" refY="4" orient="auto-start-reverse">
       <path d="M 0,0 L 7,4 L 0,8" fill="none" stroke="context-stroke" stroke-width="1.4" />
     </marker>
 
@@ -154,20 +161,22 @@
     </marker>
 
     <!-- Filled diamond at source — Composition -->
+    <!-- refX="12": base of diamond sits at node boundary, tip extends outward into path -->
     <marker id="am-filled-diamond" viewBox="-1 -1 14 10" markerWidth="14" markerHeight="10"
-      refX="0" refY="4" orient="auto">
+      refX="12" refY="4" orient="auto-start-reverse">
       <polygon points="0,4 6,0 12,4 6,8" fill="context-stroke" />
     </marker>
 
     <!-- Hollow diamond at source — Aggregation -->
     <marker id="am-open-diamond" viewBox="-1 -1 14 10" markerWidth="14" markerHeight="10"
-      refX="0" refY="4" orient="auto">
+      refX="12" refY="4" orient="auto-start-reverse">
       <polygon points="0,4 6,0 12,4 6,8" fill="#F8FAFC" stroke="context-stroke" stroke-width="1.4" />
     </marker>
 
     <!-- Filled circle at source — Assignment -->
+    <!-- refX="8": far edge of circle sits at node boundary, circle extends outward into path -->
     <marker id="am-filled-circle" viewBox="-1 -1 10 10" markerWidth="8" markerHeight="8"
-      refX="0" refY="4" orient="auto">
+      refX="8" refY="4" orient="auto-start-reverse">
       <circle cx="4" cy="4" r="4" fill="context-stroke" />
     </marker>
   </defs>

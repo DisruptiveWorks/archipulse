@@ -91,10 +91,12 @@ type NodeLayout struct {
 
 // ConnectionLayout holds the visual path and optional style of a connection.
 type ConnectionLayout struct {
-	RelationshipID string
-	Label          string // override label shown on the connection in this diagram
-	Bendpoints     []Point
-	Style          *ConnStyle
+	RelationshipID  string
+	SourceElementID string // element ID of the connection's visual source node
+	TargetElementID string // element ID of the connection's visual target node
+	Label           string // override label shown on the connection in this diagram
+	Bendpoints      []Point
+	Style           *ConnStyle
 }
 
 // NodeStyle captures visual styling from OEF <style> on a node.

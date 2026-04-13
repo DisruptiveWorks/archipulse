@@ -163,6 +163,7 @@ type RenderConnection struct {
 	RelationshipType string     `json:"relationship_type"`
 	SourceElementID  string     `json:"source_element_id"`
 	TargetElementID  string     `json:"target_element_id"`
+	Reversed         bool       `json:"reversed,omitempty"` // true when the connection is drawn opposite to the semantic relationship direction
 	Label            string     `json:"label,omitempty"`
 	AccessType       string     `json:"access_type,omitempty"`
 	IsDirected       bool       `json:"is_directed,omitempty"`
@@ -206,9 +207,11 @@ func (s *Store) Render(diagramID uuid.UUID) (*RenderData, error) {
 			Style           *NodeStyle `json:"Style"`
 		} `json:"Nodes"`
 		Connections []struct {
-			RelationshipID string `json:"RelationshipID"`
-			Label          string `json:"Label"`
-			Bendpoints     []struct {
+			RelationshipID  string `json:"RelationshipID"`
+			SourceElementID string `json:"SourceElementID"`
+			TargetElementID string `json:"TargetElementID"`
+			Label           string `json:"Label"`
+			Bendpoints      []struct {
 				X int `json:"X"`
 				Y int `json:"Y"`
 			} `json:"Bendpoints"`
@@ -323,11 +326,29 @@ func (s *Store) Render(diagramID uuid.UUID) (*RenderData, error) {
 		for _, bp := range c.Bendpoints {
 			bps = append(bps, Point{X: bp.X, Y: bp.Y})
 		}
+
+		// Use the connection's visual source/target for path drawing (bendpoints follow this order).
+		// Fall back to the relationship's direction for old layouts that lack this info.
+		srcElem := c.SourceElementID
+		tgtElem := c.TargetElementID
+		if srcElem == "" {
+			srcElem = meta.source
+		}
+		if tgtElem == "" {
+			tgtElem = meta.target
+		}
+
+		// Detect whether the connection is drawn in the opposite direction to the relationship.
+		// When reversed, the frontend must swap marker-start/end so the arrowhead stays at
+		// the semantic target regardless of the visual drawing direction.
+		reversed := srcElem != "" && meta.source != "" && srcElem == meta.target && tgtElem == meta.source
+
 		rd.Connections = append(rd.Connections, RenderConnection{
 			RelationshipID:   c.RelationshipID,
 			RelationshipType: meta.typ,
-			SourceElementID:  meta.source,
-			TargetElementID:  meta.target,
+			SourceElementID:  srcElem,
+			TargetElementID:  tgtElem,
+			Reversed:         reversed,
 			Label:            c.Label,
 			AccessType:       meta.accessType,
 			IsDirected:       meta.isDirected,
