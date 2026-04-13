@@ -206,8 +206,8 @@ func (s *Store) Render(diagramID uuid.UUID) (*RenderData, error) {
 			Style           *NodeStyle `json:"Style"`
 		} `json:"Nodes"`
 		Connections []struct {
-			RelationshipID string     `json:"RelationshipID"`
-			Label          string     `json:"Label"`
+			RelationshipID string `json:"RelationshipID"`
+			Label          string `json:"Label"`
 			Bendpoints     []struct {
 				X int `json:"X"`
 				Y int `json:"Y"`

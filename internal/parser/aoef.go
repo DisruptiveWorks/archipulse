@@ -21,15 +21,15 @@ func ParseAOEF(r io.Reader) (*Model, error) {
 // ---- raw AOEF XML structs ----
 
 type aoefModel struct {
-	XMLName      xml.Name          `xml:"model"`
-	Identifier   string            `xml:"identifier,attr"`
-	Version      string            `xml:"version,attr"`
-	Names        []aoefLangString  `xml:"name"`
-	PropertyDefs []aoefPropertyDef `xml:"propertyDefinitions>propertyDefinition"`
-	Elements     []aoefElement     `xml:"elements>element"`
+	XMLName       xml.Name           `xml:"model"`
+	Identifier    string             `xml:"identifier,attr"`
+	Version       string             `xml:"version,attr"`
+	Names         []aoefLangString   `xml:"name"`
+	PropertyDefs  []aoefPropertyDef  `xml:"propertyDefinitions>propertyDefinition"`
+	Elements      []aoefElement      `xml:"elements>element"`
 	Relationships []aoefRelationship `xml:"relationships>relationship"`
-	Views        []aoefView        `xml:"views>diagrams>view"`
-	Organizations []aoefOrgItem    `xml:"organizations>item"`
+	Views         []aoefView         `xml:"views>diagrams>view"`
+	Organizations []aoefOrgItem      `xml:"organizations>item"`
 }
 
 type aoefPropertyDef struct {
@@ -99,10 +99,10 @@ type aoefPoint struct {
 }
 
 type aoefStyle struct {
-	LineWidth int            `xml:"lineWidth,attr"`
-	LineColor *aoefRGBColor  `xml:"lineColor"`
-	FillColor *aoefRGBColor  `xml:"fillColor"`
-	Font      *aoefFont      `xml:"font"`
+	LineWidth int           `xml:"lineWidth,attr"`
+	LineColor *aoefRGBColor `xml:"lineColor"`
+	FillColor *aoefRGBColor `xml:"fillColor"`
+	Font      *aoefFont     `xml:"font"`
 }
 
 type aoefRGBColor struct {
