@@ -112,25 +112,63 @@ func (s *Store) Update(id uuid.UUID, name, documentation string, layout json.Raw
 	return &d, nil
 }
 
+// RGBColor is an RGBA colour value as stored in the layout JSON.
+type RGBColor struct {
+	R int  `json:"r"`
+	G int  `json:"g"`
+	B int  `json:"b"`
+	A *int `json:"a,omitempty"` // 0–100; nil means not set
+}
+
+// FontStyle holds font metadata as stored in the layout JSON.
+type FontStyle struct {
+	Name  string    `json:"name,omitempty"`
+	Size  string    `json:"size,omitempty"`
+	Style string    `json:"style,omitempty"`
+	Color *RGBColor `json:"color,omitempty"`
+}
+
+// NodeStyle holds visual styling for a diagram node.
+type NodeStyle struct {
+	FillColor *RGBColor  `json:"fill_color,omitempty"`
+	LineColor *RGBColor  `json:"line_color,omitempty"`
+	Font      *FontStyle `json:"font,omitempty"`
+	LineWidth int        `json:"line_width,omitempty"`
+}
+
+// ConnStyle holds visual styling for a diagram connection.
+type ConnStyle struct {
+	LineColor *RGBColor  `json:"line_color,omitempty"`
+	Font      *FontStyle `json:"font,omitempty"`
+	LineWidth int        `json:"line_width,omitempty"`
+}
+
 // RenderNode is a node enriched with element metadata for rendering.
 type RenderNode struct {
-	ElementID       string `json:"element_id"`
-	ParentElementID string `json:"parent_element_id,omitempty"`
-	ElementName     string `json:"element_name"`
-	ElementType     string `json:"element_type"`
-	X               int    `json:"x"`
-	Y               int    `json:"y"`
-	W               int    `json:"w"`
-	H               int    `json:"h"`
+	ElementID       string     `json:"element_id"`
+	ParentElementID string     `json:"parent_element_id,omitempty"`
+	NodeType        string     `json:"node_type,omitempty"`
+	ElementName     string     `json:"element_name"`
+	ElementType     string     `json:"element_type"`
+	X               int        `json:"x"`
+	Y               int        `json:"y"`
+	W               int        `json:"w"`
+	H               int        `json:"h"`
+	Style           *NodeStyle `json:"style,omitempty"`
 }
 
 // RenderConnection is a connection enriched with relationship metadata.
 type RenderConnection struct {
-	RelationshipID   string  `json:"relationship_id"`
-	RelationshipType string  `json:"relationship_type"`
-	SourceElementID  string  `json:"source_element_id"`
-	TargetElementID  string  `json:"target_element_id"`
-	Bendpoints       []Point `json:"bendpoints"`
+	RelationshipID   string     `json:"relationship_id"`
+	RelationshipType string     `json:"relationship_type"`
+	SourceElementID  string     `json:"source_element_id"`
+	TargetElementID  string     `json:"target_element_id"`
+	Label            string     `json:"label,omitempty"`
+	AccessType       string     `json:"access_type,omitempty"`
+	IsDirected       bool       `json:"is_directed,omitempty"`
+	Modifier         string     `json:"modifier,omitempty"`
+	Bendpoints       []Point    `json:"bendpoints"`
+	Style            *ConnStyle `json:"style,omitempty"`
 }
 
 // Point is a 2D coordinate.
@@ -158,19 +196,23 @@ func (s *Store) Render(diagramID uuid.UUID) (*RenderData, error) {
 	// Parse the stored layout JSON.
 	var layout struct {
 		Nodes []struct {
-			ElementID       string `json:"ElementID"`
-			ParentElementID string `json:"ParentElementID"`
-			X               int    `json:"X"`
-			Y               int    `json:"Y"`
-			W               int    `json:"W"`
-			H               int    `json:"H"`
+			ElementID       string     `json:"ElementID"`
+			ParentElementID string     `json:"ParentElementID"`
+			NodeType        string     `json:"NodeType"`
+			X               int        `json:"X"`
+			Y               int        `json:"Y"`
+			W               int        `json:"W"`
+			H               int        `json:"H"`
+			Style           *NodeStyle `json:"Style"`
 		} `json:"Nodes"`
 		Connections []struct {
-			RelationshipID string `json:"RelationshipID"`
+			RelationshipID string     `json:"RelationshipID"`
+			Label          string     `json:"Label"`
 			Bendpoints     []struct {
 				X int `json:"X"`
 				Y int `json:"Y"`
 			} `json:"Bendpoints"`
+			Style *ConnStyle `json:"Style"`
 		} `json:"Connections"`
 	}
 	if err := json.Unmarshal(d.Layout, &layout); err != nil {
@@ -207,7 +249,7 @@ func (s *Store) Render(diagramID uuid.UUID) (*RenderData, error) {
 		}
 	}
 
-	// Resolve relationship metadata.
+	// Resolve relationship metadata including semantic attributes.
 	relIDs := make([]string, 0, len(layout.Connections))
 	for _, c := range layout.Connections {
 		if c.RelationshipID != "" {
@@ -216,14 +258,19 @@ func (s *Store) Render(diagramID uuid.UUID) (*RenderData, error) {
 	}
 
 	type relMeta struct {
-		typ    string
-		source string
-		target string
+		typ        string
+		source     string
+		target     string
+		accessType string
+		isDirected bool
+		modifier   string
 	}
 	relMap := map[string]relMeta{}
 	if len(relIDs) > 0 {
 		rows, err := s.db.Query(`
-			SELECT source_id, type, source_element, target_element FROM relationships
+			SELECT source_id, type, source_element, target_element,
+			       COALESCE(access_type, ''), is_directed, COALESCE(modifier, '')
+			FROM relationships
 			WHERE workspace_id = $1 AND source_id = ANY($2)`,
 			d.WorkspaceID, relIDs)
 		if err != nil {
@@ -231,11 +278,15 @@ func (s *Store) Render(diagramID uuid.UUID) (*RenderData, error) {
 		}
 		defer func() { _ = rows.Close() }()
 		for rows.Next() {
-			var sid, typ, src, tgt string
-			if err := rows.Scan(&sid, &typ, &src, &tgt); err != nil {
+			var sid, typ, src, tgt, accessType, modifier string
+			var isDirected bool
+			if err := rows.Scan(&sid, &typ, &src, &tgt, &accessType, &isDirected, &modifier); err != nil {
 				return nil, err
 			}
-			relMap[sid] = relMeta{typ: typ, source: src, target: tgt}
+			relMap[sid] = relMeta{
+				typ: typ, source: src, target: tgt,
+				accessType: accessType, isDirected: isDirected, modifier: modifier,
+			}
 		}
 		if err := rows.Err(); err != nil {
 			return nil, err
@@ -255,12 +306,14 @@ func (s *Store) Render(diagramID uuid.UUID) (*RenderData, error) {
 		rd.Nodes = append(rd.Nodes, RenderNode{
 			ElementID:       n.ElementID,
 			ParentElementID: n.ParentElementID,
+			NodeType:        n.NodeType,
 			ElementName:     meta[0],
 			ElementType:     meta[1],
 			X:               n.X,
 			Y:               n.Y,
 			W:               n.W,
 			H:               n.H,
+			Style:           n.Style,
 		})
 	}
 
@@ -275,7 +328,12 @@ func (s *Store) Render(diagramID uuid.UUID) (*RenderData, error) {
 			RelationshipType: meta.typ,
 			SourceElementID:  meta.source,
 			TargetElementID:  meta.target,
+			Label:            c.Label,
+			AccessType:       meta.accessType,
+			IsDirected:       meta.isDirected,
+			Modifier:         meta.modifier,
 			Bendpoints:       bps,
+			Style:            c.Style,
 		})
 	}
 

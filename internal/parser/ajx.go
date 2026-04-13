@@ -80,7 +80,14 @@ func (m *ajxModel) toModel() *Model {
 	}
 
 	for _, r := range m.Relationships {
-		out.Relationships = append(out.Relationships, Relationship(r))
+		out.Relationships = append(out.Relationships, Relationship{
+			ID:            r.ID,
+			Type:          r.Type,
+			Source:        r.Source,
+			Target:        r.Target,
+			Name:          r.Name,
+			Documentation: r.Documentation,
+		})
 	}
 
 	for _, v := range m.Views {
