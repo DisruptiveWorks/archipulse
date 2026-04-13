@@ -23,11 +23,12 @@ type importHandler struct {
 
 // ImportResult summarises what was imported.
 type ImportResult struct {
-	WorkspaceID   string `json:"workspace_id"`
-	Elements      int    `json:"elements"`
-	Relationships int    `json:"relationships"`
-	Diagrams      int    `json:"diagrams"`
-	Folders       int    `json:"folders"`
+	WorkspaceID         string `json:"workspace_id"`
+	Elements            int    `json:"elements"`
+	Relationships       int    `json:"relationships"`
+	Diagrams            int    `json:"diagrams"`
+	Folders             int    `json:"folders"`
+	PropertyDefinitions int    `json:"property_definitions"`
 }
 
 func (h *importHandler) importModel(w http.ResponseWriter, r *http.Request) {
@@ -110,6 +111,25 @@ func importInTx(db *sql.DB, wsID uuid.UUID, m *parser.Model) (*ImportResult, err
 
 	result := &ImportResult{WorkspaceID: wsID.String()}
 
+	// --- Property definitions ---
+	for _, pd := range m.PropertyDefinitions {
+		dt := pd.DataType
+		if dt == "" {
+			dt = "string"
+		}
+		_, err := tx.Exec(`
+			INSERT INTO property_definitions (workspace_id, source_id, name, data_type)
+			VALUES ($1, $2, $3, $4)
+			ON CONFLICT (workspace_id, source_id) DO UPDATE
+			  SET name = EXCLUDED.name, data_type = EXCLUDED.data_type`,
+			wsID, pd.ID, pd.Name, dt)
+		if err != nil {
+			return nil, errorf("upsert property definition %q: %w", pd.ID, err)
+		}
+		result.PropertyDefinitions++
+	}
+
+	// --- Elements ---
 	for _, e := range m.Elements {
 		layer := parser.ElementLayer(e.Type)
 		var elemID uuid.UUID
@@ -142,23 +162,40 @@ func importInTx(db *sql.DB, wsID uuid.UUID, m *parser.Model) (*ImportResult, err
 		}
 	}
 
+	// --- Relationships ---
 	for _, r := range m.Relationships {
+		// Nullable columns: access_type and modifier are empty strings when not applicable.
+		var accessType, modifier *string
+		if r.AccessType != "" {
+			accessType = &r.AccessType
+		}
+		if r.Modifier != "" {
+			modifier = &r.Modifier
+		}
 		_, err := tx.Exec(`
-			INSERT INTO relationships (workspace_id, source_id, type, source_element, target_element, name, documentation)
-			VALUES ($1, $2, $3, $4, $5, $6, $7)
+			INSERT INTO relationships
+			  (workspace_id, source_id, type, source_element, target_element,
+			   name, documentation, access_type, is_directed, modifier)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 			ON CONFLICT (workspace_id, source_id) DO UPDATE
-			  SET type = EXCLUDED.type, source_element = EXCLUDED.source_element,
-			      target_element = EXCLUDED.target_element, name = EXCLUDED.name,
+			  SET type = EXCLUDED.type,
+			      source_element = EXCLUDED.source_element,
+			      target_element = EXCLUDED.target_element,
+			      name = EXCLUDED.name,
 			      documentation = EXCLUDED.documentation,
+			      access_type = EXCLUDED.access_type,
+			      is_directed = EXCLUDED.is_directed,
+			      modifier = EXCLUDED.modifier,
 			      version = relationships.version + 1, updated_at = now()`,
-			wsID, r.ID, r.Type, r.Source, r.Target, r.Name, r.Documentation)
+			wsID, r.ID, r.Type, r.Source, r.Target,
+			r.Name, r.Documentation, accessType, r.IsDirected, modifier)
 		if err != nil {
 			return nil, errorf("upsert relationship %q: %w", r.ID, err)
 		}
 		result.Relationships++
 	}
 
-	// Upsert diagram folders (parser returns them parent-first).
+	// --- Diagram folders (parser returns them parent-first) ---
 	// Build a map from source_id → DB UUID for assigning folder_id to diagrams.
 	folderUUIDs := make(map[string]uuid.UUID, len(m.ViewFolders))
 	for _, f := range m.ViewFolders {
@@ -199,20 +236,37 @@ func importInTx(db *sql.DB, wsID uuid.UUID, m *parser.Model) (*ImportResult, err
 		}
 	}
 
+	// --- Diagrams ---
 	for _, d := range m.Diagrams {
 		layoutJSON, err := json.Marshal(d.Layout)
 		if err != nil {
 			return nil, errorf("marshal layout for diagram %q: %w", d.ID, err)
 		}
 		folderID := diagFolderID[d.ID] // nil if no folder
+
+		// Nullable viewpoint fields.
+		var viewpoint, viewpointRef *string
+		if d.Viewpoint != "" {
+			viewpoint = &d.Viewpoint
+		}
+		if d.ViewpointRef != "" {
+			viewpointRef = &d.ViewpointRef
+		}
+
 		_, err = tx.Exec(`
-			INSERT INTO diagrams (workspace_id, source_id, name, documentation, layout, folder_id)
-			VALUES ($1, $2, $3, $4, $5, $6)
+			INSERT INTO diagrams
+			  (workspace_id, source_id, name, documentation, layout, folder_id, viewpoint, viewpoint_ref)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 			ON CONFLICT (workspace_id, source_id) DO UPDATE
-			  SET name = EXCLUDED.name, documentation = EXCLUDED.documentation,
-			      layout = EXCLUDED.layout, folder_id = EXCLUDED.folder_id,
+			  SET name = EXCLUDED.name,
+			      documentation = EXCLUDED.documentation,
+			      layout = EXCLUDED.layout,
+			      folder_id = EXCLUDED.folder_id,
+			      viewpoint = EXCLUDED.viewpoint,
+			      viewpoint_ref = EXCLUDED.viewpoint_ref,
 			      version = diagrams.version + 1, updated_at = now()`,
-			wsID, d.ID, d.Name, d.Documentation, layoutJSON, folderID)
+			wsID, d.ID, d.Name, d.Documentation, layoutJSON, folderID,
+			viewpoint, viewpointRef)
 		if err != nil {
 			return nil, errorf("upsert diagram %q: %w", d.ID, err)
 		}
