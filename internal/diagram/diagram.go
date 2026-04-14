@@ -145,7 +145,7 @@ type ConnStyle struct {
 
 // RenderNode is a node enriched with element metadata for rendering.
 type RenderNode struct {
-	NodeID          string     `json:"node_id,omitempty"`           // OEF diagram node identifier (unique within view)
+	NodeID          string     `json:"node_id,omitempty"` // OEF diagram node identifier (unique within view)
 	ElementID       string     `json:"element_id"`
 	ParentElementID string     `json:"parent_element_id,omitempty"`
 	NodeType        string     `json:"node_type,omitempty"`
@@ -162,8 +162,8 @@ type RenderNode struct {
 type RenderConnection struct {
 	RelationshipID   string     `json:"relationship_id"`
 	RelationshipType string     `json:"relationship_type"`
-	SourceNodeID     string     `json:"source_node_id,omitempty"`  // OEF diagram node identifier
-	TargetNodeID     string     `json:"target_node_id,omitempty"`  // OEF diagram node identifier
+	SourceNodeID     string     `json:"source_node_id,omitempty"` // OEF diagram node identifier
+	TargetNodeID     string     `json:"target_node_id,omitempty"` // OEF diagram node identifier
 	SourceElementID  string     `json:"source_element_id"`
 	TargetElementID  string     `json:"target_element_id"`
 	Reversed         bool       `json:"reversed,omitempty"` // true when the connection is drawn opposite to the semantic relationship direction
