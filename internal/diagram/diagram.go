@@ -200,6 +200,8 @@ func (s *Store) Render(diagramID uuid.UUID) (*RenderData, error) {
 			ElementID       string     `json:"ElementID"`
 			ParentElementID string     `json:"ParentElementID"`
 			NodeType        string     `json:"NodeType"`
+			Label           string     `json:"Label"`
+			ElementType     string     `json:"ElementType"`
 			X               int        `json:"X"`
 			Y               int        `json:"Y"`
 			W               int        `json:"W"`
@@ -305,13 +307,26 @@ func (s *Store) Render(diagramID uuid.UUID) (*RenderData, error) {
 	}
 
 	for _, n := range layout.Nodes {
+		// Skip pure label nodes — they are floating text annotations, not renderable elements.
+		if n.NodeType == "Label" {
+			continue
+		}
 		meta := elemMeta[n.ElementID]
+		name := meta[0]
+		typ := meta[1]
+		// Group nodes have no element reference — use the layout-supplied label and type.
+		if n.ElementType != "" {
+			typ = n.ElementType
+		}
+		if n.Label != "" && name == "" {
+			name = n.Label
+		}
 		rd.Nodes = append(rd.Nodes, RenderNode{
 			ElementID:       n.ElementID,
 			ParentElementID: n.ParentElementID,
 			NodeType:        n.NodeType,
-			ElementName:     meta[0],
-			ElementType:     meta[1],
+			ElementName:     name,
+			ElementType:     typ,
 			X:               n.X,
 			Y:               n.Y,
 			W:               n.W,
