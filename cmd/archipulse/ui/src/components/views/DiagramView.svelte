@@ -58,15 +58,44 @@
         return c === 0 ? n.element_id : `${n.element_id}_${c}`;
       });
 
-      // Build a lookup of raw node data by element_id (first occurrence wins — used for edges).
+      // Build a lookup of raw node data by element_id (first occurrence wins — used for edge bounds).
       const nodeById = {};
       for (const n of rawNodes) {
         if (!nodeById[n.element_id]) nodeById[n.element_id] = n;
       }
 
-      // Also build lookup by instance ID for parent resolution.
-      const nodeByInstanceId = {};
-      rawNodes.forEach((n, i) => { nodeByInstanceId[nodeInstanceId[i]] = n; });
+      // Build a lookup of raw node data by node_id (OEF diagram identifier — always unique).
+      const nodeByNodeId = {};
+      for (const n of rawNodes) {
+        if (n.node_id) nodeByNodeId[n.node_id] = n;
+      }
+
+      // Build a map of element_id → all instances [{iid, idx, node}] for parent resolution.
+      // When the same element appears multiple times, spatial containment picks the right parent.
+      const instancesByElemId = {};
+      rawNodes.forEach((n, i) => {
+        const iid = nodeInstanceId[i];
+        if (!instancesByElemId[n.element_id]) instancesByElemId[n.element_id] = [];
+        instancesByElemId[n.element_id].push({ iid, idx: i, node: n });
+      });
+
+      // Given a child node, return the correct parent instance ({iid, node}) using spatial containment.
+      function resolveParentInstance(child) {
+        if (!child.parent_element_id) return null;
+        const candidates = instancesByElemId[child.parent_element_id];
+        if (!candidates || candidates.length === 0) return null;
+        if (candidates.length === 1) return candidates[0];
+        // Multiple parent instances: find the one whose bounds contain the child.
+        for (const c of candidates) {
+          const p = c.node;
+          if (child.x >= p.x && child.y >= p.y &&
+              child.x + child.w <= p.x + p.w &&
+              child.y + child.h <= p.y + p.h) {
+            return c;
+          }
+        }
+        return candidates[0]; // fallback
+      }
 
       // Nodes that appear as a parent_element_id of another node are containers.
       const containerIds = new Set(
@@ -83,13 +112,9 @@
         if (seenInstances.has(iid)) return;
         const n = rawNodes[idx];
         if (n.parent_element_id) {
-          // Find the parent instance — prefer the one with matching parent_element_id
-          const parentIdx = rawNodes.findIndex((p, pi) =>
-            p.element_id === n.parent_element_id && !seenInstances.has(nodeInstanceId[pi])
-              ? false : p.element_id === n.parent_element_id
-          );
-          if (parentIdx >= 0 && !seenInstances.has(nodeInstanceId[parentIdx])) {
-            visit(parentIdx);
+          const parentInst = resolveParentInstance(n);
+          if (parentInst && !seenInstances.has(parentInst.iid)) {
+            visit(parentInst.idx);
           }
         }
         seenInstances.add(iid);
@@ -100,8 +125,9 @@
       nodes = sortedIndices.map(i => {
         const n = rawNodes[i];
         const iid = nodeInstanceId[i];
-        const parentId = n.parent_element_id || null;
-        const parent = parentId ? nodeById[parentId] : null;
+        const parentInst = resolveParentInstance(n);
+        const parentIid = parentInst?.iid || null;
+        const parent = parentInst?.node || null;
         const isContainer = containerIds.has(n.element_id);
         const isVS = n.element_type === 'ValueStream';
 
@@ -114,7 +140,7 @@
           id: iid,
           type: isVS ? 'valuestream' : 'archimate',
           position,
-          ...(parentId ? { parentId, extent: 'parent' } : {}),
+          ...(parentIid ? { parentId: parentIid, extent: 'parent' } : {}),
           data: { label: n.element_name, elementType: n.element_type, isContainer },
           style: `width:${n.w}px;height:${n.h}px;`,
           draggable: false,
@@ -123,15 +149,25 @@
         };
       });
 
+      // Build an exact map from OEF node_id → XY Flow instance id.
+      // This lets edges resolve the correct instance without any heuristic.
+      const nodeIdToIid = {};
+      rawNodes.forEach((n, i) => {
+        if (n.node_id) nodeIdToIid[n.node_id] = nodeInstanceId[i];
+      });
+
       // Edges: pass raw bounds (absolute coords) and bendpoints so ArchiMateEdge
       // can compute the path without relying on XY Flow's handle positions.
       edges = (data.connections || []).map(c => {
-        const src = nodeById[c.source_element_id];
-        const tgt = nodeById[c.target_element_id];
+        // Use OEF node_id for exact instance resolution; fall back to element_id for old layouts.
+        const srcIid = (c.source_node_id && nodeIdToIid[c.source_node_id]) || c.source_element_id;
+        const tgtIid = (c.target_node_id && nodeIdToIid[c.target_node_id]) || c.target_element_id;
+        const src = (c.source_node_id && nodeByNodeId[c.source_node_id]) || nodeById[c.source_element_id];
+        const tgt = (c.target_node_id && nodeByNodeId[c.target_node_id]) || nodeById[c.target_element_id];
         return {
           id: c.relationship_id,
-          source: c.source_element_id,
-          target: c.target_element_id,
+          source: srcIid,
+          target: tgtIid,
           type: 'archimate',
           data: {
             relationshipType: c.relationship_type,

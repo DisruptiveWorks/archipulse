@@ -240,6 +240,8 @@ func (m *aoefModel) toModel() *Model {
 		for _, c := range v.Connections {
 			cl := ConnectionLayout{
 				RelationshipID:  c.RelationshipRef,
+				SourceNodeID:    c.Source,
+				TargetNodeID:    c.Target,
 				SourceElementID: nodeToElem[c.Source],
 				TargetElementID: nodeToElem[c.Target],
 				Label:           firstLang(c.Labels, ""),
@@ -407,6 +409,7 @@ func collectNodes(nodes []aoefNode, parentElementID string, out *[]NodeLayout) {
 	for _, n := range nodes {
 		if n.ElementRef != "" {
 			*out = append(*out, NodeLayout{
+				NodeID:          n.Identifier,
 				ElementID:       n.ElementRef,
 				ParentElementID: parentElementID,
 				NodeType:        n.NodeType,
@@ -419,6 +422,7 @@ func collectNodes(nodes []aoefNode, parentElementID string, out *[]NodeLayout) {
 			// Only emit if it has actual dimensions (skip degenerate placeholder nodes).
 			label := firstLang(n.Labels, "")
 			*out = append(*out, NodeLayout{
+				NodeID:          n.Identifier,
 				ElementID:       n.Identifier,
 				ParentElementID: parentElementID,
 				NodeType:        n.NodeType,

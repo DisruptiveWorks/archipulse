@@ -145,6 +145,7 @@ type ConnStyle struct {
 
 // RenderNode is a node enriched with element metadata for rendering.
 type RenderNode struct {
+	NodeID          string     `json:"node_id,omitempty"`           // OEF diagram node identifier (unique within view)
 	ElementID       string     `json:"element_id"`
 	ParentElementID string     `json:"parent_element_id,omitempty"`
 	NodeType        string     `json:"node_type,omitempty"`
@@ -161,6 +162,8 @@ type RenderNode struct {
 type RenderConnection struct {
 	RelationshipID   string     `json:"relationship_id"`
 	RelationshipType string     `json:"relationship_type"`
+	SourceNodeID     string     `json:"source_node_id,omitempty"`  // OEF diagram node identifier
+	TargetNodeID     string     `json:"target_node_id,omitempty"`  // OEF diagram node identifier
 	SourceElementID  string     `json:"source_element_id"`
 	TargetElementID  string     `json:"target_element_id"`
 	Reversed         bool       `json:"reversed,omitempty"` // true when the connection is drawn opposite to the semantic relationship direction
@@ -197,6 +200,7 @@ func (s *Store) Render(diagramID uuid.UUID) (*RenderData, error) {
 	// Parse the stored layout JSON.
 	var layout struct {
 		Nodes []struct {
+			NodeID          string     `json:"NodeID"`
 			ElementID       string     `json:"ElementID"`
 			ParentElementID string     `json:"ParentElementID"`
 			NodeType        string     `json:"NodeType"`
@@ -210,6 +214,8 @@ func (s *Store) Render(diagramID uuid.UUID) (*RenderData, error) {
 		} `json:"Nodes"`
 		Connections []struct {
 			RelationshipID  string `json:"RelationshipID"`
+			SourceNodeID    string `json:"SourceNodeID"`
+			TargetNodeID    string `json:"TargetNodeID"`
 			SourceElementID string `json:"SourceElementID"`
 			TargetElementID string `json:"TargetElementID"`
 			Label           string `json:"Label"`
@@ -322,6 +328,7 @@ func (s *Store) Render(diagramID uuid.UUID) (*RenderData, error) {
 			name = n.Label
 		}
 		rd.Nodes = append(rd.Nodes, RenderNode{
+			NodeID:          n.NodeID,
 			ElementID:       n.ElementID,
 			ParentElementID: n.ParentElementID,
 			NodeType:        n.NodeType,
@@ -361,6 +368,8 @@ func (s *Store) Render(diagramID uuid.UUID) (*RenderData, error) {
 		rd.Connections = append(rd.Connections, RenderConnection{
 			RelationshipID:   c.RelationshipID,
 			RelationshipType: meta.typ,
+			SourceNodeID:     c.SourceNodeID,
+			TargetNodeID:     c.TargetNodeID,
 			SourceElementID:  srcElem,
 			TargetElementID:  tgtElem,
 			Reversed:         reversed,
