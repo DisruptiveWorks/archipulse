@@ -48,9 +48,25 @@
 
       const rawNodes = data.nodes || [];
 
-      // Build a lookup of raw node data (absolute coords) for boundary intersection.
+      // Assign a unique instance key to each node.
+      // The same element_id can appear multiple times (e.g. DBMS in Partition 1, 2, and Distributed Servers).
+      // XY Flow requires unique IDs, so we suffix duplicates with _1, _2, etc.
+      const elemIdCount = {};
+      const nodeInstanceId = rawNodes.map(n => {
+        const c = elemIdCount[n.element_id] || 0;
+        elemIdCount[n.element_id] = c + 1;
+        return c === 0 ? n.element_id : `${n.element_id}_${c}`;
+      });
+
+      // Build a lookup of raw node data by element_id (first occurrence wins — used for edges).
       const nodeById = {};
-      for (const n of rawNodes) nodeById[n.element_id] = n;
+      for (const n of rawNodes) {
+        if (!nodeById[n.element_id]) nodeById[n.element_id] = n;
+      }
+
+      // Also build lookup by instance ID for parent resolution.
+      const nodeByInstanceId = {};
+      rawNodes.forEach((n, i) => { nodeByInstanceId[nodeInstanceId[i]] = n; });
 
       // Nodes that appear as a parent_element_id of another node are containers.
       const containerIds = new Set(
@@ -58,21 +74,32 @@
       );
 
       // XY Flow requires parent nodes to appear before their children in the array.
-      const sorted = [];
-      const seen = new Set();
+      // Sort by topological order using instance IDs.
+      const sortedIndices = [];
+      const seenInstances = new Set();
 
-      function visit(n) {
-        if (seen.has(n.element_id)) return;
-        if (n.parent_element_id && !seen.has(n.parent_element_id)) {
-          const parent = nodeById[n.parent_element_id];
-          if (parent) visit(parent);
+      function visit(idx) {
+        const iid = nodeInstanceId[idx];
+        if (seenInstances.has(iid)) return;
+        const n = rawNodes[idx];
+        if (n.parent_element_id) {
+          // Find the parent instance — prefer the one with matching parent_element_id
+          const parentIdx = rawNodes.findIndex((p, pi) =>
+            p.element_id === n.parent_element_id && !seenInstances.has(nodeInstanceId[pi])
+              ? false : p.element_id === n.parent_element_id
+          );
+          if (parentIdx >= 0 && !seenInstances.has(nodeInstanceId[parentIdx])) {
+            visit(parentIdx);
+          }
         }
-        seen.add(n.element_id);
-        sorted.push(n);
+        seenInstances.add(iid);
+        sortedIndices.push(idx);
       }
-      for (const n of rawNodes) visit(n);
+      rawNodes.forEach((_, i) => visit(i));
 
-      nodes = sorted.map(n => {
+      nodes = sortedIndices.map(i => {
+        const n = rawNodes[i];
+        const iid = nodeInstanceId[i];
         const parentId = n.parent_element_id || null;
         const parent = parentId ? nodeById[parentId] : null;
         const isContainer = containerIds.has(n.element_id);
@@ -84,7 +111,7 @@
           : { x: n.x, y: n.y };
 
         return {
-          id: n.element_id,
+          id: iid,
           type: isVS ? 'valuestream' : 'archimate',
           position,
           ...(parentId ? { parentId, extent: 'parent' } : {}),

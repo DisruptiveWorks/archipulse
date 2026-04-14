@@ -73,6 +73,10 @@ func Validate(m *Model) error {
 			issues = append(issues, fmt.Sprintf("diagram[%d]: missing identifier", i))
 		}
 		for j, n := range d.Layout.Nodes {
+			// Group nodes use a diagram-local identifier, not an element reference — skip validation.
+			if n.ElementType == "Group" {
+				continue
+			}
 			if _, ok := elementIDs[n.ElementID]; !ok {
 				issues = append(issues, fmt.Sprintf("diagram %q node[%d]: references unknown element %q", d.ID, j, n.ElementID))
 			}

@@ -72,7 +72,7 @@ export const ICONS = {
 
   // Oval / stadium
   BusinessService: `
-    <rect x="2" y="5.5" width="12" height="5" rx="2.5" stroke-width="1.2" fill="none"/>
+    <rect x="1.33" y="4.67" width="13.33" height="6.67" rx="3.33" stroke-width="1.2" fill="none"/>
   `,
 
   // Flag shape: notch on left, arc on right
@@ -88,29 +88,30 @@ export const ICONS = {
 
   // Rectangle with bottom tab (contract/document)
   Contract: `
-    <rect x="3" y="2.5" width="10" height="10" rx="1" stroke-width="1.2" fill="none"/>
-    <line x1="3" y1="9.5" x2="13" y2="9.5" stroke-width="1"/>
-    <line x1="5" y1="11.5" x2="11" y2="11.5" stroke-width="1"/>
+    <rect fill="none" height="10" id="svg_1" rx="1" stroke-width="1.2" width="10" x="3" y="2.5"/>
+  <line id="svg_2" x1="3.2" x2="12.8" y1="5" y2="5"/>
+  <line id="svg_3" x1="3.2" x2="12.8" y1="10" y2="10"/>
   `,
 
-  // Rectangle with wavy bottom edge
+  // Document with curved bottom + horizontal divider
   Representation: `
-    <path d="M3,3 L13,3 L13,11 Q11,13 9,11 Q7,9 5,11 Q4,12 3,11 Z" stroke-width="1.2" fill="none"/>
+    <path d="M1.5,2 H14.5 V11 Q8,15 1.5,11 Z" stroke-width="1.2" fill="none" stroke-linejoin="round"/>
+    <line x1="1.5" y1="6.5" x2="14.5" y2="6.5" stroke-width="1.2"/>
   `,
 
   // Rectangle with small left-side tab (product)
   Product: `
-    <rect x="4" y="3" width="10" height="10" rx="1" stroke-width="1.2" fill="none"/>
-    <rect x="2" y="5" width="4" height="3" rx="0.5" stroke-width="1.2" fill="none"/>
+<rect fill="none" height="10" id="svg_1" rx="1" stroke-width="1.2" transform="matrix(1.20118 0 0 1 -2.86063 0)" width="10" x="4" y="3"/>
+  <rect fill="none" height="3" id="svg_2" rx="0.5" stroke-width="1.2" transform="matrix(1.4 0 0 1 -1.92 0)" width="4" x="2.8" y="3"/>
   `,
 
   // ── Application layer ────────────────────────────────────────────────────
 
-  // Rect with two plug tabs on left
+  // Rect with two plug tabs on left (gaps in left border where tabs connect, tabs are closed rects)
   ApplicationComponent: `
-    <rect x="4" y="2" width="10" height="12" rx="1" stroke-width="1.2" fill="none"/>
-    <rect x="1" y="4.5" width="4" height="2.5" rx="0.5" stroke-width="1.2" fill="none"/>
-    <rect x="1" y="9" width="4" height="2.5" rx="0.5" stroke-width="1.2" fill="none"/>
+<path d="m3.5,2l11,0l0,12l-11,0l0,-2.5m0,-3l0,-2m0,-3l0,-1.5" fill="none" id="svg_1" stroke-linecap="round" stroke-width="1.2"/>
+  <rect fill="none" height="3" id="svg_2" stroke-width="1.2" width="4.9" x="1" y="3.5"/>
+  <rect fill="none" height="3" id="svg_3" stroke-width="1.2" transform="matrix(1.225 0 0 1 -0.225 0)" width="4" x="1" y="8.5"/>
   `,
 
   // Two overlapping circles
@@ -132,8 +133,11 @@ export const ICONS = {
 
   // Thick open chevron pointing up — same as BusinessFunction
   ApplicationFunction: `
-    <polygon points="8,3 14,8 14,13 8,8 2,13 2,8" stroke-width="1.4" fill="none" stroke-linejoin="round"/>
-  `,
+    <polygon points="8,3 14,6 14,13 8,10 2,13 2,6" 
+            stroke="currentColor" 
+            stroke-width="1.4" 
+            fill="none" 
+            stroke-linejoin="round"/>  `,
 
   // Two overlapping circles
   ApplicationInteraction: `
@@ -143,7 +147,7 @@ export const ICONS = {
 
   // Oval
   ApplicationService: `
-    <rect x="2" y="5.5" width="12" height="5" rx="2.5" stroke-width="1.2" fill="none"/>
+    <rect x="1.33" y="4.67" width="13.33" height="6.67" rx="3.33" stroke-width="1.2" fill="none"/>
   `,
 
   // Flag shape: notch on left, arc on right
@@ -169,9 +173,25 @@ export const ICONS = {
 
   // Device: 3D flat box
   Device: `
-    <rect x="2" y="6" width="10" height="7" rx="1" stroke-width="1.2" fill="none"/>
-    <polyline points="2,6 4,3 13,3 13,10 12,13" stroke-width="1.2" fill="none" stroke-linejoin="round"/>
-    <line x1="12" y1="6" x2="13" y2="3" stroke-width="1.2"/>
+    <g transform="translate(18.000000,11.000000) rotate(180) scale(0.01)"
+fill="currentColor" stroke="none" stroke-width="1.2" >
+<path stroke-width="50" d="M296 1269 c-55 -43 -56 -50 -56 -407 0 -326 0 -329 23 -363 30 -44
+60 -59 125 -59 l54 0 -101 -107 c-55 -59 -98 -110 -95 -115 8 -13 1302 -10
+1309 3 4 5 -38 56 -94 112 l-101 102 66 6 c56 5 70 10 97 38 l32 31 3 345 c2
+296 1 349 -13 375 -32 61 -17 60 -648 60 -567 0 -575 0 -601 -21z m1187 -10
+c55 -25 57 -38 57 -398 l0 -331 -29 -32 -29 -33 -556 -3 c-306 -1 -570 1 -588
+6 -17 4 -41 20 -52 36 -20 26 -21 41 -24 349 -2 292 -1 325 15 357 10 19 29
+40 43 47 33 17 1127 19 1163 2z m-151 -819 c2 -5 45 -51 96 -103 50 -52 92
+-96 92 -98 0 -2 -278 -4 -619 -4 l-619 0 82 88 c44 48 88 97 96 107 14 18 34
+19 442 20 261 0 428 -4 430 -10z"/>
+<path d="M1473 1215 c0 -8 4 -12 9 -9 5 3 6 10 3 15 -9 13 -12 11 -12 -6z"/>
+<path d="M1473 515 c0 -8 4 -12 9 -9 5 3 6 10 3 15 -9 13 -12 11 -12 -6z"/>
+<path d="M443 363 c4 -3 1 -13 -6 -22 -11 -14 -10 -14 5 -2 16 12 16 31 1 31
+-4 0 -3 -3 0 -7z"/>
+<path d="M266 308 c3 -5 10 -6 15 -3 13 9 11 12 -6 12 -8 0 -12 -4 -9 -9z"/>
+<path d="M1550 306 c0 -2 8 -10 18 -17 15 -13 16 -12 3 4 -13 16 -21 21 -21
+13z"/>
+</g>
   `,
 
   // Two overlapping circles with depth mask (ArchiMate SystemSoftware)
@@ -205,8 +225,11 @@ export const ICONS = {
 
   // Thick open chevron pointing up — same as BusinessFunction
   TechnologyFunction: `
-    <polygon points="8,3 14,8 14,13 8,8 2,13 2,8" stroke-width="1.4" fill="none" stroke-linejoin="round"/>
-  `,
+    <polygon points="8,3 14,6 14,13 8,10 2,13 2,6" 
+            stroke="currentColor" 
+            stroke-width="1.4" 
+            fill="none" 
+            stroke-linejoin="round"/>  `,
 
   // Two overlapping circles
   TechnologyInteraction: `
@@ -216,7 +239,7 @@ export const ICONS = {
 
   // Oval
   TechnologyService: `
-    <rect x="2" y="5.5" width="12" height="5" rx="2.5" stroke-width="1.2" fill="none"/>
+    <rect x="1.33" y="4.67" width="13.33" height="6.67" rx="3.33" stroke-width="1.2" fill="none"/>
   `,
 
   // Flag shape: notch on left, arc on right
@@ -226,9 +249,9 @@ export const ICONS = {
 
   // Rect with two plug tabs (same as ApplicationComponent)
   TechnologyComponent: `
-    <rect x="4" y="2" width="10" height="12" rx="1" stroke-width="1.2" fill="none"/>
-    <rect x="1" y="4.5" width="4" height="2.5" rx="0.5" stroke-width="1.2" fill="none"/>
-    <rect x="1" y="9" width="4" height="2.5" rx="0.5" stroke-width="1.2" fill="none"/>
+  <path d="m3.5,2l11,0l0,12l-11,0l0,-2.5m0,-3l0,-2m0,-3l0,-1.5" fill="none" id="svg_1" stroke-linecap="round" stroke-width="1.2"/>
+  <rect fill="none" height="3" id="svg_2" stroke-width="1.2" width="4.9" x="1" y="3.5"/>
+  <rect fill="none" height="3" id="svg_3" stroke-width="1.2" transform="matrix(1.225 0 0 1 -0.225 0)" width="4" x="1" y="8.5"/>
   `,
 
   // Dog-eared document
@@ -241,7 +264,7 @@ export const ICONS = {
 
   // Factory outline
   Facility: `
-    <polyline points="2,13 2,7 5,7 5,10 8,7 8,10 11,7 11,10 14,7 14,13 2,13" stroke-width="1.2" fill="none" stroke-linejoin="round"/>
+    <path d="M1.33,3.33 h3.33 v6.67 l2.67,-2 v2 l2.67,-2 v2 l2.67,-2 v6.67 H1.33 Z" stroke-width="1.2" fill="none" stroke-linejoin="round"/>
   `,
 
   // Two interlocking gears — original paths scaled from 152×144 viewBox
@@ -284,12 +307,77 @@ export const ICONS = {
 
   // Double bidirectional arrow
   DistributionNetwork: `
-    <line x1="1" y1="6" x2="15" y2="6" stroke-width="1.2"/>
-    <polyline points="4,3.5 1,6 4,8.5" stroke-width="1.2" fill="none"/>
-    <polyline points="12,3.5 15,6 12,8.5" stroke-width="1.2" fill="none"/>
-    <line x1="1" y1="10" x2="15" y2="10" stroke-width="1.2"/>
-    <polyline points="4,7.5 1,10 4,12.5" stroke-width="1.2" fill="none"/>
-    <polyline points="12,7.5 15,10 12,12.5" stroke-width="1.2" fill="none"/>
+  <g transform="scale(0.14)">
+    <path fill="none" opacity="1.000000" stroke="none" 
+	d="
+M88.000000,97.000000 
+	C58.696236,97.000000 29.892473,97.000000 1.044355,97.000000 
+	C1.044355,65.062439 1.044355,33.124802 1.044355,1.093582 
+	C50.220196,1.093582 99.440628,1.093582 148.830536,1.093582 
+	C148.830536,32.999290 148.830536,64.999557 148.830536,97.000000 
+	C128.791946,97.000000 108.645973,97.000000 88.000000,97.000000 
+M107.293739,82.954536 
+	C117.338760,74.992989 127.393929,67.044205 137.424667,59.064686 
+	C142.744156,54.832977 142.761169,51.757488 137.612396,47.523304 
+	C132.598343,43.399925 127.604118,39.252319 122.615051,35.098717 
+	C117.195633,30.586843 111.792191,26.055796 106.251396,21.424114 
+	C100.797386,28.161650 107.328186,30.759243 110.143738,34.580807 
+	C86.231644,34.580807 62.890877,34.580807 39.249580,34.580807 
+	C49.035793,24.324099 49.035793,24.324099 45.365459,19.820595 
+	C44.330620,20.548933 43.217861,21.220655 42.231354,22.043695 
+	C32.512936,30.151728 22.810070,38.278435 13.114287,46.413540 
+	C7.933849,50.760113 8.044102,53.733402 13.411368,57.885590 
+	C22.364418,64.811790 31.234295,71.847481 40.279800,78.650101 
+	C41.671982,79.697083 43.814335,79.746544 45.609749,80.257332 
+	C45.291096,77.813034 45.428810,75.174614 44.499531,72.990067 
+	C43.837486,71.433723 41.740028,70.487991 40.022877,69.052124 
+	C64.369675,69.052124 88.073586,69.052124 112.850624,69.052124 
+	C109.363403,71.902588 106.554420,73.612747 104.601723,76.018051 
+	C103.459503,77.425026 103.446915,79.943344 103.462868,81.957451 
+	C103.466782,82.451004 105.574478,82.927879 107.293739,82.954536 
+z"/>
+<path fill="currentColor" opacity="1.000000" stroke="none" 
+	d="
+M107.004349,83.183472 
+	C105.574478,82.927879 103.466782,82.451004 103.462868,81.957451 
+	C103.446915,79.943344 103.459503,77.425026 104.601723,76.018051 
+	C106.554420,73.612747 109.363403,71.902588 112.850624,69.052124 
+	C88.073586,69.052124 64.369675,69.052124 40.022877,69.052124 
+	C41.740028,70.487991 43.837486,71.433723 44.499531,72.990067 
+	C45.428810,75.174614 45.291096,77.813034 45.609749,80.257332 
+	C43.814335,79.746544 41.671982,79.697083 40.279800,78.650101 
+	C31.234295,71.847481 22.364418,64.811790 13.411368,57.885590 
+	C8.044102,53.733402 7.933849,50.760113 13.114287,46.413540 
+	C22.810070,38.278435 32.512936,30.151728 42.231354,22.043695 
+	C43.217861,21.220655 44.330620,20.548933 45.365459,19.820595 
+	C49.035793,24.324099 49.035793,24.324099 39.249580,34.580807 
+	C62.890877,34.580807 86.231644,34.580807 110.143738,34.580807 
+	C107.328186,30.759243 100.797386,28.161650 106.251396,21.424114 
+	C111.792191,26.055796 117.195633,30.586843 122.615051,35.098717 
+	C127.604118,39.252319 132.598343,43.399925 137.612396,47.523304 
+	C142.761169,51.757488 142.744156,54.832977 137.424667,59.064686 
+	C127.393929,67.044205 117.338760,74.992989 107.004349,83.183472 
+M47.500885,59.938896 
+	C69.465500,60.079117 91.437729,59.932652 113.390587,60.515575 
+	C121.040428,60.718700 127.443222,59.411987 132.441772,53.108883 
+	C126.606422,47.571815 120.952538,42.654816 111.278397,42.976295 
+	C87.342888,43.771698 63.351456,43.666817 39.407387,43.012665 
+	C30.605988,42.772213 24.063232,45.376759 18.335131,52.093292 
+	C23.521008,56.195118 28.163488,61.203781 36.032803,59.969959 
+	C39.440434,59.435680 43.007046,59.915379 47.500885,59.938896 
+z"/>
+<path fill="none" opacity="1.000000" stroke="none" 
+	d="
+M47.001163,59.936699 
+	C43.007046,59.915379 39.440434,59.435680 36.032803,59.969959 
+	C28.163488,61.203781 23.521008,56.195118 18.335131,52.093292 
+	C24.063232,45.376759 30.605988,42.772213 39.407387,43.012665 
+	C63.351456,43.666817 87.342888,43.771698 111.278397,42.976295 
+	C120.952538,42.654816 126.606422,47.571815 132.441772,53.108883 
+	C127.443222,59.411987 121.040428,60.718700 113.390587,60.515575 
+	C91.437729,59.932652 69.465500,60.079117 47.001163,59.936699 
+z"/>
+</g>
   `,
 
   // ── Motivation layer ─────────────────────────────────────────────────────
@@ -302,14 +390,20 @@ export const ICONS = {
     <path d="M4,3 a3,5 0 0 0 0,10" stroke-width="1.2" fill="none"/>
   `,
 
-  // Compass wheel
+  // Wheel: outer circle, 8 spokes from center, filled inner circle
   Driver: `
-    <circle cx="8" cy="8" r="6" stroke-width="1.2" fill="none"/>
-    <circle cx="8" cy="8" r="1.5" stroke-width="1" fill="none"/>
-    <line x1="8" y1="2" x2="8" y2="6.5" stroke-width="1.5"/>
-    <line x1="8" y1="9.5" x2="8" y2="14" stroke-width="1.5"/>
-    <line x1="2" y1="8" x2="6.5" y2="8" stroke-width="1.5"/>
-    <line x1="9.5" y1="8" x2="14" y2="8" stroke-width="1.5"/>
+  <circle cx="8" cy="8" fill="none" id="svg_1" r="6.4" stroke-width="1.2" transform="matrix(1 0 0 1 0 0)"/>
+  <g id="svg_2" stroke-width="0.9">
+   <line id="svg_3" x1="8" x2="8" y1="8" y2="0"/>
+   <line id="svg_4" x1="8" x2="13.66" y1="8" y2="2.34"/>
+   <line id="svg_5" x1="8" x2="16" y1="8" y2="8"/>
+   <line id="svg_6" x1="8" x2="13.66" y1="8" y2="13.66"/>
+   <line id="svg_7" x1="8" x2="8" y1="8" y2="16"/>
+   <line id="svg_8" x1="8" x2="2.34" y1="8" y2="13.66"/>
+   <line id="svg_9" x1="8" x2="0" y1="8" y2="8"/>
+   <line id="svg_10" x1="8" x2="2.34" y1="8" y2="2.34"/>
+  </g>
+  <circle cx="8" cy="8" fill="currentColor" id="svg_11" r="1"/>
   `,
 
   // Magnifying glass
@@ -390,12 +484,66 @@ export const ICONS = {
 
   // ── Implementation & Migration layer ─────────────────────────────────────
 
-  // Clipboard
+  // Circle overlapping a right-pointing arrow
   WorkPackage: `
-    <rect x="3" y="4" width="10" height="11" rx="1" stroke-width="1.2" fill="none"/>
-    <path d="M6,4 L6,2.5 Q6,1.5 8,1.5 Q10,1.5 10,2.5 L10,4" stroke-width="1.2" fill="none"/>
-    <line x1="5.5" y1="7.5" x2="10.5" y2="7.5" stroke-width="1"/>
-    <line x1="5.5" y1="10" x2="9" y2="10" stroke-width="1"/>
+  <g transform="scale(0.14)">
+<path fill="none" opacity="1.000000" stroke="none" d="M95.000000,133.000000 
+    C63.360981,133.000000 32.221962,133.000000 1.041472,133.000000 
+    C1.041472,89.066711 1.041472,45.133377 1.041472,1.100020 
+    C50.888790,1.100020 100.777847,1.100020 150.833450,1.100020 
+    C150.833450,44.999489 150.833450,88.999687 150.833450,133.000000 
+    C132.467087,133.000000 113.983543,133.000000 95.000000,133.000000 
+    M82.305595,89.319229 
+    C92.270493,82.570717 98.009743,73.055206 99.547798,61.290340 
+    C103.547508,30.695927 75.434105,7.241077 47.534653,17.965097 
+    C30.863958,24.372999 22.448303,37.480202 20.373682,54.898693 
+    C17.542580,78.668587 36.135883,101.021332 60.008804,102.052231 
+    C72.315102,102.583649 84.661293,102.191360 96.989464,102.215469 
+    C98.591843,102.218597 100.194237,102.215897 102.297043,102.215897 
+    C102.297043,107.843094 102.297043,112.858215 102.297043,118.436432 
+    C114.336105,111.116486 125.737007,104.184555 137.609055,96.966164 
+    C131.202820,93.067192 125.544090,89.605362 119.867432,86.173195 
+    C114.114594,82.694969 108.344017,79.246063 101.809395,75.320679 
+    C101.809395,81.404037 101.809395,86.473030 101.809395,91.553551 
+    C95.218872,91.553551 89.083412,91.553551 82.672607,91.159752 
+    C82.445435,90.742325 82.218269,90.324898 82.305595,89.319229 
+    Z"/>
+
+  <path fill="currentColor" opacity="1.000000" stroke="none" d="M82.947960,91.553551 
+    C89.083412,91.553551 95.218872,91.553551 101.809395,91.553551 
+    C101.809395,86.473030 101.809395,81.404037 101.809395,75.320679 
+    C108.344017,79.246063 114.114594,82.694969 119.867432,86.173195 
+    C125.544090,89.605362 131.202820,93.067192 137.609055,96.966164 
+    C125.737007,104.184555 114.336105,111.116486 102.297043,118.436432 
+    C102.297043,112.858215 102.297043,107.843094 102.297043,102.215897 
+    C100.194237,102.215897 98.591843,102.218597 96.989464,102.215469 
+    C84.661293,102.191360 72.315102,102.583649 60.008804,102.052231 
+    C36.135883,101.021332 17.542580,78.668587 20.373682,54.898693 
+    C22.448303,37.480202 30.863958,24.372999 47.534653,17.965097 
+    C75.434105,7.241077 103.547508,30.695927 99.547798,61.290340 
+    C98.009743,73.055206 92.270493,82.570717 81.768593,89.694626 
+    C78.249870,92.277779 75.884628,91.156281 74.029663,88.527939 
+    C72.077904,85.762444 73.432129,83.455757 75.530441,81.508636 
+    C76.866493,80.268837 78.504944,79.352028 79.823700,78.096954 
+    C88.158783,70.164345 91.725700,60.567841 89.094856,49.202957 
+    C86.448898,37.772770 79.645607,29.850309 68.041428,26.909723 
+    C51.310947,22.670095 33.991848,34.401680 31.029915,51.705307 
+    C27.712395,71.086296 39.542923,89.341919 57.049171,91.021553 
+    C65.620209,91.843903 74.311241,91.415741 82.947960,91.553551 
+    Z"/>
+
+  <path fill="none" opacity="1.000000" stroke="none" d="M82.810287,91.356651 
+    C74.311241,91.415741 65.620209,91.843903 57.049171,91.021553 
+    C39.542923,89.341919 27.712395,71.086296 31.029915,51.705307 
+    C33.991848,34.401680 51.310947,22.670095 68.041428,26.909723 
+    C79.645607,29.850309 86.448898,37.772770 89.094856,49.202957 
+    C91.725700,60.567841 88.158783,70.164345 79.823700,78.096954 
+    C78.504944,79.352028 76.866493,80.268837 75.530441,81.508636 
+    C73.432129,83.455757 72.077904,85.762444 74.029663,88.527939 
+    C75.884628,91.156281 78.249870,92.277779 81.611343,89.988747 
+    C82.218269,90.324898 82.445435,90.742325 82.810287,91.356651 
+    Z"/>
+    </g>
   `,
 
   // Flag shape: notch on left, arc on right
@@ -403,16 +551,16 @@ export const ICONS = {
     <path d="M1.3,2.7 l2.7,5.3 -2.7,5.3 h9.3 a4,4 0 0 0 0,-10.7 z" stroke-width="1.2" fill="none" stroke-linejoin="round"/>
   `,
 
-  // Wave / scroll shape
+  // Rect with S-wave bottom edge (left dips down, middle rises, right mid)
   Deliverable: `
-    <path d="M2,4 Q2,2 4,2 L12,2 Q14,2 14,4 L14,12 Q14,14 12,14 Q10,14 10,12 Q10,10 8,10 L2,10 Z" stroke-width="1.2" fill="none"/>
+    <path d="m1.5,2l13,0l0,9.5c-1.5,-1.5 -3.5,-1.5 -5.5,-1c-2,0.5 -3.5,4 -5,4c-1.5,0 -2.5,-1.5 -2.5,-2.5l0,-10z" fill="none" id="svg_1" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" transform="matrix(1 0 0 0.622222 0 0.755556)"/>
   `,
 
   // Three horizontal lines (plateau = stable period)
   Plateau: `
-    <line x1="2" y1="5" x2="14" y2="5" stroke-width="2" stroke-linecap="round"/>
-    <line x1="2" y1="8" x2="14" y2="8" stroke-width="2" stroke-linecap="round"/>
-    <line x1="2" y1="11" x2="14" y2="11" stroke-width="2" stroke-linecap="round"/>
+<line id="svg_1" stroke-linecap="round" stroke-width="2" transform="matrix(0.825 0 0 1 2.45 0)" x1="2" x2="14" y1="5" y2="5"/>
+  <line id="svg_2" stroke-linecap="round" stroke-width="2" transform="matrix(0.900901 0 0 1 1.2982 0)" x1="2" x2="13.1" y1="8" y2="8"/>
+  <line id="svg_3" stroke-linecap="round" stroke-width="2" transform="matrix(0.83277 0 0 1 0.487841 0)" x1="2" x2="14" y1="11" y2="11"/>
   `,
 
   // Circle with horizontal line (gap / difference)
@@ -429,9 +577,17 @@ export const ICONS = {
     <path d="M4.5,9 Q5,13 8,15 Q11,13 11.5,9" stroke-width="1.2" fill="none"/>
   `,
 
-  // ── Grouping ─────────────────────────────────────────────────────────────
+  // ── Grouping / Group ─────────────────────────────────────────────────────
+  // Grouping: small tab on top-left + body rect (ArchiMate element)
   Grouping: `
-    <rect x="1.5" y="1.5" width="13" height="13" rx="1.5" stroke-width="1.2" fill="none" stroke-dasharray="3 2"/>
+    <rect x="1.5" y="4" width="13" height="10.5" rx="0.5" stroke-width="1.2" fill="none"/>
+    <rect x="1.5" y="2" width="5" height="2.5" rx="0.5" stroke-width="1.2" fill="none"/>
+  `,
+
+  // Group: same shape but dashed (ArchiMate diagram grouping construct)
+  Group: `
+    <rect x="1.5" y="4" width="13" height="10.5" rx="0.5" stroke-width="1.2" fill="none" stroke-dasharray="2 1"/>
+    <rect x="1.5" y="2" width="5" height="2.5" rx="0.5" stroke-width="1.2" fill="none" stroke-dasharray="2 1"/>
   `,
 };
 
@@ -539,8 +695,11 @@ export const LAYER_COLORS = {
   // Physical / Composite
   Location: PHYSICAL,
 
-  // Grouping — transparent with dashed border
-  Grouping: { fill: 'rgba(249,250,251,0.5)', stroke: '#9CA3AF', text: '#374151', dashed: true },
+  // Grouping — semi-transparent with solid border
+  Grouping: { fill: 'rgba(249,250,251,0.5)', stroke: '#9CA3AF', text: '#374151', dashed: false },
+
+  // Group — transparent with dashed border (diagram-level grouping construct)
+  Group: { fill: 'rgba(249,250,251,0.3)', stroke: '#9CA3AF', text: '#374151', dashed: true },
 };
 
 export const DEFAULT_COLOR = { fill: '#F9FAFB', stroke: '#6B7280', text: '#374151' };
