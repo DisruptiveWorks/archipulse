@@ -84,6 +84,8 @@ type NodeLayout struct {
 	ElementID       string
 	ParentElementID string // empty if top-level node
 	NodeType        string // xsi:type: Element|Container|Label|etc. (empty = Element)
+	Label           string // used for group nodes that have no element reference
+	ElementType     string // overrides DB lookup when set (e.g. "Group")
 	X, Y            int
 	W, H            int
 	Style           *NodeStyle

@@ -414,8 +414,22 @@ func collectNodes(nodes []aoefNode, parentElementID string, out *[]NodeLayout) {
 				Style: convertNodeStyle(n.Style),
 			})
 			collectNodes(n.Children, n.ElementRef, out)
+		} else if n.Identifier != "" && n.W > 0 && n.H > 0 {
+			// Group node: has a diagram-level identifier and optional label but no element reference.
+			// Only emit if it has actual dimensions (skip degenerate placeholder nodes).
+			label := firstLang(n.Labels, "")
+			*out = append(*out, NodeLayout{
+				ElementID:       n.Identifier,
+				ParentElementID: parentElementID,
+				NodeType:        n.NodeType,
+				Label:           label,
+				ElementType:     "Group",
+				X:               n.X, Y: n.Y, W: n.W, H: n.H,
+				Style: convertNodeStyle(n.Style),
+			})
+			collectNodes(n.Children, n.Identifier, out)
 		} else {
-			// Node without elementRef (pure grouping container) — pass parent through.
+			// Node without identifier or elementRef — pass parent through.
 			collectNodes(n.Children, parentElementID, out)
 		}
 	}

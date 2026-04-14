@@ -26,7 +26,7 @@
     '/ws/:wsId': WorkspaceOverview,
     '/ws/:wsId/editor': EditorPlaceholder,
     '/ws/:wsId/diagrams': DiagramList,
-    '/ws/:wsId/diagrams/:diagId': DiagramViewer,
+    '/ws/:wsId/diagrams/:diagId': DiagramList,
     '/ws/:wsId/view/:viewName': ViewRouter,
     '/ws/:wsId/view/application-dependency/graph': DependencyGraphView,
     '/ws/:wsId/view/:viewName/tree': CapabilityTree,

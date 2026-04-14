@@ -1,5 +1,6 @@
 <script>
   import { onMount } from 'svelte';
+  import { push } from 'svelte-spa-router';
   import { api } from '../lib/api.js';
   import DiagramView from '../components/views/DiagramView.svelte';
   import FolderTree from '../components/diagram/FolderTree.svelte';
@@ -24,9 +25,10 @@
     panelOpen = !panelOpen;
   }
 
-  // Auto-close panel on mobile after selecting a diagram.
+  // Select a diagram, update the URL, and auto-close panel on mobile.
   function selectDiagram(d) {
     selectedDiagram = d;
+    push('/ws/' + wsId + '/diagrams/' + d.id);
     if (window.innerWidth < 768) panelOpen = false;
   }
 
@@ -38,13 +40,32 @@
     tree = null;
     selectedDiagram = null;
     collapsed = {};
+    // Capture params.diagId at call time to avoid reactive ordering issues.
+    const targetDiagId = params.diagId || null;
     try {
       tree = await api.get('/workspaces/' + wsId + '/diagram-tree');
+      if (targetDiagId) {
+        const found = findDiagram(tree, targetDiagId);
+        if (found) selectedDiagram = found;
+      }
     } catch (e) {
       error = e.message;
     } finally {
       loading = false;
     }
+  }
+
+  // Recursively search tree for a diagram by id.
+  // Root node uses `folders`; FolderNode children use `children`.
+  function findDiagram(node, id) {
+    for (const d of (node.diagrams || [])) {
+      if (d.id === id) return d;
+    }
+    for (const f of [...(node.folders || []), ...(node.children || [])]) {
+      const found = findDiagram(f, id);
+      if (found) return found;
+    }
+    return null;
   }
 
   function toggleFolder(id) {
