@@ -9,7 +9,7 @@
   // Props passed by XY Flow: id, sourceX, sourceY, targetX, targetY, data, ...
   // We only use `data`.
 
-  import { getRelationshipStyle, intersectNodeBoundary } from './archimate-edges.js';
+  import { getRelationshipStyle, markerColorKey, intersectNodeBoundary } from './archimate-edges.js';
 
   export let data;
 
@@ -46,7 +46,14 @@
     hasBps,
   );
 
-  $: allPts = [startPt, ...bps, endPt];
+  // Remove consecutive duplicate points to avoid NaN in smoothPath (Archi sometimes emits them).
+  function dedupePts(pts) {
+    return pts.filter((p, i) =>
+      i === 0 || p.x !== pts[i - 1].x || p.y !== pts[i - 1].y
+    );
+  }
+
+  $: allPts = dedupePts([startPt, ...bps, endPt]);
 
   // Build a smooth polyline with small rounded corners at intermediate bendpoints.
   function smoothPath(pts) {
@@ -84,14 +91,20 @@
   })();
 
   $: reversed    = data?.reversed || false;
+  $: ck          = markerColorKey(style.stroke);
+
+  // Build a marker URL with the color suffix (e.g. "am-open-arrow-light").
+  // The open-arrow-rev marker only exists in 'light' — force it regardless of ck.
+  function markerId(type) {
+    if (!type) return undefined;
+    const suffix = type === 'open-arrow-rev' ? 'light' : ck;
+    return `url(#am-${type}-${suffix})`;
+  }
+
   // When the connection is drawn opposite to the semantic relationship direction,
   // swap the markers so the arrowhead stays at the semantic target.
-  $: markerEnd   = reversed
-    ? (style.start ? `url(#am-${style.start})` : undefined)
-    : (style.end   ? `url(#am-${style.end})`   : undefined);
-  $: markerStart = reversed
-    ? (style.end   ? `url(#am-${style.end})`   : undefined)
-    : (style.start ? `url(#am-${style.start})` : undefined);
+  $: markerEnd   = reversed ? markerId(style.start) : markerId(style.end);
+  $: markerStart = reversed ? markerId(style.end)   : markerId(style.start);
 </script>
 
 <!-- Invisible wider stroke for hover/selection interactions -->

@@ -193,54 +193,67 @@
 
 <!--
   Global ArchiMate SVG marker definitions.
-  Defined here (outside any SVG) as a hidden SVG so they are accessible
-  via url(#...) from the XY Flow edge SVG on the same page.
-  Markers use `context-stroke` to inherit the edge's stroke color.
+  Colors are hardcoded per variant (dark/mid/light) instead of using context-stroke,
+  which is not reliably supported in Chrome when markers are defined outside the
+  referencing SVG element.
+    dark = #374151  (Triggering, Flow, Assignment, Serving, Composition, Aggregation, Specialization)
+    mid  = #6B7280  (Realization)
+    light= #9CA3AF  (Association, Access, Influence)
 -->
 <svg width="0" height="0" style="position:absolute;overflow:hidden;pointer-events:none;">
   <defs>
-    <!-- Filled arrowhead — Triggering, Flow, Assignment end -->
-    <marker id="am-filled-arrow" viewBox="0 0 8 6" markerWidth="8" markerHeight="6"
+    <!-- Filled arrowhead — dark only (Triggering, Flow, Assignment end) -->
+    <marker id="am-filled-arrow-dark" viewBox="0 0 8 6" markerWidth="8" markerHeight="6"
       refX="8" refY="3" orient="auto">
-      <polygon points="0,0 8,3 0,6" fill="context-stroke" />
+      <polygon points="0,0 8,3 0,6" fill="#374151" />
     </marker>
 
-    <!-- Open V arrowhead — Association, Serving, Access Write, Influence -->
-    <marker id="am-open-arrow" viewBox="0 0 8 8" markerWidth="8" markerHeight="8"
+    <!-- Open V arrowhead — dark (Serving) -->
+    <marker id="am-open-arrow-dark" viewBox="0 0 8 8" markerWidth="8" markerHeight="8"
       refX="7" refY="4" orient="auto">
-      <path d="M 0,0 L 7,4 L 0,8" fill="none" stroke="context-stroke" stroke-width="1.4" />
+      <path d="M 0,0 L 7,4 L 0,8" fill="none" stroke="#374151" stroke-width="1.4" />
     </marker>
 
-    <!-- Open V arrowhead reversed — Access Read (marker-start, points INTO source) -->
-    <marker id="am-open-arrow-rev" viewBox="0 0 8 8" markerWidth="8" markerHeight="8"
+    <!-- Open V arrowhead — light (Association directed, Access Write, Influence) -->
+    <marker id="am-open-arrow-light" viewBox="0 0 8 8" markerWidth="8" markerHeight="8"
+      refX="7" refY="4" orient="auto">
+      <path d="M 0,0 L 7,4 L 0,8" fill="none" stroke="#9CA3AF" stroke-width="1.4" />
+    </marker>
+
+    <!-- Open V arrowhead reversed — light only (Access Read/ReadWrite marker-start) -->
+    <marker id="am-open-arrow-rev-light" viewBox="0 0 8 8" markerWidth="8" markerHeight="8"
       refX="7" refY="4" orient="auto-start-reverse">
-      <path d="M 0,0 L 7,4 L 0,8" fill="none" stroke="context-stroke" stroke-width="1.4" />
+      <path d="M 0,0 L 7,4 L 0,8" fill="none" stroke="#9CA3AF" stroke-width="1.4" />
     </marker>
 
-    <!-- Hollow closed triangle — Realization, Specialization -->
-    <marker id="am-open-triangle" viewBox="0 0 10 8" markerWidth="10" markerHeight="8"
+    <!-- Hollow closed triangle — mid (Realization) -->
+    <marker id="am-open-triangle-mid" viewBox="0 0 10 8" markerWidth="10" markerHeight="8"
       refX="10" refY="4" orient="auto">
-      <polygon points="0,0 10,4 0,8" fill="#F8FAFC" stroke="context-stroke" stroke-width="1.4" />
+      <polygon points="0,0 10,4 0,8" fill="#F8FAFC" stroke="#6B7280" stroke-width="1.4" />
     </marker>
 
-    <!-- Filled diamond at source — Composition -->
-    <!-- refX="12": base of diamond sits at node boundary, tip extends outward into path -->
-    <marker id="am-filled-diamond" viewBox="-1 -1 14 10" markerWidth="14" markerHeight="10"
+    <!-- Hollow closed triangle — dark (Specialization) -->
+    <marker id="am-open-triangle-dark" viewBox="0 0 10 8" markerWidth="10" markerHeight="8"
+      refX="10" refY="4" orient="auto">
+      <polygon points="0,0 10,4 0,8" fill="#F8FAFC" stroke="#374151" stroke-width="1.4" />
+    </marker>
+
+    <!-- Filled diamond at source — dark only (Composition) -->
+    <marker id="am-filled-diamond-dark" viewBox="-1 -1 14 10" markerWidth="14" markerHeight="10"
       refX="12" refY="4" orient="auto-start-reverse">
-      <polygon points="0,4 6,0 12,4 6,8" fill="context-stroke" />
+      <polygon points="0,4 6,0 12,4 6,8" fill="#374151" />
     </marker>
 
-    <!-- Hollow diamond at source — Aggregation -->
-    <marker id="am-open-diamond" viewBox="-1 -1 14 10" markerWidth="14" markerHeight="10"
+    <!-- Hollow diamond at source — dark only (Aggregation) -->
+    <marker id="am-open-diamond-dark" viewBox="-1 -1 14 10" markerWidth="14" markerHeight="10"
       refX="12" refY="4" orient="auto-start-reverse">
-      <polygon points="0,4 6,0 12,4 6,8" fill="#F8FAFC" stroke="context-stroke" stroke-width="1.4" />
+      <polygon points="0,4 6,0 12,4 6,8" fill="#F8FAFC" stroke="#374151" stroke-width="1.4" />
     </marker>
 
-    <!-- Filled circle at source — Assignment -->
-    <!-- refX="8": far edge of circle sits at node boundary, circle extends outward into path -->
-    <marker id="am-filled-circle" viewBox="-1 -1 10 10" markerWidth="8" markerHeight="8"
+    <!-- Filled circle at source — dark only (Assignment) -->
+    <marker id="am-filled-circle-dark" viewBox="-1 -1 10 10" markerWidth="8" markerHeight="8"
       refX="8" refY="4" orient="auto-start-reverse">
-      <circle cx="4" cy="4" r="4" fill="context-stroke" />
+      <circle cx="4" cy="4" r="4" fill="#374151" />
     </marker>
   </defs>
 </svg>
