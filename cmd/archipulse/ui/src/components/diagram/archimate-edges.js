@@ -15,6 +15,14 @@
 //   Write     → open-arrow at end  (towards target = data flows from source to target)
 //   ReadWrite → open-arrow at both ends
 
+// Color keys map stroke colors to marker ID suffixes.
+// Markers are defined with hardcoded colors (no context-stroke) for broad browser support.
+const COLOR_KEY = {
+  '#374151': 'dark',
+  '#6B7280': 'mid',
+  '#9CA3AF': 'light',
+};
+
 export const RELATIONSHIP_STYLES = {
   TriggeringRelationship:     { stroke: '#374151', width: 1.5, dash: null,  end: 'filled-arrow',  start: null },
   FlowRelationship:           { stroke: '#374151', width: 1.5, dash: '8 4', end: 'filled-arrow',  start: null },
@@ -29,6 +37,11 @@ export const RELATIONSHIP_STYLES = {
   InfluenceRelationship:      { stroke: '#9CA3AF', width: 1.2, dash: '6 3', end: 'open-arrow',    start: null },
   SpecializationRelationship: { stroke: '#374151', width: 1.5, dash: null,  end: 'open-triangle', start: null },
 };
+
+/** Returns the marker ID suffix for a given stroke color. */
+export function markerColorKey(stroke) {
+  return COLOR_KEY[stroke] || 'dark';
+}
 
 const DEFAULT_STYLE = { stroke: '#6B7280', width: 1.2, dash: null, end: 'filled-arrow', start: null };
 
