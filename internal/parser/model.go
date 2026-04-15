@@ -81,6 +81,7 @@ type DiagramLayout struct {
 
 // NodeLayout holds the position, size, and optional style of a node within a diagram.
 type NodeLayout struct {
+	NodeID          string // diagram-level node identifier from OEF (unique within the view)
 	ElementID       string
 	ParentElementID string // empty if top-level node
 	NodeType        string // xsi:type: Element|Container|Label|etc. (empty = Element)
@@ -94,6 +95,8 @@ type NodeLayout struct {
 // ConnectionLayout holds the visual path and optional style of a connection.
 type ConnectionLayout struct {
 	RelationshipID  string
+	SourceNodeID    string // OEF node identifier of the visual source node
+	TargetNodeID    string // OEF node identifier of the visual target node
 	SourceElementID string // element ID of the connection's visual source node
 	TargetElementID string // element ID of the connection's visual target node
 	Label           string // override label shown on the connection in this diagram
