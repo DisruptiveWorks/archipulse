@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -34,6 +35,14 @@ type Config struct {
 	OIDCClientID     string
 	OIDCClientSecret string
 	OIDCRedirectURL  string
+
+	// OIDC role mapping — which claim carries the role/group values and
+	// which values in that claim map to the "admin" org role.
+	// Example: OIDCRolesClaim="groups", OIDCAdminValues=["archipulse-admin"]
+	// For local Dex with staticPasswords, use OIDCRolesClaim="email" and
+	// OIDCAdminValues=["admin@archipulse.org"] as a practical workaround.
+	OIDCRolesClaim  string
+	OIDCAdminValues []string
 }
 
 // OIDCEnabled reports whether OIDC is configured.
@@ -73,7 +82,32 @@ func ConfigFromEnv() (*Config, error) {
 		OIDCClientID:      os.Getenv("OIDC_CLIENT_ID"),
 		OIDCClientSecret:  os.Getenv("OIDC_CLIENT_SECRET"),
 		OIDCRedirectURL:   os.Getenv("OIDC_REDIRECT_URL"),
+		OIDCRolesClaim:    oidcRolesClaim(),
+		OIDCAdminValues:   oidcAdminValues(),
 	}, nil
+}
+
+// oidcRolesClaim returns the configured claim name, defaulting to "groups".
+func oidcRolesClaim() string {
+	if v := os.Getenv("OIDC_ROLES_CLAIM"); v != "" {
+		return v
+	}
+	return "groups"
+}
+
+// oidcAdminValues returns the list of claim values that map to org_role "admin".
+func oidcAdminValues() []string {
+	v := os.Getenv("OIDC_ADMIN_VALUES")
+	if v == "" {
+		return nil
+	}
+	var out []string
+	for _, s := range strings.Split(v, ",") {
+		if s = strings.TrimSpace(s); s != "" {
+			out = append(out, s)
+		}
+	}
+	return out
 }
 
 // Service bundles everything needed to handle auth.

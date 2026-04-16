@@ -33,6 +33,7 @@ func NewRouter(db *sql.DB, svc *auth.Service, oidc *auth.OIDCProvider, static ..
 			r.Use(svc.RequireAuth)
 			registerWorkspaceRoutes(r, workspace.NewStore(db), svc)
 			registerMembershipRoutes(r, svc)
+			registerUserRoutes(r, svc)
 			registerElementRoutes(r, db)
 			registerRelationshipRoutes(r, db)
 			registerDiagramRoutes(r, db)

@@ -135,32 +135,28 @@ func (svc *Service) handleOIDCRedirect(oidc *OIDCProvider) http.HandlerFunc {
 
 func (svc *Service) handleOIDCCallback(oidc *OIDCProvider) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		email, err := oidc.ExchangeCode(context.Background(), w, r)
+		identity, err := oidc.ExchangeCode(context.Background(), w, r, svc.Cfg.OIDCRolesClaim)
 		if err != nil {
 			writeError(w, http.StatusBadRequest, fmt.Sprintf("oidc: %v", err))
 			return
 		}
 
-		u, err := svc.Users.GetByEmail(email)
+		// Map claim values → org role on every login so IdP changes take effect immediately.
+		orgRole := OrgRoleFromClaims(identity, svc.Cfg.OIDCAdminValues)
+
+		u, err := svc.Users.GetByEmail(identity.Email)
 		if err == ErrNotFound {
-			// First OIDC login — assign admin if email matches bootstrap config,
-			// otherwise provision as member.
-			orgRole := "member"
-			if svc.Cfg.BootstrapEmail != "" && email == svc.Cfg.BootstrapEmail {
-				orgRole = "admin"
-			}
-			u, err = svc.Users.Create(email, "", orgRole)
+			u, err = svc.Users.Create(identity.Email, "", orgRole)
 		}
 		if err != nil {
 			writeError(w, http.StatusInternalServerError, "user lookup failed")
 			return
 		}
 
-		// If the bootstrap admin logs in via OIDC and was previously provisioned
-		// as member (e.g. before bootstrap config was set), promote to admin.
-		if svc.Cfg.BootstrapEmail != "" && email == svc.Cfg.BootstrapEmail && u.OrgRole != "admin" {
-			if err := svc.Users.UpdateRole(u.ID.String(), "admin"); err == nil {
-				u.OrgRole = "admin"
+		// Sync org role on every login — IdP is the source of truth.
+		if u.OrgRole != orgRole {
+			if err := svc.Users.UpdateRole(u.ID.String(), orgRole); err == nil {
+				u.OrgRole = orgRole
 			}
 		}
 
@@ -171,7 +167,6 @@ func (svc *Service) handleOIDCCallback(oidc *OIDCProvider) http.HandlerFunc {
 		}
 
 		svc.setSessionCookie(w, token)
-		// Redirect to SPA root after OIDC login.
 		http.Redirect(w, r, "/", http.StatusFound)
 	}
 }

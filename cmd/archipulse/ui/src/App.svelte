@@ -13,6 +13,7 @@
   import DiagramList from './routes/DiagramList.svelte';
   import DiagramViewer from './routes/DiagramViewer.svelte';
   import EditorPlaceholder from './routes/EditorPlaceholder.svelte';
+  import WorkspaceSettings from './routes/WorkspaceSettings.svelte';
 
   import { api } from './lib/api.js';
   import { VIEWS } from './lib/views.js';
@@ -31,6 +32,7 @@
     '/ws/:wsId/view/application-dependency/graph': DependencyGraphView,
     '/ws/:wsId/view/:viewName/tree': CapabilityTree,
     '/ws/:wsId/view/:viewName/map': ApplicationLandscapeMap,
+    '/ws/:wsId/settings': WorkspaceSettings,
   };
 
   // Auth state
@@ -93,8 +95,8 @@
     m = loc.match(/^\/ws\/([^/]+)\/diagrams\/([^/]+)$/);
     if (m) return { wsId: m[1], viewName: null, activeView: null };
 
-    // Match /ws/:wsId/diagrams or /ws/:wsId/editor
-    m = loc.match(/^\/ws\/([^/]+)\/(diagrams|editor)$/);
+    // Match /ws/:wsId/diagrams or /ws/:wsId/editor or /ws/:wsId/settings
+    m = loc.match(/^\/ws\/([^/]+)\/(diagrams|editor|settings)$/);
     if (m) return { wsId: m[1], viewName: null, activeView: null };
 
     // Match /ws/:wsId

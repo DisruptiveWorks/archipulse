@@ -3,12 +3,27 @@
   import { push, location } from 'svelte-spa-router';
   import { VIEWS, LAYER_GROUPS } from '../lib/views.js';
   import { api } from '../lib/api.js';
+  import { user } from '../lib/auth.js';
   import { Badge } from '$lib/components/ui/badge';
   import { Separator } from '$lib/components/ui/separator';
 
   export let wsId;
   export let ws = null;
   export let open = false;
+
+  $: canSettings = $user?.org_role === 'admin' || myWsRole === 'owner' || myWsRole === 'editor';
+  let myWsRole = null;
+
+  $: if (wsId) loadMyRole(wsId);
+
+  async function loadMyRole(id) {
+    myWsRole = null;
+    try {
+      const members = await api.get('/workspaces/' + id + '/members');
+      const me = members.find(m => m.user_id === $user?.id);
+      myWsRole = me?.role ?? null;
+    } catch { /* ignore */ }
+  }
 
   const dispatch = createEventDispatcher();
 
@@ -138,6 +153,21 @@
         {item.label}
       </div>
     {/each}
+  </div>
+
+  <div class="mx-2 mt-3">
+    <Separator />
+  </div>
+  <div class="px-2 pt-3 pb-1">
+    <div
+      class="flex items-center gap-2 px-2 py-1.5 rounded-md text-sm cursor-pointer transition-colors {loc === '/ws/' + wsId + '/settings' ? 'bg-white text-foreground font-medium shadow-sm' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}"
+      on:click={() => push('/ws/' + wsId + '/settings')}
+      on:keydown={e => e.key === 'Enter' && push('/ws/' + wsId + '/settings')}
+      role="button"
+      tabindex="0"
+    >
+      <span class="text-[14px] flex-shrink-0 w-[18px] text-center">⚙</span> Settings
+    </div>
   </div>
 
   <div class="mt-auto px-2 py-3 border-t border-border">
