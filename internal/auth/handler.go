@@ -84,8 +84,8 @@ func (svc *Service) handleLogin(w http.ResponseWriter, r *http.Request) {
 
 	claims, _ := ParseToken(svc.Cfg, token)
 	writeJSON(w, http.StatusOK, map[string]string{
-		"email": claims.Email,
-		"role":  claims.Role,
+		"email":    claims.Email,
+		"org_role": claims.OrgRole,
 	})
 }
 
@@ -106,9 +106,9 @@ func (svc *Service) handleMe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, map[string]string{
-		"id":    claims.UserID,
-		"email": claims.Email,
-		"role":  claims.Role,
+		"id":       claims.UserID,
+		"email":    claims.Email,
+		"org_role": claims.OrgRole,
 	})
 }
 
@@ -144,12 +144,12 @@ func (svc *Service) handleOIDCCallback(oidc *OIDCProvider) http.HandlerFunc {
 		u, err := svc.Users.GetByEmail(email)
 		if err == ErrNotFound {
 			// First OIDC login — assign admin if email matches bootstrap config,
-			// otherwise provision as viewer.
-			role := "viewer"
+			// otherwise provision as member.
+			orgRole := "member"
 			if svc.Cfg.BootstrapEmail != "" && email == svc.Cfg.BootstrapEmail {
-				role = "admin"
+				orgRole = "admin"
 			}
-			u, err = svc.Users.Create(email, "", role)
+			u, err = svc.Users.Create(email, "", orgRole)
 		}
 		if err != nil {
 			writeError(w, http.StatusInternalServerError, "user lookup failed")
@@ -157,14 +157,14 @@ func (svc *Service) handleOIDCCallback(oidc *OIDCProvider) http.HandlerFunc {
 		}
 
 		// If the bootstrap admin logs in via OIDC and was previously provisioned
-		// as viewer (e.g. before bootstrap config was set), promote to admin.
-		if svc.Cfg.BootstrapEmail != "" && email == svc.Cfg.BootstrapEmail && u.Role != "admin" {
+		// as member (e.g. before bootstrap config was set), promote to admin.
+		if svc.Cfg.BootstrapEmail != "" && email == svc.Cfg.BootstrapEmail && u.OrgRole != "admin" {
 			if err := svc.Users.UpdateRole(u.ID.String(), "admin"); err == nil {
-				u.Role = "admin"
+				u.OrgRole = "admin"
 			}
 		}
 
-		token, err := IssueToken(svc.Cfg, u.ID.String(), u.Email, u.Role)
+		token, err := IssueToken(svc.Cfg, u.ID.String(), u.Email, u.OrgRole)
 		if err != nil {
 			writeError(w, http.StatusInternalServerError, "token issue failed")
 			return

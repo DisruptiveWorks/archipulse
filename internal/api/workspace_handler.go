@@ -8,11 +8,13 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 
+	"github.com/DisruptiveWorks/archipulse/internal/auth"
 	"github.com/DisruptiveWorks/archipulse/internal/workspace"
 )
 
 type workspaceHandler struct {
 	store *workspace.Store
+	svc   *auth.Service
 }
 
 func (h *workspaceHandler) list(w http.ResponseWriter, r *http.Request) {
@@ -60,6 +62,10 @@ func (h *workspaceHandler) create(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, err)
 		return
+	}
+	// Seed the creating user as workspace owner.
+	if claims := auth.ClaimsFromCtx(r.Context()); claims != nil {
+		_ = h.svc.Enforcer.SeedOwner(ws.ID.String(), claims.UserID)
 	}
 	respondJSON(w, http.StatusCreated, ws)
 }
@@ -113,8 +119,8 @@ func (h *workspaceHandler) delete(w http.ResponseWriter, r *http.Request) {
 }
 
 // registerWorkspaceRoutes mounts workspace endpoints on the given router.
-func registerWorkspaceRoutes(r chi.Router, store *workspace.Store) {
-	h := &workspaceHandler{store: store}
+func registerWorkspaceRoutes(r chi.Router, store *workspace.Store, svc *auth.Service) {
+	h := &workspaceHandler{store: store, svc: svc}
 	r.Get("/workspaces", h.list)
 	r.Post("/workspaces", h.create)
 	r.Get("/workspaces/{id}", h.get)

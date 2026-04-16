@@ -22,8 +22,8 @@ func TestUserStore_CreateAndGetByEmail(t *testing.T) {
 	if u.Email != email {
 		t.Errorf("Email: got %q, want %q", u.Email, email)
 	}
-	if u.Role != "viewer" {
-		t.Errorf("Role: got %q, want viewer", u.Role)
+	if u.OrgRole != "viewer" {
+		t.Errorf("OrgRole: got %q, want viewer", u.OrgRole)
 	}
 	if u.PasswordHash == nil || *u.PasswordHash != hash {
 		t.Error("PasswordHash not stored correctly")
@@ -54,7 +54,7 @@ func TestUserStore_GetByID(t *testing.T) {
 	email := fmt.Sprintf("store-byid-%s@example.com", t.Name())
 
 	hash, _ := auth.HashPassword("pass")
-	u, err := store.Create(email, hash, "architect")
+	u, err := store.Create(email, hash, "member")
 	if err != nil {
 		t.Fatalf("Create: %v", err)
 	}
@@ -145,13 +145,13 @@ func TestUserStore_UpdateRole(t *testing.T) {
 	}
 	t.Cleanup(func() { _, _ = conn.Exec("DELETE FROM users WHERE email = $1", email) })
 
-	if err := store.UpdateRole(u.ID.String(), "architect"); err != nil {
+	if err := store.UpdateRole(u.ID.String(), "admin"); err != nil {
 		t.Fatalf("UpdateRole: %v", err)
 	}
 
 	got, _ := store.GetByEmail(email)
-	if got.Role != "architect" {
-		t.Errorf("Role: got %q, want architect", got.Role)
+	if got.OrgRole != "admin" {
+		t.Errorf("OrgRole: got %q, want admin", got.OrgRole)
 	}
 }
 

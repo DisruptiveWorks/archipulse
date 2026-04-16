@@ -28,11 +28,11 @@ func NewRouter(db *sql.DB, svc *auth.Service, oidc *auth.OIDCProvider, static ..
 		// Public auth endpoints — no authentication required.
 		svc.RegisterRoutes(r, oidc)
 
-		// Protected API: require a valid session + RBAC check.
+		// Protected API: require a valid session.
 		r.Group(func(r chi.Router) {
 			r.Use(svc.RequireAuth)
-			r.Use(svc.RequireRole)
-			registerWorkspaceRoutes(r, workspace.NewStore(db))
+			registerWorkspaceRoutes(r, workspace.NewStore(db), svc)
+			registerMembershipRoutes(r, svc)
 			registerElementRoutes(r, db)
 			registerRelationshipRoutes(r, db)
 			registerDiagramRoutes(r, db)

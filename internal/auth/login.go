@@ -15,5 +15,5 @@ func LoginLocal(svc *Service, email, password string) (string, error) {
 	if u.PasswordHash == nil || !CheckPassword(*u.PasswordHash, password) {
 		return "", errors.New("invalid credentials")
 	}
-	return IssueToken(svc.Cfg, u.ID.String(), u.Email, u.Role)
+	return IssueToken(svc.Cfg, u.ID.String(), u.Email, u.OrgRole)
 }

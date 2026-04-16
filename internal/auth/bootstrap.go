@@ -52,7 +52,7 @@ func bootstrapDemo(svc *Service) error {
 
 	existing, err := svc.Users.GetByEmail(svc.Cfg.DemoEmail)
 	if err == ErrNotFound {
-		_, err = svc.Users.Create(svc.Cfg.DemoEmail, hash, "architect")
+		_, err = svc.Users.Create(svc.Cfg.DemoEmail, hash, "member")
 		if err != nil {
 			return fmt.Errorf("demo bootstrap create: %w", err)
 		}
@@ -67,9 +67,9 @@ func bootstrapDemo(svc *Service) error {
 	if err := svc.Users.UpdatePasswordHash(existing.ID.String(), hash); err != nil {
 		return fmt.Errorf("demo bootstrap update: %w", err)
 	}
-	// Ensure role is architect (may have been created as viewer previously).
-	if existing.Role != "architect" {
-		if err := svc.Users.UpdateRole(existing.ID.String(), "architect"); err != nil {
+	// Ensure org_role is member (may have been created with a legacy role previously).
+	if existing.OrgRole != "member" && existing.OrgRole != "admin" {
+		if err := svc.Users.UpdateRole(existing.ID.String(), "member"); err != nil {
 			return fmt.Errorf("demo bootstrap role: %w", err)
 		}
 	}
