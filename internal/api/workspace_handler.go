@@ -18,10 +18,19 @@ type workspaceHandler struct {
 }
 
 func (h *workspaceHandler) list(w http.ResponseWriter, r *http.Request) {
-	wss, err := h.store.List()
+	claims := auth.ClaimsFromCtx(r.Context())
+	isAdmin := claims != nil && claims.OrgRole == "admin"
+	userID := ""
+	if claims != nil {
+		userID = claims.UserID
+	}
+	wss, err := h.store.ListForUser(userID, isAdmin)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, err)
 		return
+	}
+	if wss == nil {
+		wss = []workspace.Workspace{}
 	}
 	respondJSON(w, http.StatusOK, wss)
 }

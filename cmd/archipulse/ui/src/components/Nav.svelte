@@ -76,6 +76,9 @@
 
   <!-- User menu -->
   {#if $user}
+    {#if !wsId && $user.org_role === 'admin'}
+      <Button size="sm" onclick={showCreateWs}>+ New workspace</Button>
+    {/if}
     <div class="user-menu-wrap" style="position:relative;">
       <button
         class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[13px] text-foreground hover:bg-muted transition-colors border border-border bg-card"
@@ -95,7 +98,7 @@
         <div class="absolute right-0 top-full mt-1 w-52 bg-popover border border-border rounded-lg shadow-lg py-1 z-50 text-[13px]">
           <div class="px-3 py-2 border-b border-border">
             <div class="font-medium text-foreground truncate">{$user.email}</div>
-            <div class="text-[11px] text-muted-foreground capitalize">{$user.role}</div>
+            <div class="text-[11px] text-muted-foreground capitalize">{$user.org_role}</div>
           </div>
           <button
             class="w-full text-left px-3 py-2 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
@@ -104,7 +107,5 @@
         </div>
       {/if}
     </div>
-  {:else}
-    <Button size="sm" onclick={showCreateWs}>+ New workspace</Button>
   {/if}
 </nav>

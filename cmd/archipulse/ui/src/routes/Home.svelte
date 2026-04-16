@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { push } from 'svelte-spa-router';
   import { api } from '../lib/api.js';
+  import { user } from '../lib/auth.js';
   import { Button } from '$lib/components/ui/button';
   import { Badge } from '$lib/components/ui/badge';
   import * as Dialog from '$lib/components/ui/dialog';
@@ -95,12 +96,19 @@
       <h1 class="text-[20px] font-semibold">Workspaces</h1>
       <p class="text-muted-foreground mt-1 text-[13px]">Your ArchiMate baselines</p>
     </div>
-    <div class="text-center py-16 px-6 text-muted-foreground">
-      <div class="text-[40px] mb-3.5">🏛️</div>
-      <p class="text-[14px] leading-relaxed">No workspaces yet.<br>Create one and import your first ArchiMate model.</p>
-      <br>
-      <Button onclick={openModal}>+ New workspace</Button>
-    </div>
+    {#if $user?.org_role === 'admin'}
+      <div class="text-center py-16 px-6 text-muted-foreground">
+        <div class="text-[40px] mb-3.5">🏛️</div>
+        <p class="text-[14px] leading-relaxed">No workspaces yet.<br>Create one and import your first ArchiMate model.</p>
+        <br>
+        <Button onclick={openModal}>+ New workspace</Button>
+      </div>
+    {:else}
+      <div class="text-center py-16 px-6 text-muted-foreground">
+        <div class="text-[40px] mb-3.5">🔒</div>
+        <p class="text-[14px] leading-relaxed">You don't have access to any workspace yet.<br>Contact an administrator to be added as a member.</p>
+      </div>
+    {/if}
   {:else}
     <div class="flex items-start justify-between mb-6 gap-4">
       <div>
