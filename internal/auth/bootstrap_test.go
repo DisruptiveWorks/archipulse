@@ -43,8 +43,8 @@ func TestBootstrapAdmin_CreatesAdminWhenEmpty(t *testing.T) {
 	if err != nil {
 		t.Fatalf("GetByEmail: %v", err)
 	}
-	if u.Role != "admin" {
-		t.Errorf("Role: got %q, want admin", u.Role)
+	if u.OrgRole != "admin" {
+		t.Errorf("OrgRole: got %q, want admin", u.OrgRole)
 	}
 }
 
@@ -93,8 +93,8 @@ func TestBootstrapDemo_CreatesOrSyncsDemoUser(t *testing.T) {
 	if err != nil {
 		t.Fatalf("GetByEmail after create: %v", err)
 	}
-	if u.Role != "architect" {
-		t.Errorf("Role: got %q, want architect", u.Role)
+	if u.OrgRole != "member" {
+		t.Errorf("OrgRole: got %q, want member", u.OrgRole)
 	}
 	if !auth.CheckPassword(*u.PasswordHash, "demopass") {
 		t.Error("password hash incorrect after create")

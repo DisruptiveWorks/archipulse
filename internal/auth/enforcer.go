@@ -2,98 +2,207 @@ package auth
 
 import (
 	"database/sql"
-	_ "embed"
+	"errors"
 	"fmt"
+	"time"
 
-	casbinv2 "github.com/casbin/casbin/v2"
-	"github.com/casbin/casbin/v2/model"
+	"github.com/google/uuid"
 )
 
-//go:embed rbac_model.conf
-var rbacModelConf string
+// Workspace roles — ordered from most to least permissive.
+const (
+	RoleOwner  = "owner"
+	RoleEditor = "editor"
+	RoleViewer = "viewer"
+)
 
-// Enforcer wraps the Casbin enforcer and seed policy loading.
+// roleRank maps a workspace role to a numeric rank (higher = more permissions).
+var roleRank = map[string]int{
+	RoleOwner:  3,
+	RoleEditor: 2,
+	RoleViewer: 1,
+}
+
+// ErrNoMembership is returned when a user has no membership in a workspace.
+var ErrNoMembership = errors.New("no workspace membership")
+
+// WorkspaceMember represents a single membership row.
+type WorkspaceMember struct {
+	UserID    uuid.UUID  `json:"user_id"`
+	Email     string     `json:"email"`
+	Role      string     `json:"role"`
+	InvitedBy *uuid.UUID `json:"invited_by,omitempty"`
+	CreatedAt time.Time  `json:"created_at"`
+}
+
+// Enforcer provides workspace membership checks and CRUD.
+// Enforcement logic is implemented here in Go; the Casbin model is kept
+// only as a schema reference and is not used for active enforcement.
 type Enforcer struct {
-	e *casbinv2.Enforcer
+	db *sql.DB
 }
 
-// NewEnforcer creates and seeds a Casbin enforcer backed by PostgreSQL.
-func NewEnforcer(db *sql.DB, cfg *Config) (*Enforcer, error) {
-	m, err := model.NewModelFromString(rbacModelConf)
+// NewEnforcer creates an Enforcer.
+func NewEnforcer(db *sql.DB, _ *Config) (*Enforcer, error) {
+	return &Enforcer{db: db}, nil
+}
+
+// ── Enforcement ───────────────────────────────────────────────────────────────
+
+// WorkspaceRole returns the role the user holds in the workspace,
+// or ErrNoMembership if there is none.
+func (en *Enforcer) WorkspaceRole(userID, workspaceID string) (string, error) {
+	var role string
+	err := en.db.QueryRow(
+		`SELECT role FROM workspace_members WHERE workspace_id = $1 AND user_id = $2`,
+		workspaceID, userID,
+	).Scan(&role)
+	if errors.Is(err, sql.ErrNoRows) {
+		return "", ErrNoMembership
+	}
+	return role, err
+}
+
+// hasRank reports whether the user's role in the workspace satisfies minRole.
+func (en *Enforcer) hasRank(userID, workspaceID, minRole string) (bool, error) {
+	role, err := en.WorkspaceRole(userID, workspaceID)
+	if errors.Is(err, ErrNoMembership) {
+		return false, nil
+	}
 	if err != nil {
-		return nil, fmt.Errorf("casbin model: %w", err)
+		return false, err
 	}
+	return roleRank[role] >= roleRank[minRole], nil
+}
 
-	adapter := newDBAdapter(db)
-	e, err := casbinv2.NewEnforcer(m, adapter)
+// CanView reports whether the user may read from the workspace.
+func (en *Enforcer) CanView(userID, workspaceID string) (bool, error) {
+	return en.hasRank(userID, workspaceID, RoleViewer)
+}
+
+// CanEdit reports whether the user may create/update resources in the workspace.
+func (en *Enforcer) CanEdit(userID, workspaceID string) (bool, error) {
+	return en.hasRank(userID, workspaceID, RoleEditor)
+}
+
+// CanManage reports whether the user may invite/remove members or delete the workspace.
+func (en *Enforcer) CanManage(userID, workspaceID string) (bool, error) {
+	return en.hasRank(userID, workspaceID, RoleOwner)
+}
+
+// ── Membership CRUD ───────────────────────────────────────────────────────────
+
+// ListMembers returns all members of the workspace, joined with their email.
+func (en *Enforcer) ListMembers(workspaceID string) ([]WorkspaceMember, error) {
+	rows, err := en.db.Query(`
+		SELECT wm.user_id, u.email, wm.role, wm.invited_by, wm.created_at
+		FROM   workspace_members wm
+		JOIN   users u ON u.id = wm.user_id
+		WHERE  wm.workspace_id = $1
+		ORDER  BY wm.created_at`, workspaceID)
 	if err != nil {
-		return nil, fmt.Errorf("casbin enforcer: %w", err)
+		return nil, fmt.Errorf("list members: %w", err)
 	}
+	defer func() { _ = rows.Close() }()
 
-	// Load (or refresh) the policy from the DB.
-	if err := e.LoadPolicy(); err != nil {
-		return nil, fmt.Errorf("casbin load policy: %w", err)
+	var out []WorkspaceMember
+	for rows.Next() {
+		var m WorkspaceMember
+		var invBy sql.NullString
+		if err := rows.Scan(&m.UserID, &m.Email, &m.Role, &invBy, &m.CreatedAt); err != nil {
+			return nil, err
+		}
+		if invBy.Valid {
+			id, _ := uuid.Parse(invBy.String)
+			m.InvitedBy = &id
+		}
+		out = append(out, m)
 	}
-
-	// Ensure base role-hierarchy and default policies exist.
-	if err := seedPolicy(e); err != nil {
-		return nil, fmt.Errorf("casbin seed policy: %w", err)
-	}
-
-	return &Enforcer{e: e}, nil
+	return out, rows.Err()
 }
 
-// seedPolicy rewrites the complete policy set from scratch on every startup.
-// This ensures stale policies (e.g. from a previous matcher syntax) are removed.
-func seedPolicy(e *casbinv2.Enforcer) error {
-	// Wipe everything stored, then rebuild from the canonical definition below.
-	e.ClearPolicy()
-
-	// Role hierarchy: admin > architect > viewer
-	roleHierarchy := [][2]string{
-		{"admin", "architect"},
-		{"architect", "viewer"},
+// AddMember upserts a workspace membership.
+// If the user is already a member, their role is updated.
+func (en *Enforcer) AddMember(workspaceID, userID, role, invitedBy string) error {
+	if _, ok := roleRank[role]; !ok {
+		return fmt.Errorf("invalid workspace role %q", role)
 	}
-	for _, r := range roleHierarchy {
-		if _, err := e.AddGroupingPolicy(r[0], r[1]); err != nil {
-			return err
-		}
+	var inv interface{} = nil
+	if invitedBy != "" {
+		inv = invitedBy
 	}
-
-	// Policies: (role, resource_pattern, action)
-	// Uses keyMatch2 syntax: :param matches exactly one path segment.
-	// Multiple patterns cover varying nesting depths.
-	policies := [][3]string{
-		// admin can do everything under /api/v1 (up to 4 segments deep)
-		{"admin", "/api/v1/:p1", "*"},
-		{"admin", "/api/v1/:p1/:p2", "*"},
-		{"admin", "/api/v1/:p1/:p2/:p3", "*"},
-		{"admin", "/api/v1/:p1/:p2/:p3/:p4", "*"},
-
-		// architect: full read+write on workspace resources, no user management
-		{"architect", "/api/v1/workspaces", "GET"},
-		{"architect", "/api/v1/workspaces/:id", "*"},
-		{"architect", "/api/v1/workspaces/:id/:sub", "*"},
-		{"architect", "/api/v1/workspaces/:id/:sub/:p1", "*"},
-		{"architect", "/api/v1/workspaces/:id/:sub/:p1/:p2", "*"},
-
-		// viewer: read-only on workspaces
-		{"viewer", "/api/v1/workspaces", "GET"},
-		{"viewer", "/api/v1/workspaces/:id", "GET"},
-		{"viewer", "/api/v1/workspaces/:id/:sub", "GET"},
-		{"viewer", "/api/v1/workspaces/:id/:sub/:p1", "GET"},
-		{"viewer", "/api/v1/workspaces/:id/:sub/:p1/:p2", "GET"},
+	_, err := en.db.Exec(`
+		INSERT INTO workspace_members (workspace_id, user_id, role, invited_by)
+		VALUES ($1, $2, $3, $4)
+		ON CONFLICT (workspace_id, user_id) DO UPDATE SET role = EXCLUDED.role`,
+		workspaceID, userID, role, inv)
+	if err != nil {
+		return fmt.Errorf("add member: %w", err)
 	}
-	for _, p := range policies {
-		if _, err := e.AddPolicy(p[0], p[1], p[2]); err != nil {
-			return err
-		}
-	}
-
-	return e.SavePolicy()
+	return nil
 }
 
-// Allow reports whether the given role may perform act on obj.
-func (en *Enforcer) Allow(role, obj, act string) (bool, error) {
-	return en.e.Enforce(role, obj, act)
+// UpdateMemberRole changes an existing member's role.
+// Returns ErrNoMembership if the user is not a member.
+func (en *Enforcer) UpdateMemberRole(workspaceID, userID, role string) error {
+	if _, ok := roleRank[role]; !ok {
+		return fmt.Errorf("invalid workspace role %q", role)
+	}
+	res, err := en.db.Exec(`
+		UPDATE workspace_members SET role = $1
+		WHERE workspace_id = $2 AND user_id = $3`,
+		role, workspaceID, userID)
+	if err != nil {
+		return fmt.Errorf("update member role: %w", err)
+	}
+	n, _ := res.RowsAffected()
+	if n == 0 {
+		return ErrNoMembership
+	}
+	return nil
+}
+
+// RemoveMember removes a user from a workspace.
+// Returns ErrNoMembership if the user was not a member.
+func (en *Enforcer) RemoveMember(workspaceID, userID string) error {
+	res, err := en.db.Exec(`
+		DELETE FROM workspace_members WHERE workspace_id = $1 AND user_id = $2`,
+		workspaceID, userID)
+	if err != nil {
+		return fmt.Errorf("remove member: %w", err)
+	}
+	n, _ := res.RowsAffected()
+	if n == 0 {
+		return ErrNoMembership
+	}
+	return nil
+}
+
+// ListUserWorkspaces returns all workspace IDs the user is a member of.
+func (en *Enforcer) ListUserWorkspaces(userID string) ([]string, error) {
+	rows, err := en.db.Query(
+		`SELECT workspace_id FROM workspace_members WHERE user_id = $1`, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = rows.Close() }()
+	var ids []string
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		ids = append(ids, id)
+	}
+	return ids, rows.Err()
+}
+
+// SeedOwner adds the user as owner of the workspace if they are not already a member.
+func (en *Enforcer) SeedOwner(workspaceID, userID string) error {
+	_, err := en.db.Exec(`
+		INSERT INTO workspace_members (workspace_id, user_id, role)
+		VALUES ($1, $2, 'owner')
+		ON CONFLICT DO NOTHING`,
+		workspaceID, userID)
+	return err
 }
