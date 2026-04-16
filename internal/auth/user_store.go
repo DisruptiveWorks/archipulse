@@ -14,7 +14,7 @@ type User struct {
 	ID           uuid.UUID
 	Email        string
 	PasswordHash *string // nil for OIDC-only users
-	Role         string
+	OrgRole      string
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 }
@@ -32,12 +32,12 @@ func NewUserStore(db *sql.DB) *UserStore {
 	return &UserStore{db: db}
 }
 
-const userCols = "id, email, password_hash, role, created_at, updated_at"
+const userCols = "id, email, password_hash, org_role, created_at, updated_at"
 
 func scanUser(row interface{ Scan(...any) error }) (*User, error) {
 	var u User
 	var hash sql.NullString
-	if err := row.Scan(&u.ID, &u.Email, &hash, &u.Role, &u.CreatedAt, &u.UpdatedAt); err != nil {
+	if err := row.Scan(&u.ID, &u.Email, &hash, &u.OrgRole, &u.CreatedAt, &u.UpdatedAt); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, ErrNotFound
 		}
@@ -72,7 +72,7 @@ func (s *UserStore) Create(email, passwordHash, role string) (*User, error) {
 		ph = &passwordHash
 	}
 	row := s.db.QueryRow(
-		`INSERT INTO users (email, password_hash, role)
+		`INSERT INTO users (email, password_hash, org_role)
 		 VALUES ($1, $2, $3)
 		 RETURNING `+userCols,
 		email, ph, role,
@@ -99,10 +99,10 @@ func (s *UserStore) UpdatePasswordHash(id, hash string) error {
 	return err
 }
 
-// UpdateRole changes a user's role.
+// UpdateRole changes a user's org role.
 func (s *UserStore) UpdateRole(id, role string) error {
 	_, err := s.db.Exec(
-		"UPDATE users SET role = $1, updated_at = NOW() WHERE id = $2",
+		"UPDATE users SET org_role = $1, updated_at = NOW() WHERE id = $2",
 		role, id,
 	)
 	return err

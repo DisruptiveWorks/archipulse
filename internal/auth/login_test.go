@@ -36,8 +36,8 @@ func TestLoginLocal_Success(t *testing.T) {
 	if claims.Email != email {
 		t.Errorf("claims.Email: got %q, want %q", claims.Email, email)
 	}
-	if claims.Role != "viewer" {
-		t.Errorf("claims.Role: got %q, want viewer", claims.Role)
+	if claims.OrgRole != "viewer" {
+		t.Errorf("claims.OrgRole: got %q, want viewer", claims.OrgRole)
 	}
 }
 

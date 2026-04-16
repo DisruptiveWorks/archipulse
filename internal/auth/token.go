@@ -9,19 +9,19 @@ import (
 
 // Claims is the JWT payload stored in the ap_session cookie.
 type Claims struct {
-	UserID string `json:"uid"`
-	Email  string `json:"email"`
-	Role   string `json:"role"`
+	UserID  string `json:"uid"`
+	Email   string `json:"email"`
+	OrgRole string `json:"org_role"`
 	jwt.RegisteredClaims
 }
 
 // IssueToken signs a new JWT for the given user.
-func IssueToken(cfg *Config, userID, email, role string) (string, error) {
+func IssueToken(cfg *Config, userID, email, orgRole string) (string, error) {
 	now := time.Now()
 	claims := Claims{
-		UserID: userID,
-		Email:  email,
-		Role:   role,
+		UserID:  userID,
+		Email:   email,
+		OrgRole: orgRole,
 		RegisteredClaims: jwt.RegisteredClaims{
 			IssuedAt:  jwt.NewNumericDate(now),
 			ExpiresAt: jwt.NewNumericDate(now.Add(cfg.TokenTTL)),

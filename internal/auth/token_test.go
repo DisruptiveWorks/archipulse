@@ -35,8 +35,8 @@ func TestIssueToken_RoundTrip(t *testing.T) {
 	if claims.Email != "user@example.com" {
 		t.Errorf("Email: got %q", claims.Email)
 	}
-	if claims.Role != "viewer" {
-		t.Errorf("Role: got %q", claims.Role)
+	if claims.OrgRole != "viewer" {
+		t.Errorf("OrgRole: got %q", claims.OrgRole)
 	}
 }
 
