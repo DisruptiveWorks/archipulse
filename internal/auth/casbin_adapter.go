@@ -16,10 +16,6 @@ type dbAdapter struct {
 	db *sql.DB
 }
 
-func newDBAdapter(db *sql.DB) *dbAdapter {
-	return &dbAdapter{db: db}
-}
-
 // LoadPolicy loads all casbin_rule rows into the model.
 func (a *dbAdapter) LoadPolicy(m model.Model) error {
 	rows, err := a.db.Query(
