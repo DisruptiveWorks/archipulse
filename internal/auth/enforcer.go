@@ -2,16 +2,12 @@ package auth
 
 import (
 	"database/sql"
-	_ "embed"
 	"errors"
 	"fmt"
 	"time"
 
 	"github.com/google/uuid"
 )
-
-//go:embed rbac_model.conf
-var rbacModelConf string
 
 // Workspace roles — ordered from most to least permissive.
 const (
