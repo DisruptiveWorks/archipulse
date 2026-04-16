@@ -32,11 +32,11 @@ var ErrNoMembership = errors.New("no workspace membership")
 
 // WorkspaceMember represents a single membership row.
 type WorkspaceMember struct {
-	UserID      uuid.UUID  `json:"user_id"`
-	Email       string     `json:"email"`
-	Role        string     `json:"role"`
-	InvitedBy   *uuid.UUID `json:"invited_by,omitempty"`
-	CreatedAt   time.Time  `json:"created_at"`
+	UserID    uuid.UUID  `json:"user_id"`
+	Email     string     `json:"email"`
+	Role      string     `json:"role"`
+	InvitedBy *uuid.UUID `json:"invited_by,omitempty"`
+	CreatedAt time.Time  `json:"created_at"`
 }
 
 // Enforcer provides workspace membership checks and CRUD.
