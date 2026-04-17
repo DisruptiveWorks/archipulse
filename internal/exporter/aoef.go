@@ -76,16 +76,21 @@ type aoefView struct {
 	Connections   []aoefConn `xml:"connection"`
 }
 
+// aoefNode mirrors the parser's aoefNode, supporting recursive nesting.
 type aoefNode struct {
-	ElementRef string `xml:"elementRef,attr"`
-	X          int    `xml:"x,attr"`
-	Y          int    `xml:"y,attr"`
-	W          int    `xml:"w,attr"`
-	H          int    `xml:"h,attr"`
+	Identifier string     `xml:"identifier,attr"`
+	ElementRef string     `xml:"elementRef,attr,omitempty"`
+	X          int        `xml:"x,attr"`
+	Y          int        `xml:"y,attr"`
+	W          int        `xml:"w,attr"`
+	H          int        `xml:"h,attr"`
+	Children   []aoefNode `xml:"node"`
 }
 
 type aoefConn struct {
 	RelationshipRef string      `xml:"relationshipRef,attr"`
+	Source          string      `xml:"source,attr"`
+	Target          string      `xml:"target,attr"`
 	Bendpoints      []aoefPoint `xml:"bendpoint"`
 }
 
@@ -138,14 +143,13 @@ func toAOEFModel(m *parser.Model) *aoefModel {
 				Name:          d.Name,
 				Documentation: d.Documentation,
 			}
-			for _, n := range d.Layout.Nodes {
-				v.Nodes = append(v.Nodes, aoefNode{
-					ElementRef: n.ElementID,
-					X:          n.X, Y: n.Y, W: n.W, H: n.H,
-				})
-			}
+			v.Nodes = buildNodeTree(d.Layout.Nodes)
 			for _, c := range d.Layout.Connections {
-				conn := aoefConn{RelationshipRef: c.RelationshipID}
+				conn := aoefConn{
+					RelationshipRef: c.RelationshipID,
+					Source:          c.SourceNodeID,
+					Target:          c.TargetNodeID,
+				}
 				for _, bp := range c.Bendpoints {
 					conn.Bendpoints = append(conn.Bendpoints, aoefPoint{X: bp.X, Y: bp.Y})
 				}
@@ -157,4 +161,78 @@ func toAOEFModel(m *parser.Model) *aoefModel {
 	}
 
 	return out
+}
+
+// buildNodeTree reconstructs the AOEF hierarchical node structure from the
+// flat NodeLayout slice produced by the parser's collectNodes.
+//
+// The flat list encodes parent-child relationships via ParentElementID, which
+// holds either the parent element's ElementID (for element nodes) or the
+// parent group's NodeID (for group nodes).
+//
+// When the same element is referenced by two or more nodes in the same diagram
+// (valid in ArchiMate), their children all share the same ParentElementID and
+// would otherwise be duplicated under every instance.  Spatial containment is
+// used to assign each child to the unique parent whose bounds enclose it.
+func buildNodeTree(nodes []parser.NodeLayout) []aoefNode {
+	// Build a map from "parent key" → child indices.
+	// The parent key is ElementID for element nodes, NodeID for group nodes.
+	childrenOf := make(map[string][]int, len(nodes))
+	for i, n := range nodes {
+		childrenOf[n.ParentElementID] = append(childrenOf[n.ParentElementID], i)
+	}
+
+	// Count how many nodes share each ElementID so we know when disambiguation
+	// via spatial containment is necessary.
+	elemIDCount := make(map[string]int, len(nodes))
+	for _, n := range nodes {
+		if n.ElementID != "" {
+			elemIDCount[n.ElementID]++
+		}
+	}
+
+	// Recursively build an aoefNode and all its descendants.
+	var buildNode func(i int) aoefNode
+	buildNode = func(i int) aoefNode {
+		n := nodes[i]
+		node := aoefNode{
+			Identifier: n.NodeID,
+			ElementRef: n.ElementID,
+			X:          n.X,
+			Y:          n.Y,
+			W:          n.W,
+			H:          n.H,
+		}
+		// Children reference this node via its ElementID (element node) or
+		// NodeID (group node — ElementID is empty).
+		parentKey := n.ElementID
+		if parentKey == "" {
+			parentKey = n.NodeID
+		}
+		for _, ci := range childrenOf[parentKey] {
+			// When multiple nodes share the same ElementID, use spatial
+			// containment to avoid assigning a child to the wrong parent.
+			if elemIDCount[parentKey] > 1 && !nodeContains(n, nodes[ci]) {
+				continue
+			}
+			node.Children = append(node.Children, buildNode(ci))
+		}
+		return node
+	}
+
+	// Roots are nodes whose ParentElementID is empty.
+	var roots []aoefNode
+	for i := range nodes {
+		if nodes[i].ParentElementID == "" {
+			roots = append(roots, buildNode(i))
+		}
+	}
+	return roots
+}
+
+// nodeContains reports whether parent's bounds fully enclose child's bounds.
+func nodeContains(parent, child parser.NodeLayout) bool {
+	return child.X >= parent.X && child.Y >= parent.Y &&
+		child.X+child.W <= parent.X+parent.W &&
+		child.Y+child.H <= parent.Y+parent.H
 }

@@ -124,6 +124,15 @@
   >
     <span class="text-[14px] flex-shrink-0 w-[18px] text-center">⌂</span> Overview
   </div>
+  <div
+    class="flex items-center gap-2 px-2 py-1.5 rounded-md text-sm cursor-pointer transition-colors mx-2 mt-0.5 {loc === '/ws/' + wsId + '/history' ? 'bg-white text-foreground font-medium shadow-sm' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}"
+    on:click={() => push('/ws/' + wsId + '/history')}
+    on:keydown={e => e.key === 'Enter' && push('/ws/' + wsId + '/history')}
+    role="button"
+    tabindex="0"
+  >
+    <span class="text-[14px] flex-shrink-0 w-[18px] text-center">◷</span> History
+  </div>
   <div class="mx-2 mt-2">
     <Separator />
   </div>

@@ -9,12 +9,14 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 
+	"github.com/DisruptiveWorks/archipulse/internal/audit"
 	"github.com/DisruptiveWorks/archipulse/internal/auth"
 	"github.com/DisruptiveWorks/archipulse/internal/relationship"
 )
 
 type relationshipHandler struct {
 	store *relationship.Store
+	audit *audit.Store
 }
 
 func (h *relationshipHandler) list(w http.ResponseWriter, r *http.Request) {
@@ -76,6 +78,13 @@ func (h *relationshipHandler) create(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusInternalServerError, err)
 		return
 	}
+	if claims := auth.ClaimsFromCtx(r.Context()); claims != nil && h.audit != nil {
+		_ = h.audit.Record(audit.RecordParams{
+			WorkspaceID: wsID, UserID: claims.UserID, UserEmail: claims.Email,
+			Action: audit.ActionCreate, EntityType: audit.EntityRelationship,
+			EntityID: rel.ID.String(), EntityName: rel.Name,
+		})
+	}
 	respondJSON(w, http.StatusCreated, rel)
 }
 
@@ -110,6 +119,14 @@ func (h *relationshipHandler) update(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusInternalServerError, err)
 		return
 	}
+	if claims := auth.ClaimsFromCtx(r.Context()); claims != nil && h.audit != nil {
+		wsID, _ := uuid.Parse(chi.URLParam(r, "wsID"))
+		_ = h.audit.Record(audit.RecordParams{
+			WorkspaceID: wsID, UserID: claims.UserID, UserEmail: claims.Email,
+			Action: audit.ActionUpdate, EntityType: audit.EntityRelationship,
+			EntityID: rel.ID.String(), EntityName: rel.Name,
+		})
+	}
 	respondJSON(w, http.StatusOK, rel)
 }
 
@@ -126,11 +143,19 @@ func (h *relationshipHandler) delete(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusInternalServerError, err)
 		return
 	}
+	if claims := auth.ClaimsFromCtx(r.Context()); claims != nil && h.audit != nil {
+		wsID, _ := uuid.Parse(chi.URLParam(r, "wsID"))
+		_ = h.audit.Record(audit.RecordParams{
+			WorkspaceID: wsID, UserID: claims.UserID, UserEmail: claims.Email,
+			Action: audit.ActionDelete, EntityType: audit.EntityRelationship,
+			EntityID: id.String(),
+		})
+	}
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func registerRelationshipRoutes(r chi.Router, db *sql.DB, svc *auth.Service) {
-	h := &relationshipHandler{store: relationship.NewStore(db)}
+func registerRelationshipRoutes(r chi.Router, db *sql.DB, svc *auth.Service, auditStore *audit.Store) {
+	h := &relationshipHandler{store: relationship.NewStore(db), audit: auditStore}
 	view := svc.RequireWorkspaceAccess(auth.RoleViewer)
 	edit := svc.RequireWorkspaceAccess(auth.RoleEditor)
 	r.With(view).Get("/workspaces/{wsID}/relationships", h.list)

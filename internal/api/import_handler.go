@@ -10,16 +10,20 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 
+	"github.com/DisruptiveWorks/archipulse/internal/audit"
 	"github.com/DisruptiveWorks/archipulse/internal/auth"
 	"github.com/DisruptiveWorks/archipulse/internal/element"
 	"github.com/DisruptiveWorks/archipulse/internal/parser"
+	"github.com/DisruptiveWorks/archipulse/internal/snapshot"
 	"github.com/DisruptiveWorks/archipulse/internal/workspace"
 )
 
 const maxUploadSize = 32 << 20 // 32 MB
 
 type importHandler struct {
-	db *sql.DB
+	db    *sql.DB
+	audit *audit.Store
+	snaps *snapshot.Store
 }
 
 // ImportResult summarises what was imported.
@@ -93,11 +97,34 @@ func (h *importHandler) importModel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	claims := auth.ClaimsFromCtx(r.Context())
+
+	// Auto-snapshot current state before overwriting.
+	if h.snaps != nil {
+		_, _ = takeSnapshot(h.db, h.snaps, wsID, claims.UserID, claims.Email, "", "import")
+	}
+
 	// Import inside a transaction — all or nothing.
 	result, err := importInTx(h.db, wsID, m)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, err)
 		return
+	}
+
+	// Record audit event.
+	if h.audit != nil {
+		_ = h.audit.Record(audit.RecordParams{
+			WorkspaceID: wsID,
+			UserID:      claims.UserID,
+			UserEmail:   claims.Email,
+			Action:      audit.ActionImport,
+			EntityType:  audit.EntityWorkspace,
+			EntityName:  header.Filename,
+			Meta: map[string]any{
+				"elements":      result.Elements,
+				"relationships": result.Relationships,
+			},
+		})
 	}
 
 	respondJSON(w, http.StatusOK, result)
@@ -286,7 +313,7 @@ func ImportModel(db *sql.DB, wsID uuid.UUID, m *parser.Model) (*ImportResult, er
 	return importInTx(db, wsID, m)
 }
 
-func registerImportRoutes(r chi.Router, db *sql.DB, svc *auth.Service) {
-	h := &importHandler{db: db}
+func registerImportRoutes(r chi.Router, db *sql.DB, svc *auth.Service, auditStore *audit.Store, snapStore *snapshot.Store) {
+	h := &importHandler{db: db, audit: auditStore, snaps: snapStore}
 	r.With(svc.RequireWorkspaceAccess(auth.RoleEditor)).Post("/workspaces/{id}/import", h.importModel)
 }

@@ -14,6 +14,7 @@
   import DiagramViewer from './routes/DiagramViewer.svelte';
   import EditorPlaceholder from './routes/EditorPlaceholder.svelte';
   import WorkspaceSettings from './routes/WorkspaceSettings.svelte';
+  import WorkspaceHistory from './routes/WorkspaceHistory.svelte';
 
   import { api } from './lib/api.js';
   import { VIEWS } from './lib/views.js';
@@ -33,6 +34,7 @@
     '/ws/:wsId/view/:viewName/tree': CapabilityTree,
     '/ws/:wsId/view/:viewName/map': ApplicationLandscapeMap,
     '/ws/:wsId/settings': WorkspaceSettings,
+    '/ws/:wsId/history': WorkspaceHistory,
   };
 
   // Auth state

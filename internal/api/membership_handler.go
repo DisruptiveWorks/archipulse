@@ -6,12 +6,15 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 
+	"github.com/DisruptiveWorks/archipulse/internal/audit"
 	"github.com/DisruptiveWorks/archipulse/internal/auth"
 )
 
 type membershipHandler struct {
 	enforcer *auth.Enforcer
+	audit    *audit.Store
 }
 
 func (h *membershipHandler) list(w http.ResponseWriter, r *http.Request) {
@@ -50,6 +53,14 @@ func (h *membershipHandler) add(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, err)
 		return
 	}
+	if caller != nil && h.audit != nil {
+		wsUUID, _ := uuid.Parse(wsID)
+		_ = h.audit.Record(audit.RecordParams{
+			WorkspaceID: wsUUID, UserID: caller.UserID, UserEmail: caller.Email,
+			Action: audit.ActionAddMember, EntityType: audit.EntityMember,
+			EntityID: body.UserID, Meta: map[string]any{"role": body.Role},
+		})
+	}
 	w.WriteHeader(http.StatusNoContent)
 }
 
@@ -74,6 +85,14 @@ func (h *membershipHandler) updateRole(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, err)
 		return
 	}
+	if caller := auth.ClaimsFromCtx(r.Context()); caller != nil && h.audit != nil {
+		wsUUID, _ := uuid.Parse(wsID)
+		_ = h.audit.Record(audit.RecordParams{
+			WorkspaceID: wsUUID, UserID: caller.UserID, UserEmail: caller.Email,
+			Action: audit.ActionUpdateMemberRole, EntityType: audit.EntityMember,
+			EntityID: userID, Meta: map[string]any{"role": body.Role},
+		})
+	}
 	w.WriteHeader(http.StatusNoContent)
 }
 
@@ -87,13 +106,21 @@ func (h *membershipHandler) remove(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusInternalServerError, err)
 		return
 	}
+	if caller := auth.ClaimsFromCtx(r.Context()); caller != nil && h.audit != nil {
+		wsUUID, _ := uuid.Parse(wsID)
+		_ = h.audit.Record(audit.RecordParams{
+			WorkspaceID: wsUUID, UserID: caller.UserID, UserEmail: caller.Email,
+			Action: audit.ActionRemoveMember, EntityType: audit.EntityMember,
+			EntityID: userID,
+		})
+	}
 	w.WriteHeader(http.StatusNoContent)
 }
 
 // registerMembershipRoutes mounts workspace membership endpoints.
 // These routes are nested under /workspaces/{id} and require at least owner access.
-func registerMembershipRoutes(r chi.Router, svc *auth.Service) {
-	h := &membershipHandler{enforcer: svc.Enforcer}
+func registerMembershipRoutes(r chi.Router, svc *auth.Service, auditStore *audit.Store) {
+	h := &membershipHandler{enforcer: svc.Enforcer, audit: auditStore}
 	// GET /workspaces/{id}/members — viewers can list members
 	r.With(svc.RequireWorkspaceAccess(auth.RoleViewer)).
 		Get("/workspaces/{id}/members", h.list)
