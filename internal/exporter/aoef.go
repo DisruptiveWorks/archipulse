@@ -191,9 +191,15 @@ func buildNodeTree(nodes []parser.NodeLayout) []aoefNode {
 		}
 	}
 
+	// placed tracks which node indices have already been emitted into the tree.
+	// This prevents cycles (e.g. a node whose ElementID == its own ParentElementID)
+	// and duplicate placement when the same node is claimed by multiple parents.
+	placed := make(map[int]bool, len(nodes))
+
 	// Recursively build an aoefNode and all its descendants.
 	var buildNode func(i int) aoefNode
 	buildNode = func(i int) aoefNode {
+		placed[i] = true
 		n := nodes[i]
 		node := aoefNode{
 			Identifier: n.NodeID,
@@ -210,6 +216,9 @@ func buildNodeTree(nodes []parser.NodeLayout) []aoefNode {
 			parentKey = n.NodeID
 		}
 		for _, ci := range childrenOf[parentKey] {
+			if placed[ci] {
+				continue // already in tree — skip to avoid cycles/duplicates
+			}
 			// When multiple nodes share the same ElementID, use spatial
 			// containment to avoid assigning a child to the wrong parent.
 			if elemIDCount[parentKey] > 1 && !nodeContains(n, nodes[ci]) {
@@ -223,7 +232,7 @@ func buildNodeTree(nodes []parser.NodeLayout) []aoefNode {
 	// Roots are nodes whose ParentElementID is empty.
 	var roots []aoefNode
 	for i := range nodes {
-		if nodes[i].ParentElementID == "" {
+		if nodes[i].ParentElementID == "" && !placed[i] {
 			roots = append(roots, buildNode(i))
 		}
 	}
