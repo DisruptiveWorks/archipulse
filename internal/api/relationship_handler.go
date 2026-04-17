@@ -9,6 +9,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 
+	"github.com/DisruptiveWorks/archipulse/internal/auth"
 	"github.com/DisruptiveWorks/archipulse/internal/relationship"
 )
 
@@ -128,11 +129,13 @@ func (h *relationshipHandler) delete(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func registerRelationshipRoutes(r chi.Router, db *sql.DB) {
+func registerRelationshipRoutes(r chi.Router, db *sql.DB, svc *auth.Service) {
 	h := &relationshipHandler{store: relationship.NewStore(db)}
-	r.Get("/workspaces/{wsID}/relationships", h.list)
-	r.Post("/workspaces/{wsID}/relationships", h.create)
-	r.Get("/workspaces/{wsID}/relationships/{id}", h.get)
-	r.Put("/workspaces/{wsID}/relationships/{id}", h.update)
-	r.Delete("/workspaces/{wsID}/relationships/{id}", h.delete)
+	view := svc.RequireWorkspaceAccess(auth.RoleViewer)
+	edit := svc.RequireWorkspaceAccess(auth.RoleEditor)
+	r.With(view).Get("/workspaces/{wsID}/relationships", h.list)
+	r.With(edit).Post("/workspaces/{wsID}/relationships", h.create)
+	r.With(view).Get("/workspaces/{wsID}/relationships/{id}", h.get)
+	r.With(edit).Put("/workspaces/{wsID}/relationships/{id}", h.update)
+	r.With(edit).Delete("/workspaces/{wsID}/relationships/{id}", h.delete)
 }

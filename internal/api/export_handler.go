@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 
+	"github.com/DisruptiveWorks/archipulse/internal/auth"
 	"github.com/DisruptiveWorks/archipulse/internal/exporter"
 	"github.com/DisruptiveWorks/archipulse/internal/workspace"
 )
@@ -65,8 +66,9 @@ func (h *exportHandler) exportAJX(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func registerExportRoutes(r chi.Router, db *sql.DB) {
+func registerExportRoutes(r chi.Router, db *sql.DB, svc *auth.Service) {
 	h := &exportHandler{db: db}
-	r.Get("/workspaces/{id}/export/aoef", h.exportAOEF)
-	r.Get("/workspaces/{id}/export/ajx", h.exportAJX)
+	view := svc.RequireWorkspaceAccess(auth.RoleViewer)
+	r.With(view).Get("/workspaces/{id}/export/aoef", h.exportAOEF)
+	r.With(view).Get("/workspaces/{id}/export/ajx", h.exportAJX)
 }

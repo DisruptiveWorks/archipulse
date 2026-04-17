@@ -9,6 +9,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 
+	"github.com/DisruptiveWorks/archipulse/internal/auth"
 	"github.com/DisruptiveWorks/archipulse/internal/diagram"
 )
 
@@ -142,12 +143,14 @@ func (h *diagramHandler) render(w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusOK, rd)
 }
 
-func registerDiagramRoutes(r chi.Router, db *sql.DB) {
+func registerDiagramRoutes(r chi.Router, db *sql.DB, svc *auth.Service) {
 	h := &diagramHandler{store: diagram.NewStore(db)}
-	r.Get("/workspaces/{wsID}/diagrams", h.list)
-	r.Post("/workspaces/{wsID}/diagrams", h.create)
-	r.Get("/workspaces/{wsID}/diagrams/{id}", h.get)
-	r.Get("/workspaces/{wsID}/diagrams/{id}/render", h.render)
-	r.Put("/workspaces/{wsID}/diagrams/{id}", h.update)
-	r.Delete("/workspaces/{wsID}/diagrams/{id}", h.delete)
+	view := svc.RequireWorkspaceAccess(auth.RoleViewer)
+	edit := svc.RequireWorkspaceAccess(auth.RoleEditor)
+	r.With(view).Get("/workspaces/{wsID}/diagrams", h.list)
+	r.With(edit).Post("/workspaces/{wsID}/diagrams", h.create)
+	r.With(view).Get("/workspaces/{wsID}/diagrams/{id}", h.get)
+	r.With(view).Get("/workspaces/{wsID}/diagrams/{id}/render", h.render)
+	r.With(edit).Put("/workspaces/{wsID}/diagrams/{id}", h.update)
+	r.With(edit).Delete("/workspaces/{wsID}/diagrams/{id}", h.delete)
 }

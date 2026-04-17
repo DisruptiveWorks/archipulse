@@ -130,11 +130,13 @@ func (h *workspaceHandler) delete(w http.ResponseWriter, r *http.Request) {
 // registerWorkspaceRoutes mounts workspace endpoints on the given router.
 func registerWorkspaceRoutes(r chi.Router, store *workspace.Store, svc *auth.Service) {
 	h := &workspaceHandler{store: store, svc: svc}
+	view := svc.RequireWorkspaceAccess(auth.RoleViewer)
+	own := svc.RequireWorkspaceAccess(auth.RoleOwner)
 	r.Get("/workspaces", h.list)
 	r.Post("/workspaces", h.create)
-	r.Get("/workspaces/{id}", h.get)
-	r.Put("/workspaces/{id}", h.update)
-	r.Delete("/workspaces/{id}", h.delete)
+	r.With(view).Get("/workspaces/{id}", h.get)
+	r.With(own).Put("/workspaces/{id}", h.update)
+	r.With(own).Delete("/workspaces/{id}", h.delete)
 }
 
 func parseUUID(r *http.Request, param string) (uuid.UUID, error) {

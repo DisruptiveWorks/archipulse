@@ -6,6 +6,8 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
+
+	"github.com/DisruptiveWorks/archipulse/internal/auth"
 )
 
 // FolderNode is a folder in the diagram tree response.
@@ -158,7 +160,7 @@ func (h *folderHandler) diagramTree(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func registerFolderRoutes(r chi.Router, db *sql.DB) {
+func registerFolderRoutes(r chi.Router, db *sql.DB, svc *auth.Service) {
 	h := &folderHandler{db: db}
-	r.Get("/workspaces/{wsID}/diagram-tree", h.diagramTree)
+	r.With(svc.RequireWorkspaceAccess(auth.RoleViewer)).Get("/workspaces/{wsID}/diagram-tree", h.diagramTree)
 }

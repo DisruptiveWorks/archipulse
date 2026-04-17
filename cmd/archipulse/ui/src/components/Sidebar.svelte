@@ -6,6 +6,21 @@
   import { user } from '../lib/auth.js';
   import { Badge } from '$lib/components/ui/badge';
   import { Separator } from '$lib/components/ui/separator';
+  import * as Dialog from '$lib/components/ui/dialog';
+  import { Button } from '$lib/components/ui/button';
+
+  const ERROR_MESSAGES = {
+    forbidden:            "You don't have permission to perform this action in this workspace.",
+    unauthorized:         "Your session has expired. Please log in again.",
+    'not authenticated':  "Your session has expired. Please log in again.",
+    'internal server error': "An unexpected error occurred. Please try again.",
+    'workspace not found': "The workspace could not be found.",
+  };
+
+  function friendlyError(raw) {
+    const key = (raw || '').toLowerCase().trim();
+    return ERROR_MESSAGES[key] ?? raw;
+  }
 
   export let wsId;
   export let ws = null;
@@ -42,6 +57,10 @@
   let importResult = null;
   let importing = false;
   let dropOver = false;
+  let importError = null;
+  let showErrorDialog = false;
+
+  $: showErrorDialog = !!importError;
 
   function navTarget(key, v) {
     return v.graph ? key + '/graph' : v.tree ? key + '/tree' : key;
@@ -81,7 +100,7 @@
         dispatch('imported');
       }, 1400);
     } catch (e) {
-      importResult = { ok: false, msg: '✗ ' + e.message };
+      importError = e.message;
     } finally {
       importing = false;
     }
@@ -197,9 +216,21 @@
         <div class="size-4 rounded-full border-2 border-border border-t-primary animate-spin flex-shrink-0"></div>
       </div>
     {:else if importResult}
-      <div class="mt-2 text-[12px] px-3 py-2 rounded-md {importResult.ok ? 'bg-success/10 border border-success/30 text-success' : 'bg-destructive/10 border border-destructive/30 text-destructive'}">
+      <div class="mt-2 text-[12px] px-3 py-2 rounded-md bg-success/10 border border-success/30 text-success">
         {importResult.msg}
       </div>
     {/if}
   </div>
 </aside>
+
+<Dialog.Root bind:open={showErrorDialog} onOpenChange={(o) => { if (!o) importError = null; }}>
+  <Dialog.Content class="max-w-sm">
+    <Dialog.Header>
+      <Dialog.Title>Import error</Dialog.Title>
+      <Dialog.Description>{friendlyError(importError)}</Dialog.Description>
+    </Dialog.Header>
+    <Dialog.Footer>
+      <Button onclick={() => importError = null}>OK</Button>
+    </Dialog.Footer>
+  </Dialog.Content>
+</Dialog.Root>
