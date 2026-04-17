@@ -10,6 +10,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 
+	"github.com/DisruptiveWorks/archipulse/internal/auth"
 	"github.com/DisruptiveWorks/archipulse/internal/element"
 	"github.com/DisruptiveWorks/archipulse/internal/parser"
 	"github.com/DisruptiveWorks/archipulse/internal/workspace"
@@ -285,7 +286,7 @@ func ImportModel(db *sql.DB, wsID uuid.UUID, m *parser.Model) (*ImportResult, er
 	return importInTx(db, wsID, m)
 }
 
-func registerImportRoutes(r chi.Router, db *sql.DB) {
+func registerImportRoutes(r chi.Router, db *sql.DB, svc *auth.Service) {
 	h := &importHandler{db: db}
-	r.Post("/workspaces/{id}/import", h.importModel)
+	r.With(svc.RequireWorkspaceAccess(auth.RoleEditor)).Post("/workspaces/{id}/import", h.importModel)
 }

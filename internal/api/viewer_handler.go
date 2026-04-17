@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 
+	"github.com/DisruptiveWorks/archipulse/internal/auth"
 	"github.com/DisruptiveWorks/archipulse/internal/viewer"
 )
 
@@ -148,15 +149,16 @@ func (h *viewerHandler) getTechCatalogueEntries(w http.ResponseWriter, r *http.R
 	respondJSON(w, http.StatusOK, data)
 }
 
-func registerViewerRoutes(r chi.Router, db *sql.DB) {
+func registerViewerRoutes(r chi.Router, db *sql.DB, svc *auth.Service) {
 	h := &viewerHandler{registry: viewer.NewRegistry(db)}
-	r.Get("/workspaces/{id}/views", h.listViews)
-	r.Get("/workspaces/{id}/views/capability-tree/tree", h.getCapabilityTree)
-	r.Get("/workspaces/{id}/views/application-dependency/graph", h.getDependencyGraph)
-	r.Get("/workspaces/{id}/views/integration-map/graph", h.getIntegrationMap)
-	r.Get("/workspaces/{id}/views/application-dashboard/stats", h.getApplicationDashboard)
-	r.Get("/workspaces/{id}/views/application-landscape/map", h.getLandscapeMap)
-	r.Get("/workspaces/{id}/views/application-catalogue/entries", h.getAppCatalogueEntries)
-	r.Get("/workspaces/{id}/views/technology-catalogue/entries", h.getTechCatalogueEntries)
-	r.Get("/workspaces/{id}/views/{view}", h.getView)
+	view := svc.RequireWorkspaceAccess(auth.RoleViewer)
+	r.With(view).Get("/workspaces/{id}/views", h.listViews)
+	r.With(view).Get("/workspaces/{id}/views/capability-tree/tree", h.getCapabilityTree)
+	r.With(view).Get("/workspaces/{id}/views/application-dependency/graph", h.getDependencyGraph)
+	r.With(view).Get("/workspaces/{id}/views/integration-map/graph", h.getIntegrationMap)
+	r.With(view).Get("/workspaces/{id}/views/application-dashboard/stats", h.getApplicationDashboard)
+	r.With(view).Get("/workspaces/{id}/views/application-landscape/map", h.getLandscapeMap)
+	r.With(view).Get("/workspaces/{id}/views/application-catalogue/entries", h.getAppCatalogueEntries)
+	r.With(view).Get("/workspaces/{id}/views/technology-catalogue/entries", h.getTechCatalogueEntries)
+	r.With(view).Get("/workspaces/{id}/views/{view}", h.getView)
 }
