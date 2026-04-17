@@ -37,7 +37,7 @@ func NewStore(db *sql.DB) *Store {
 	return &Store{db: db}
 }
 
-// List returns all workspaces ordered by name.
+// List returns all workspaces ordered by name (used internally and by org admins).
 func (s *Store) List() ([]Workspace, error) {
 	rows, err := s.db.Query(`
 		SELECT id, name, purpose, description, version, created_at, updated_at
@@ -45,6 +45,35 @@ func (s *Store) List() ([]Workspace, error) {
 		ORDER BY name`)
 	if err != nil {
 		return nil, fmt.Errorf("list workspaces: %w", err)
+	}
+	defer func() { _ = rows.Close() }()
+
+	var out []Workspace
+	for rows.Next() {
+		var w Workspace
+		if err := rows.Scan(&w.ID, &w.Name, &w.Purpose, &w.Description,
+			&w.Version, &w.CreatedAt, &w.UpdatedAt); err != nil {
+			return nil, err
+		}
+		out = append(out, w)
+	}
+	return out, rows.Err()
+}
+
+// ListForUser returns the workspaces the user is a member of.
+// Org admins see all workspaces (pass isAdmin=true).
+func (s *Store) ListForUser(userID string, isAdmin bool) ([]Workspace, error) {
+	if isAdmin {
+		return s.List()
+	}
+	rows, err := s.db.Query(`
+		SELECT w.id, w.name, w.purpose, w.description, w.version, w.created_at, w.updated_at
+		FROM   workspaces w
+		JOIN   workspace_members wm ON wm.workspace_id = w.id
+		WHERE  wm.user_id = $1
+		ORDER  BY w.name`, userID)
+	if err != nil {
+		return nil, fmt.Errorf("list workspaces for user: %w", err)
 	}
 	defer func() { _ = rows.Close() }()
 

@@ -13,13 +13,9 @@ web:
 
 oauth2:
   skipApprovalScreen: true
-
-staticClients:
-  - id: archipulse-local
-    secret: archipulse-local-secret
-    name: ArchiPulse (local)
-    redirectURIs:
-      - http://localhost:8080/api/v1/auth/oidc/callback
+  # Emit groups claim in the ID token (required for role mapping).
+  responseTypes:
+    - code
 
 # Static users — no external IdP needed.
 # Passwords are bcrypt hashes. This one is "password".
@@ -33,3 +29,17 @@ staticPasswords:
     hash: "$2y$10$pKCBClPi5ywZcAUi7ozwOuiRifX1PK0rQUZ8SZLCokqTOblUJrX6i"
     username: viewer
     userID: "08a8684b-db88-4b73-90a9-3cd1661f5467"
+
+staticClients:
+  - id: archipulse-local
+    secret: archipulse-local-secret
+    name: ArchiPulse (local)
+    redirectURIs:
+      - http://localhost:8080/api/v1/auth/oidc/callback
+
+# connectors: [] — using built-in password DB above.
+# Note: Dex staticPasswords does not emit groups natively.
+# For group-based role mapping in local dev, use OIDC_ROLES_CLAIM=email
+# and OIDC_ADMIN_VALUES=admin@archipulse.org in .env instead.
+# In production with a real IdP (Keycloak, Azure AD, Google Workspace),
+# set OIDC_ROLES_CLAIM=groups and configure groups in the IdP.

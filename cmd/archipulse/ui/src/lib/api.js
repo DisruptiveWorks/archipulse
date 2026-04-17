@@ -12,6 +12,7 @@ async function handleResponse(r) {
     try { msg = (await r.json()).error || msg; } catch { /* ignore */ }
     throw new Error(msg);
   }
+  if (r.status === 204) return null;
   return r.json();
 }
 
@@ -37,6 +38,19 @@ export const api = {
       body: JSON.stringify(body),
     });
     return handleResponse(r);
+  },
+  async delete(path) {
+    const r = await fetch(BASE + path, {
+      method: 'DELETE',
+      credentials: 'same-origin',
+    });
+    if (r.status === 401) { push('/login'); throw new Error('Not authenticated'); }
+    if (!r.ok) {
+      let msg = r.statusText;
+      try { msg = (await r.json()).error || msg; } catch { /* ignore */ }
+      throw new Error(msg);
+    }
+    return r.status === 204 ? null : r.json();
   },
   async upload(path, formData) {
     const r = await fetch(BASE + path, {
