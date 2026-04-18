@@ -34,11 +34,11 @@ type aoefModel struct {
 	SchemaLoc     string             `xml:"xsi:schemaLocation,attr"`
 	Name          string             `xml:"name"`
 	Properties    *aoefProperties    `xml:"properties,omitempty"`
-	PropertyDefs  *aoefPropertyDefs  `xml:"propertyDefinitions,omitempty"`
 	Elements      *aoefElements      `xml:"elements,omitempty"`
 	Relationships *aoefRelationships `xml:"relationships,omitempty"`
-	Views         *aoefViews         `xml:"views,omitempty"`
 	Organizations *aoefOrgsBlock     `xml:"organizations,omitempty"`
+	PropertyDefs  *aoefPropertyDefs  `xml:"propertyDefinitions,omitempty"`
+	Views         *aoefViews         `xml:"views,omitempty"`
 }
 
 type aoefPropertyDefs struct {
@@ -145,7 +145,7 @@ type aoefRelationship struct {
 
 type aoefView struct {
 	ID             string           `xml:"identifier,attr"`
-	Type           string           `xml:"http://www.w3.org/2001/XMLSchema-instance type,attr,omitempty"`
+	Type           string           `xml:"xsi:type,attr,omitempty"`
 	Viewpoint      string           `xml:"viewpoint,attr,omitempty"`
 	ViewpointRef   string           `xml:"viewpointRef,attr,omitempty"`
 	Names          []aoefLangString `xml:"name"`
@@ -157,21 +157,22 @@ type aoefView struct {
 
 // aoefNode mirrors the parser's aoefNode, supporting recursive nesting.
 type aoefNode struct {
-	Identifier string     `xml:"identifier,attr"`
-	ElementRef string     `xml:"elementRef,attr,omitempty"`
-	NodeType   string     `xml:"http://www.w3.org/2001/XMLSchema-instance type,attr,omitempty"`
-	X          int        `xml:"x,attr"`
-	Y          int        `xml:"y,attr"`
-	W          int        `xml:"w,attr"`
-	H          int        `xml:"h,attr"`
-	Style      *aoefStyle `xml:"style"`
-	Children   []aoefNode `xml:"node"`
+	Identifier      string     `xml:"identifier,attr"`
+	ElementRef      string     `xml:"elementRef,attr,omitempty"`
+	NodeType        string     `xml:"xsi:type,attr,omitempty"`
+	LabelExpression string     `xml:"labelExpression,attr,omitempty"`
+	X               int        `xml:"x,attr"`
+	Y               int        `xml:"y,attr"`
+	W               int        `xml:"w,attr"`
+	H               int        `xml:"h,attr"`
+	Style           *aoefStyle `xml:"style"`
+	Children        []aoefNode `xml:"node"`
 }
 
 type aoefConn struct {
 	Identifier      string      `xml:"identifier,attr,omitempty"`
 	RelationshipRef string      `xml:"relationshipRef,attr"`
-	Type            string      `xml:"http://www.w3.org/2001/XMLSchema-instance type,attr,omitempty"`
+	Type            string      `xml:"xsi:type,attr,omitempty"`
 	Source          string      `xml:"source,attr"`
 	Target          string      `xml:"target,attr"`
 	Style           *aoefStyle  `xml:"style"`
@@ -351,19 +352,14 @@ func buildOrganizations(folders []parser.ViewFolder, diagFolders []parser.Diagra
 		return item
 	}
 
-	// Root folders: parentID == "".
-	roots := childFolders[""]
+	// Root folders: parentID == "". Each root folder becomes a top-level <item>.
 	block := &aoefOrgsBlock{}
-	topItem := aoefOrgItem{} // single top-level anonymous item wrapping all roots
-	for _, root := range roots {
-		topItem.Children = append(topItem.Children, buildItem(root))
+	for _, root := range childFolders[""] {
+		block.Items = append(block.Items, buildItem(root))
 	}
-	// Diagrams with no folder go directly under the top item.
+	// Diagrams with no folder go directly as top-level <item identifierRef="...">.
 	for _, diagID := range folderDiags[""] {
-		topItem.Children = append(topItem.Children, aoefOrgItem{IdentifierRef: diagID})
-	}
-	if len(topItem.Children) > 0 {
-		block.Items = []aoefOrgItem{topItem}
+		block.Items = append(block.Items, aoefOrgItem{IdentifierRef: diagID})
 	}
 	return block
 }
@@ -521,14 +517,15 @@ func buildNodeTree(nodes []parser.NodeLayout) []aoefNode {
 			elementRef = ""
 		}
 		node := aoefNode{
-			Identifier: n.NodeID,
-			ElementRef: elementRef,
-			NodeType:   n.NodeType,
-			X:          n.X,
-			Y:          n.Y,
-			W:          n.W,
-			H:          n.H,
-			Style:      convertNodeStyle(n.Style),
+			Identifier:      n.NodeID,
+			ElementRef:      elementRef,
+			NodeType:        n.NodeType,
+			LabelExpression: n.LabelExpression,
+			X:               n.X,
+			Y:               n.Y,
+			W:               n.W,
+			H:               n.H,
+			Style:           convertNodeStyle(n.Style),
 		}
 		// Children reference this node via its ElementID (element node) or
 		// NodeID (group node — ElementID is empty).

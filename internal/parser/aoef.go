@@ -110,16 +110,17 @@ type aoefView struct {
 }
 
 type aoefNode struct {
-	Identifier string           `xml:"identifier,attr"`
-	NodeType   string           `xml:"http://www.w3.org/2001/XMLSchema-instance type,attr"`
-	ElementRef string           `xml:"elementRef,attr"`
-	X          int              `xml:"x,attr"`
-	Y          int              `xml:"y,attr"`
-	W          int              `xml:"w,attr"`
-	H          int              `xml:"h,attr"`
-	Children   []aoefNode       `xml:"node"`
-	Style      *aoefStyle       `xml:"style"`
-	Labels     []aoefLangString `xml:"label"`
+	Identifier      string           `xml:"identifier,attr"`
+	NodeType        string           `xml:"http://www.w3.org/2001/XMLSchema-instance type,attr"`
+	ElementRef      string           `xml:"elementRef,attr"`
+	LabelExpression string           `xml:"labelExpression,attr"`
+	X               int              `xml:"x,attr"`
+	Y               int              `xml:"y,attr"`
+	W               int              `xml:"w,attr"`
+	H               int              `xml:"h,attr"`
+	Children        []aoefNode       `xml:"node"`
+	Style           *aoefStyle       `xml:"style"`
+	Labels          []aoefLangString `xml:"label"`
 }
 
 type aoefConn struct {
@@ -554,6 +555,7 @@ func collectNodes(nodes []aoefNode, parentElementID string, out *[]NodeLayout) {
 				ElementID:       n.ElementRef,
 				ParentElementID: parentElementID,
 				NodeType:        n.NodeType,
+				LabelExpression: n.LabelExpression,
 				X:               n.X, Y: n.Y, W: n.W, H: n.H,
 				Style: convertNodeStyle(n.Style),
 			})
@@ -568,6 +570,7 @@ func collectNodes(nodes []aoefNode, parentElementID string, out *[]NodeLayout) {
 				ParentElementID: parentElementID,
 				NodeType:        n.NodeType,
 				Label:           label,
+				LabelExpression: n.LabelExpression,
 				ElementType:     "Group",
 				X:               n.X, Y: n.Y, W: n.W, H: n.H,
 				Style: convertNodeStyle(n.Style),
