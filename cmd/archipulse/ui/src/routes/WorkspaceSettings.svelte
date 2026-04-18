@@ -1,5 +1,6 @@
 <script>
   import { onMount } from 'svelte';
+  import { push } from 'svelte-spa-router';
   import { api } from '../lib/api.js';
   import { user } from '../lib/auth.js';
 
@@ -140,6 +141,27 @@
   $: currentUserId = $user?.id;
   $: myRole = members.find(m => m.user_id === currentUserId)?.role;
   $: canManage = $user?.org_role === 'admin' || myRole === 'owner';
+  $: isOwner = myRole === 'owner';
+
+  // ── Delete workspace ──────────────────────────────────────────────────────
+  let deleteConfirm = '';
+  let deleting = false;
+  let deleteError = null;
+
+  $: deleteReady = ws && deleteConfirm.trim() === ws.name.trim();
+
+  async function deleteWorkspace() {
+    if (!deleteReady || deleting) return;
+    deleting = true;
+    deleteError = null;
+    try {
+      await api.delete('/workspaces/' + wsId);
+      push('/');
+    } catch (e) {
+      deleteError = e.message;
+      deleting = false;
+    }
+  }
 </script>
 
 <div class="content max-w-2xl">
@@ -366,6 +388,58 @@
           </a>
         </div>
       </div>
+
+      <!-- Danger zone — owners only -->
+      {#if isOwner}
+        <div class="border border-destructive/40 rounded-lg overflow-hidden mt-2">
+          <div class="bg-destructive/5 border-b border-destructive/40 px-5 py-3 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="size-4 text-destructive flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+            </svg>
+            <span class="text-[12px] font-semibold uppercase tracking-wide text-destructive">Danger zone</span>
+          </div>
+          <div class="p-5">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <div class="text-[13px] font-medium">Delete this workspace</div>
+                <p class="text-[12px] text-muted-foreground mt-0.5">
+                  Permanently removes all elements, relationships, diagrams, members, and history.
+                  This action <strong>cannot be undone</strong>.
+                </p>
+              </div>
+            </div>
+            <div class="mt-4 pt-4 border-t border-destructive/20">
+              <label class="block text-[12px] text-muted-foreground mb-1.5" for="delete-confirm">
+                Type <strong class="text-foreground">{ws.name}</strong> to confirm
+              </label>
+              <div class="flex gap-2">
+                <input
+                  id="delete-confirm"
+                  class="flex-1 text-[13px] border rounded-md px-3 py-1.5 bg-background focus:outline-none focus:ring-1
+                    {deleteReady ? 'border-destructive focus:ring-destructive' : 'border-border focus:ring-primary'}"
+                  type="text"
+                  placeholder={ws.name}
+                  bind:value={deleteConfirm}
+                  disabled={deleting}
+                />
+                <button
+                  class="px-4 py-1.5 text-[13px] font-medium rounded-md transition-colors
+                    {deleteReady
+                      ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90'
+                      : 'bg-muted text-muted-foreground cursor-not-allowed opacity-50'}"
+                  disabled={!deleteReady || deleting}
+                  on:click={deleteWorkspace}
+                >
+                  {deleting ? 'Deleting…' : 'Delete workspace'}
+                </button>
+              </div>
+              {#if deleteError}
+                <div class="mt-2 text-[12px] text-destructive bg-destructive/10 border border-destructive/30 rounded-md px-3 py-1.5">{deleteError}</div>
+              {/if}
+            </div>
+          </div>
+        </div>
+      {/if}
     {/if}
   {/if}
 </div>
