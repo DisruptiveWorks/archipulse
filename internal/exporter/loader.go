@@ -452,6 +452,7 @@ func loadDiagrams(db *sql.DB, workspaceID uuid.UUID) ([]parser.Diagram, error) {
 				ParentElementID string       `json:"ParentElementID"`
 				NodeType        string       `json:"NodeType"`
 				Label           string       `json:"Label"`
+				LabelExpression string       `json:"LabelExpression"`
 				ElementType     string       `json:"ElementType"`
 				X               int          `json:"X"`
 				Y               int          `json:"Y"`
@@ -486,6 +487,7 @@ func loadDiagrams(db *sql.DB, workspaceID uuid.UUID) ([]parser.Diagram, error) {
 				ParentElementID: n.ParentElementID,
 				NodeType:        n.NodeType,
 				Label:           n.Label,
+				LabelExpression: n.LabelExpression,
 				ElementType:     n.ElementType,
 				X:               n.X,
 				Y:               n.Y,

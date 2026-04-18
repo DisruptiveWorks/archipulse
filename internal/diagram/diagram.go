@@ -313,8 +313,10 @@ func (s *Store) Render(diagramID uuid.UUID) (*RenderData, error) {
 	}
 
 	for _, n := range layout.Nodes {
-		// Skip pure label nodes — they are floating text annotations, not renderable elements.
-		if n.NodeType == "Label" {
+		// Skip Label nodes that have no displayable text (e.g. Archi labelExpression-only
+		// nodes that reference view properties we cannot evaluate). Label nodes with a
+		// fixed text label are kept so they render as text annotations.
+		if n.NodeType == "Label" && n.Label == "" {
 			continue
 		}
 		meta := elemMeta[n.ElementID]
