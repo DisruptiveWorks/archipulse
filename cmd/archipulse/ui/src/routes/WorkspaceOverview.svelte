@@ -3,6 +3,7 @@
   import { push } from 'svelte-spa-router';
   import { api } from '../lib/api.js';
   import { VIEWS } from '../lib/views.js';
+  import { importRevision } from '../lib/workspace-events.js';
 
   export let params = {};
 
@@ -17,6 +18,9 @@
   onMount(async () => {
     await load();
   });
+
+  // Reload when a new model is imported (even if we're already on this route).
+  $: if ($importRevision >= 0 && wsId) load();
 
   async function load() {
     loading = true;
