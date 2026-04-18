@@ -62,9 +62,9 @@ func (svc *Service) RequireWorkspaceAccess(minRole string) func(http.Handler) ht
 				next.ServeHTTP(w, r)
 				return
 			}
-			wsID := chi.URLParam(r, "id")
+			wsID := chi.URLParam(r, "wsID")
 			if wsID == "" {
-				wsID = chi.URLParam(r, "wsID")
+				wsID = chi.URLParam(r, "id")
 			}
 			if wsID == "" {
 				http.Error(w, `{"error":"workspace id required"}`, http.StatusBadRequest)
