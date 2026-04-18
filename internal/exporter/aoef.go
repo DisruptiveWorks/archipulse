@@ -165,6 +165,7 @@ type aoefNode struct {
 	Y               int        `xml:"y,attr"`
 	W               int        `xml:"w,attr"`
 	H               int        `xml:"h,attr"`
+	Label           string     `xml:"label,omitempty"`
 	Style           *aoefStyle `xml:"style"`
 	Children        []aoefNode `xml:"node"`
 }
@@ -516,6 +517,11 @@ func buildNodeTree(nodes []parser.NodeLayout) []aoefNode {
 		if elementRef == n.NodeID {
 			elementRef = ""
 		}
+		// Group/container nodes (no elementRef) store their display name in Label.
+		label := ""
+		if elementRef == "" {
+			label = n.Label
+		}
 		node := aoefNode{
 			Identifier:      n.NodeID,
 			ElementRef:      elementRef,
@@ -525,6 +531,7 @@ func buildNodeTree(nodes []parser.NodeLayout) []aoefNode {
 			Y:               n.Y,
 			W:               n.W,
 			H:               n.H,
+			Label:           label,
 			Style:           convertNodeStyle(n.Style),
 		}
 		// Children reference this node via its ElementID (element node) or
