@@ -16,8 +16,10 @@
   import WorkspaceSettings from './routes/WorkspaceSettings.svelte';
   import WorkspaceHistory from './routes/WorkspaceHistory.svelte';
 
+  import { Toaster, toast } from 'svelte-sonner';
   import { api } from './lib/api.js';
   import { VIEWS } from './lib/views.js';
+  import { importRevision } from './lib/workspace-events.js';
   import { user, fetchMe } from './lib/auth.js';
   import { onMount } from 'svelte';
 
@@ -110,8 +112,18 @@
 
   $: viewLabel = viewName ? (VIEWS[viewName] ? VIEWS[viewName].label : viewName) : null;
 
-  function handleImported() {
-    if (wsId) loadWs(wsId);
+  function handleImported(e) {
+    if (wsId) {
+      loadWs(wsId);
+      push('/ws/' + wsId);
+      importRevision.update(n => n + 1);
+      const d = e?.detail;
+      if (d) {
+        toast.success('Import complete', {
+          description: `${d.elements} elements · ${d.relationships} relationships · ${d.diagrams} diagrams`,
+        });
+      }
+    }
   }
 
   function routeEvent(e) {
@@ -161,3 +173,5 @@
     {/if}
   </div>
 {/if}
+
+<Toaster richColors position="bottom-right" />
