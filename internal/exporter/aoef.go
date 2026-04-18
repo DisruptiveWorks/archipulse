@@ -34,9 +34,9 @@ type aoefModel struct {
 	SchemaLoc     string             `xml:"xsi:schemaLocation,attr"`
 	Name          string             `xml:"name"`
 	Properties    *aoefProperties    `xml:"properties,omitempty"`
-	PropertyDefs  *aoefPropertyDefs  `xml:"propertyDefinitions,omitempty"`
 	Elements      *aoefElements      `xml:"elements,omitempty"`
 	Relationships *aoefRelationships `xml:"relationships,omitempty"`
+	PropertyDefs  *aoefPropertyDefs  `xml:"propertyDefinitions,omitempty"`
 	Views         *aoefViews         `xml:"views,omitempty"`
 	Organizations *aoefOrgsBlock     `xml:"organizations,omitempty"`
 }
