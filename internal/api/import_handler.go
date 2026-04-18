@@ -458,4 +458,5 @@ func ImportModel(db *sql.DB, wsID uuid.UUID, m *parser.Model) (*ImportResult, er
 func registerImportRoutes(r chi.Router, db *sql.DB, svc *auth.Service, auditStore *audit.Store, snapStore *snapshot.Store) {
 	h := &importHandler{db: db, audit: auditStore, snaps: snapStore}
 	r.With(svc.RequireWorkspaceAccess(auth.RoleEditor)).Post("/workspaces/{id}/import", h.importModel)
+	r.With(svc.RequireWorkspaceAccess(auth.RoleEditor)).Post("/workspaces/{id}/import/preview", h.previewImport)
 }
