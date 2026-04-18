@@ -3,10 +3,10 @@ package parser
 // Model is the in-memory representation of a parsed ArchiMate model.
 // It is format-agnostic — produced by both the AOEF and AJX parsers.
 type Model struct {
-	Identifier          string               // AOEF model/@identifier
+	Identifier          string // AOEF model/@identifier
 	Name                string
 	Version             string
-	Properties          []Property           // model-level <properties>
+	Properties          []Property // model-level <properties>
 	Elements            []Element
 	Relationships       []Relationship
 	Diagrams            []Diagram
@@ -91,8 +91,8 @@ type Property struct {
 type Relationship struct {
 	ID             string
 	Type           string
-	Source         string // element source_id
-	Target         string // element source_id
+	Source         string       // element source_id
+	Target         string       // element source_id
 	Name           string       // preferred/first language — backward compat
 	Documentation  string       // preferred/first language — backward compat
 	Names          []LangString // all xml:lang variants

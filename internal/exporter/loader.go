@@ -409,9 +409,9 @@ func loadDiagrams(db *sql.DB, workspaceID uuid.UUID) ([]parser.Diagram, error) {
 	var out []parser.Diagram
 	for rows.Next() {
 		var (
-			sourceID, name, doc    string
+			sourceID, name, doc     string
 			viewpoint, viewpointRef string
-			rawLayout              []byte
+			rawLayout               []byte
 		)
 		if err := rows.Scan(&sourceID, &name, &doc, &rawLayout, &viewpoint, &viewpointRef); err != nil {
 			return nil, err
@@ -423,57 +423,57 @@ func loadDiagrams(db *sql.DB, workspaceID uuid.UUID) ([]parser.Diagram, error) {
 		// single-letter). Using snake_case or lowercase tags here would silently
 		// deserialize every style as nil.
 		type dbColor struct {
-				R int  `json:"R"`
-				G int  `json:"G"`
-				B int  `json:"B"`
-				A *int `json:"A,omitempty"`
-			}
-			type dbFont struct {
-				Name  string   `json:"Name,omitempty"`
-				Size  string   `json:"Size,omitempty"`
-				Style string   `json:"Style,omitempty"`
-				Color *dbColor `json:"Color,omitempty"`
-			}
-			type dbNodeStyle struct {
-				FillColor *dbColor `json:"FillColor,omitempty"`
-				LineColor *dbColor `json:"LineColor,omitempty"`
-				Font      *dbFont  `json:"Font,omitempty"`
-				LineWidth int      `json:"LineWidth,omitempty"`
-			}
-			type dbConnStyle struct {
-				LineColor *dbColor `json:"LineColor,omitempty"`
-				Font      *dbFont  `json:"Font,omitempty"`
-				LineWidth int      `json:"LineWidth,omitempty"`
-			}
-			var layout struct {
-				Nodes []struct {
-					NodeID          string       `json:"NodeID"`
-					ElementID       string       `json:"ElementID"`
-					ParentElementID string       `json:"ParentElementID"`
-					NodeType        string       `json:"NodeType"`
-					Label           string       `json:"Label"`
-					ElementType     string       `json:"ElementType"`
-					X               int          `json:"X"`
-					Y               int          `json:"Y"`
-					W               int          `json:"W"`
-					H               int          `json:"H"`
-					Style           *dbNodeStyle `json:"Style"`
-				} `json:"Nodes"`
-				Connections []struct {
-					ConnectionID    string       `json:"ConnectionID"`
-					RelationshipID  string       `json:"RelationshipID"`
-					SourceNodeID    string       `json:"SourceNodeID"`
-					TargetNodeID    string       `json:"TargetNodeID"`
-					SourceElementID string       `json:"SourceElementID"`
-					TargetElementID string       `json:"TargetElementID"`
-					Label           string       `json:"Label"`
-					Bendpoints      []struct {
-						X int `json:"X"`
-						Y int `json:"Y"`
-					} `json:"Bendpoints"`
-					Style *dbConnStyle `json:"Style"`
-				} `json:"Connections"`
-			}
+			R int  `json:"R"`
+			G int  `json:"G"`
+			B int  `json:"B"`
+			A *int `json:"A,omitempty"`
+		}
+		type dbFont struct {
+			Name  string   `json:"Name,omitempty"`
+			Size  string   `json:"Size,omitempty"`
+			Style string   `json:"Style,omitempty"`
+			Color *dbColor `json:"Color,omitempty"`
+		}
+		type dbNodeStyle struct {
+			FillColor *dbColor `json:"FillColor,omitempty"`
+			LineColor *dbColor `json:"LineColor,omitempty"`
+			Font      *dbFont  `json:"Font,omitempty"`
+			LineWidth int      `json:"LineWidth,omitempty"`
+		}
+		type dbConnStyle struct {
+			LineColor *dbColor `json:"LineColor,omitempty"`
+			Font      *dbFont  `json:"Font,omitempty"`
+			LineWidth int      `json:"LineWidth,omitempty"`
+		}
+		var layout struct {
+			Nodes []struct {
+				NodeID          string       `json:"NodeID"`
+				ElementID       string       `json:"ElementID"`
+				ParentElementID string       `json:"ParentElementID"`
+				NodeType        string       `json:"NodeType"`
+				Label           string       `json:"Label"`
+				ElementType     string       `json:"ElementType"`
+				X               int          `json:"X"`
+				Y               int          `json:"Y"`
+				W               int          `json:"W"`
+				H               int          `json:"H"`
+				Style           *dbNodeStyle `json:"Style"`
+			} `json:"Nodes"`
+			Connections []struct {
+				ConnectionID    string `json:"ConnectionID"`
+				RelationshipID  string `json:"RelationshipID"`
+				SourceNodeID    string `json:"SourceNodeID"`
+				TargetNodeID    string `json:"TargetNodeID"`
+				SourceElementID string `json:"SourceElementID"`
+				TargetElementID string `json:"TargetElementID"`
+				Label           string `json:"Label"`
+				Bendpoints      []struct {
+					X int `json:"X"`
+					Y int `json:"Y"`
+				} `json:"Bendpoints"`
+				Style *dbConnStyle `json:"Style"`
+			} `json:"Connections"`
+		}
 		if err := json.Unmarshal(rawLayout, &layout); err != nil {
 			return nil, fmt.Errorf("unmarshal layout for %s: %w", sourceID, err)
 		}

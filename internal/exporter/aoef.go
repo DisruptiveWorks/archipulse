@@ -27,18 +27,18 @@ func WriteAOEF(w io.Writer, m *parser.Model) error {
 // ---- AOEF XML structs (output) ----
 
 type aoefModel struct {
-	XMLName       xml.Name              `xml:"model"`
-	Identifier    string                `xml:"identifier,attr,omitempty"`
-	XMLNS         string                `xml:"xmlns,attr"`
-	XMLNSxsi      string                `xml:"xmlns:xsi,attr"`
-	SchemaLoc     string                `xml:"xsi:schemaLocation,attr"`
-	Name          string                `xml:"name"`
-	Properties    *aoefProperties       `xml:"properties,omitempty"`
-	PropertyDefs  *aoefPropertyDefs     `xml:"propertyDefinitions,omitempty"`
-	Elements      *aoefElements         `xml:"elements,omitempty"`
-	Relationships *aoefRelationships    `xml:"relationships,omitempty"`
-	Views         *aoefViews            `xml:"views,omitempty"`
-	Organizations *aoefOrgsBlock        `xml:"organizations,omitempty"`
+	XMLName       xml.Name           `xml:"model"`
+	Identifier    string             `xml:"identifier,attr,omitempty"`
+	XMLNS         string             `xml:"xmlns,attr"`
+	XMLNSxsi      string             `xml:"xmlns:xsi,attr"`
+	SchemaLoc     string             `xml:"xsi:schemaLocation,attr"`
+	Name          string             `xml:"name"`
+	Properties    *aoefProperties    `xml:"properties,omitempty"`
+	PropertyDefs  *aoefPropertyDefs  `xml:"propertyDefinitions,omitempty"`
+	Elements      *aoefElements      `xml:"elements,omitempty"`
+	Relationships *aoefRelationships `xml:"relationships,omitempty"`
+	Views         *aoefViews         `xml:"views,omitempty"`
+	Organizations *aoefOrgsBlock     `xml:"organizations,omitempty"`
 }
 
 type aoefPropertyDefs struct {
@@ -94,9 +94,9 @@ type aoefViewpointOut struct {
 }
 
 type aoefConcernOut struct {
-	Label         string             `xml:"label"`
-	Documentation string             `xml:"documentation,omitempty"`
-	Stakeholders  *aoefStakeholders  `xml:"stakeholders,omitempty"`
+	Label         string            `xml:"label"`
+	Documentation string            `xml:"documentation,omitempty"`
+	Stakeholders  *aoefStakeholders `xml:"stakeholders,omitempty"`
 }
 
 type aoefStakeholders struct {

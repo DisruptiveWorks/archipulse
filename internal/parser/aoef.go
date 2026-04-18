@@ -21,17 +21,17 @@ func ParseAOEF(r io.Reader) (*Model, error) {
 // ---- raw AOEF XML structs ----
 
 type aoefModel struct {
-	XMLName       xml.Name            `xml:"model"`
-	Identifier    string              `xml:"identifier,attr"`
-	Version       string              `xml:"version,attr"`
-	Names         []aoefLangString    `xml:"name"`
-	PropertyDefs  []aoefPropertyDef   `xml:"propertyDefinitions>propertyDefinition"`
-	Properties    []aoefProperty      `xml:"properties>property"`
-	Elements      []aoefElement       `xml:"elements>element"`
-	Relationships []aoefRelationship  `xml:"relationships>relationship"`
-	Views         []aoefView          `xml:"views>diagrams>view"`
-	Viewpoints    []aoefViewpoint     `xml:"views>viewpoints>viewpoint"`
-	Organizations []aoefOrgItem       `xml:"organizations>item"`
+	XMLName       xml.Name           `xml:"model"`
+	Identifier    string             `xml:"identifier,attr"`
+	Version       string             `xml:"version,attr"`
+	Names         []aoefLangString   `xml:"name"`
+	PropertyDefs  []aoefPropertyDef  `xml:"propertyDefinitions>propertyDefinition"`
+	Properties    []aoefProperty     `xml:"properties>property"`
+	Elements      []aoefElement      `xml:"elements>element"`
+	Relationships []aoefRelationship `xml:"relationships>relationship"`
+	Views         []aoefView         `xml:"views>diagrams>view"`
+	Viewpoints    []aoefViewpoint    `xml:"views>viewpoints>viewpoint"`
+	Organizations []aoefOrgItem      `xml:"organizations>item"`
 }
 
 type aoefViewpoint struct {
