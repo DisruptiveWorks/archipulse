@@ -524,8 +524,8 @@ func buildNodeTree(nodes []parser.NodeLayout) []aoefNode {
 			X:               n.X,
 			Y:               n.Y,
 			W:               n.W,
-			H:          n.H,
-			Style:      convertNodeStyle(n.Style),
+			H:               n.H,
+			Style:           convertNodeStyle(n.Style),
 		}
 		// Children reference this node via its ElementID (element node) or
 		// NodeID (group node — ElementID is empty).
