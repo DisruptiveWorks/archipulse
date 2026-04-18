@@ -129,17 +129,24 @@ func (s *Store) Delete(id uuid.UUID) error {
 	return nil
 }
 
+// ModelProperty is a key/value pair with its original AOEF propertyDefinitionRef.
+type ModelProperty struct {
+	DefinitionRef string
+	Key           string
+	Value         string
+}
+
 // InsertProperties bulk-inserts properties for an element using the provided executor
 // (either *sql.DB or *sql.Tx). source is the extractor name or "model".
 // collectedAt may be nil when source is "model".
 func InsertProperties(exec interface {
 	Exec(query string, args ...any) (sql.Result, error)
-}, elementID uuid.UUID, props []struct{ Key, Value string }, source string, collectedAt *time.Time) error {
+}, elementID uuid.UUID, props []ModelProperty, source string, collectedAt *time.Time) error {
 	for _, p := range props {
 		_, err := exec.Exec(`
-			INSERT INTO element_properties (element_id, key, value, source, collected_at)
-			VALUES ($1, $2, $3, $4, $5)`,
-			elementID, p.Key, p.Value, source, collectedAt)
+			INSERT INTO element_properties (element_id, key, value, source, collected_at, definition_ref)
+			VALUES ($1, $2, $3, $4, $5, $6)`,
+			elementID, p.Key, p.Value, source, collectedAt, p.DefinitionRef)
 		if err != nil {
 			return fmt.Errorf("insert property %q for element %s: %w", p.Key, elementID, err)
 		}

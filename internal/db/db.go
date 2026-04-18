@@ -31,7 +31,17 @@ func Connect() (*sql.DB, error) {
 
 // Migrate runs all pending SQL migrations from the given directory.
 // Migration files must be named NNN_*.sql where NNN is a zero-padded integer version.
+// A PostgreSQL session-level advisory lock (key 0xArchipulse) serialises concurrent
+// callers (e.g. parallel test packages sharing the same database).
 func Migrate(db *sql.DB, migrationsDir string) error {
+	// Acquire an exclusive advisory lock for the duration of migration.
+	// pg_advisory_lock blocks until acquired; pg_advisory_unlock releases it.
+	const lockKey = 0x417263 // "Arc" in hex — arbitrary but stable
+	if _, err := db.Exec(`SELECT pg_advisory_lock($1)`, lockKey); err != nil {
+		return fmt.Errorf("acquire migration lock: %w", err)
+	}
+	defer func() { _, _ = db.Exec(`SELECT pg_advisory_unlock($1)`, lockKey) }()
+
 	if _, err := db.Exec(`CREATE TABLE IF NOT EXISTS schema_migrations (
 		version    INTEGER PRIMARY KEY,
 		applied_at TIMESTAMPTZ NOT NULL DEFAULT now()

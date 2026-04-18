@@ -22,6 +22,9 @@ type Relationship struct {
 	TargetElement string    `json:"target_element"`
 	Name          string    `json:"name"`
 	Documentation string    `json:"documentation"`
+	AccessType    string    `json:"access_type,omitempty"`
+	IsDirected    bool      `json:"is_directed,omitempty"`
+	Modifier      string    `json:"modifier,omitempty"`
 	Version       int       `json:"version"`
 	CreatedAt     time.Time `json:"created_at"`
 	UpdatedAt     time.Time `json:"updated_at"`
@@ -36,7 +39,9 @@ func NewStore(db *sql.DB) *Store { return &Store{db: db} }
 func (s *Store) List(workspaceID uuid.UUID) ([]Relationship, error) {
 	rows, err := s.db.Query(`
 		SELECT id, workspace_id, source_id, type, source_element, target_element,
-		       name, documentation, version, created_at, updated_at
+		       name, documentation,
+		       COALESCE(access_type, ''), is_directed, COALESCE(modifier, ''),
+		       version, created_at, updated_at
 		FROM relationships WHERE workspace_id = $1 ORDER BY type, name`, workspaceID)
 	if err != nil {
 		return nil, fmt.Errorf("list relationships: %w", err)
@@ -48,6 +53,7 @@ func (s *Store) List(workspaceID uuid.UUID) ([]Relationship, error) {
 		var rel Relationship
 		if err := rows.Scan(&rel.ID, &rel.WorkspaceID, &rel.SourceID, &rel.Type,
 			&rel.SourceElement, &rel.TargetElement, &rel.Name, &rel.Documentation,
+			&rel.AccessType, &rel.IsDirected, &rel.Modifier,
 			&rel.Version, &rel.CreatedAt, &rel.UpdatedAt); err != nil {
 			return nil, err
 		}
@@ -60,10 +66,13 @@ func (s *Store) Get(id uuid.UUID) (*Relationship, error) {
 	var rel Relationship
 	err := s.db.QueryRow(`
 		SELECT id, workspace_id, source_id, type, source_element, target_element,
-		       name, documentation, version, created_at, updated_at
+		       name, documentation,
+		       COALESCE(access_type, ''), is_directed, COALESCE(modifier, ''),
+		       version, created_at, updated_at
 		FROM relationships WHERE id = $1`, id).
 		Scan(&rel.ID, &rel.WorkspaceID, &rel.SourceID, &rel.Type,
 			&rel.SourceElement, &rel.TargetElement, &rel.Name, &rel.Documentation,
+			&rel.AccessType, &rel.IsDirected, &rel.Modifier,
 			&rel.Version, &rel.CreatedAt, &rel.UpdatedAt)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, ErrNotFound

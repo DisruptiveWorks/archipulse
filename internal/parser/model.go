@@ -3,14 +3,43 @@ package parser
 // Model is the in-memory representation of a parsed ArchiMate model.
 // It is format-agnostic — produced by both the AOEF and AJX parsers.
 type Model struct {
+	Identifier          string               // AOEF model/@identifier
 	Name                string
 	Version             string
+	Properties          []Property           // model-level <properties>
 	Elements            []Element
 	Relationships       []Relationship
 	Diagrams            []Diagram
 	ViewFolders         []ViewFolder         // folder hierarchy from <organizations>
 	DiagramFolders      []DiagramFolder      // diagram → folder assignments
 	PropertyDefinitions []PropertyDefinition // typed property definitions
+	Viewpoints          []Viewpoint          // viewpoint definitions from <views><viewpoints>
+}
+
+// Viewpoint is an ArchiMate viewpoint definition from <viewpoints><viewpoint>.
+type Viewpoint struct {
+	ID                       string
+	Name                     string
+	Documentation            string
+	Purpose                  string // space-separated: Designing|Deciding|Informing
+	Content                  string // space-separated: Details|Coherence|Overview
+	Concerns                 []ViewpointConcern
+	AllowedElementTypes      []string
+	AllowedRelationshipTypes []string
+	ModelingNotes            []ViewpointModelingNote
+}
+
+// ViewpointConcern is a stakeholder concern attached to a viewpoint.
+type ViewpointConcern struct {
+	Label         string
+	Documentation string
+	Stakeholders  []string
+}
+
+// ViewpointModelingNote is a guidance note attached to a viewpoint.
+type ViewpointModelingNote struct {
+	Type          string
+	Documentation string
 }
 
 // PropertyDefinition mirrors an OEF <propertyDefinition> with its data type.
@@ -34,43 +63,58 @@ type DiagramFolder struct {
 	FolderSourceID  string // empty if diagram is at root (no folder)
 }
 
-// Element represents an ArchiMate element (AOEF <element>).
-type Element struct {
-	ID            string
-	Type          string
-	Name          string
-	Documentation string
-	Properties    []Property
+// LangString is a string value paired with an optional xml:lang tag.
+type LangString struct {
+	Lang  string // empty means no xml:lang attribute
+	Value string
 }
 
-// Property is a key/value pair attached to an element, sourced from the model file.
+// Element represents an ArchiMate element (AOEF <element>).
+type Element struct {
+	ID             string
+	Type           string
+	Name           string       // preferred/first language — backward compat
+	Documentation  string       // preferred/first language — backward compat
+	Names          []LangString // all xml:lang variants
+	Documentations []LangString // all xml:lang variants
+	Properties     []Property
+}
+
+// Property is a key/value pair attached to an element or relationship, sourced from the model file.
 type Property struct {
-	Key   string
-	Value string
+	DefinitionRef string // original AOEF propertyDefinitionRef — preserved for round-trip export
+	Key           string
+	Value         string
 }
 
 // Relationship represents an ArchiMate relationship (AOEF <relationship>).
 type Relationship struct {
-	ID            string
-	Type          string
-	Source        string // element source_id
-	Target        string // element source_id
-	Name          string
-	Documentation string
+	ID             string
+	Type           string
+	Source         string // element source_id
+	Target         string // element source_id
+	Name           string       // preferred/first language — backward compat
+	Documentation  string       // preferred/first language — backward compat
+	Names          []LangString // all xml:lang variants
+	Documentations []LangString // all xml:lang variants
 	// Type-specific semantic attributes (OEF standard).
 	AccessType string // Access relationship: Access|Read|Write|ReadWrite
 	IsDirected bool   // Association relationship: directed flag
 	Modifier   string // Influence relationship: strength/sign e.g. "+", "--", "5"
+	Properties []Property
 }
 
 // Diagram represents an ArchiMate view (AOEF <view>).
 type Diagram struct {
-	ID            string
-	Name          string
-	Documentation string
-	Viewpoint     string // viewpoint attribute (named or free-form)
-	ViewpointRef  string // identifierRef to a defined viewpoint
-	Layout        DiagramLayout
+	ID             string
+	Name           string       // preferred/first language — backward compat
+	Documentation  string       // preferred/first language — backward compat
+	Names          []LangString // all xml:lang variants
+	Documentations []LangString // all xml:lang variants
+	Viewpoint      string       // viewpoint attribute (named or free-form)
+	ViewpointRef   string       // identifierRef to a defined viewpoint
+	Properties     []Property   // view-level <properties>
+	Layout         DiagramLayout
 }
 
 // DiagramLayout holds the visual positions of nodes and connections within a diagram.
@@ -94,6 +138,7 @@ type NodeLayout struct {
 
 // ConnectionLayout holds the visual path and optional style of a connection.
 type ConnectionLayout struct {
+	ConnectionID    string // diagram-level connection identifier (OEF @identifier)
 	RelationshipID  string
 	SourceNodeID    string // OEF node identifier of the visual source node
 	TargetNodeID    string // OEF node identifier of the visual target node

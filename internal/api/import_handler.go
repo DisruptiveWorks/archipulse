@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 
 	"github.com/DisruptiveWorks/archipulse/internal/audit"
 	"github.com/DisruptiveWorks/archipulse/internal/auth"
@@ -130,6 +131,21 @@ func (h *importHandler) importModel(w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusOK, result)
 }
 
+// insertLangStrings bulk-inserts xml:lang variants for a given entity and field.
+// table must be one of element_names, relationship_names, diagram_names.
+// idCol is the FK column name (element_id, relationship_id, diagram_id).
+func insertLangStrings(tx *sql.Tx, table, idCol string, entityID interface{}, field string, langs []parser.LangString) error {
+	for _, ls := range langs {
+		if _, err := tx.Exec(`INSERT INTO `+table+` (`+idCol+`, field, lang, value)
+			VALUES ($1, $2, $3, $4)
+			ON CONFLICT (`+idCol+`, field, lang) DO UPDATE SET value = EXCLUDED.value`,
+			entityID, field, ls.Lang, ls.Value); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func importInTx(db *sql.DB, wsID uuid.UUID, m *parser.Model) (*ImportResult, error) {
 	tx, err := db.Begin()
 	if err != nil {
@@ -138,6 +154,69 @@ func importInTx(db *sql.DB, wsID uuid.UUID, m *parser.Model) (*ImportResult, err
 	defer func() { _ = tx.Rollback() }()
 
 	result := &ImportResult{WorkspaceID: wsID.String()}
+
+	// --- Model identifier ---
+	if m.Identifier != "" {
+		if _, err := tx.Exec(`UPDATE workspaces SET model_identifier = $1 WHERE id = $2`,
+			m.Identifier, wsID); err != nil {
+			return nil, errorf("store model identifier: %w", err)
+		}
+	}
+
+	// --- Model-level properties ---
+	if _, err := tx.Exec(`DELETE FROM model_properties WHERE workspace_id = $1`, wsID); err != nil {
+		return nil, errorf("clear model properties: %w", err)
+	}
+	for _, p := range m.Properties {
+		if _, err := tx.Exec(`
+			INSERT INTO model_properties (workspace_id, definition_ref, key, value)
+			VALUES ($1, $2, $3, $4)`,
+			wsID, p.DefinitionRef, p.Key, p.Value); err != nil {
+			return nil, errorf("insert model property %q: %w", p.Key, err)
+		}
+	}
+
+	// --- Viewpoints ---
+	// Delete viewpoints no longer present (re-import is authoritative).
+	if _, err := tx.Exec(`DELETE FROM viewpoints WHERE workspace_id = $1`, wsID); err != nil {
+		return nil, errorf("clear viewpoints: %w", err)
+	}
+	for _, vp := range m.Viewpoints {
+		concernsJSON, err := json.Marshal(vp.Concerns)
+		if err != nil {
+			return nil, errorf("marshal concerns for viewpoint %q: %w", vp.ID, err)
+		}
+		notesJSON, err := json.Marshal(vp.ModelingNotes)
+		if err != nil {
+			return nil, errorf("marshal modeling notes for viewpoint %q: %w", vp.ID, err)
+		}
+		allowedElems := vp.AllowedElementTypes
+		if allowedElems == nil {
+			allowedElems = []string{}
+		}
+		allowedRels := vp.AllowedRelationshipTypes
+		if allowedRels == nil {
+			allowedRels = []string{}
+		}
+		if _, err := tx.Exec(`
+			INSERT INTO viewpoints
+			  (workspace_id, source_id, name, documentation, purpose, content,
+			   concerns, allowed_element_types, allowed_relationship_types, modeling_notes)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+			ON CONFLICT (workspace_id, source_id) DO UPDATE
+			  SET name = EXCLUDED.name,
+			      documentation = EXCLUDED.documentation,
+			      purpose = EXCLUDED.purpose,
+			      content = EXCLUDED.content,
+			      concerns = EXCLUDED.concerns,
+			      allowed_element_types = EXCLUDED.allowed_element_types,
+			      allowed_relationship_types = EXCLUDED.allowed_relationship_types,
+			      modeling_notes = EXCLUDED.modeling_notes`,
+			wsID, vp.ID, vp.Name, vp.Documentation, vp.Purpose, vp.Content,
+			concernsJSON, pq.Array(allowedElems), pq.Array(allowedRels), notesJSON); err != nil {
+			return nil, errorf("upsert viewpoint %q: %w", vp.ID, err)
+		}
+	}
 
 	// --- Property definitions ---
 	for _, pd := range m.PropertyDefinitions {
@@ -175,14 +254,25 @@ func importInTx(db *sql.DB, wsID uuid.UUID, m *parser.Model) (*ImportResult, err
 		}
 		result.Elements++
 
+		// Lang variants for name and documentation — delete-then-insert for clean re-import.
+		if _, err := tx.Exec(`DELETE FROM element_names WHERE element_id = $1`, elemID); err != nil {
+			return nil, errorf("clear element names for %q: %w", e.ID, err)
+		}
+		if err := insertLangStrings(tx, "element_names", "element_id", elemID, "name", e.Names); err != nil {
+			return nil, errorf("insert element names for %q: %w", e.ID, err)
+		}
+		if err := insertLangStrings(tx, "element_names", "element_id", elemID, "documentation", e.Documentations); err != nil {
+			return nil, errorf("insert element docs for %q: %w", e.ID, err)
+		}
+
+		// Always clear then re-insert model properties so a re-import stays clean.
+		if _, err := tx.Exec(`DELETE FROM element_properties WHERE element_id = $1 AND source = 'model'`, elemID); err != nil {
+			return nil, errorf("clear model properties for element %q: %w", e.ID, err)
+		}
 		if len(e.Properties) > 0 {
-			// Remove existing model properties so a re-import stays clean.
-			if _, err := tx.Exec(`DELETE FROM element_properties WHERE element_id = $1 AND source = 'model'`, elemID); err != nil {
-				return nil, errorf("clear model properties for element %q: %w", e.ID, err)
-			}
-			props := make([]struct{ Key, Value string }, len(e.Properties))
+			props := make([]element.ModelProperty, len(e.Properties))
 			for i, p := range e.Properties {
-				props[i] = struct{ Key, Value string }{p.Key, p.Value}
+				props[i] = element.ModelProperty{DefinitionRef: p.DefinitionRef, Key: p.Key, Value: p.Value}
 			}
 			if err := element.InsertProperties(tx, elemID, props, "model", nil); err != nil {
 				return nil, err
@@ -200,7 +290,8 @@ func importInTx(db *sql.DB, wsID uuid.UUID, m *parser.Model) (*ImportResult, err
 		if r.Modifier != "" {
 			modifier = &r.Modifier
 		}
-		_, err := tx.Exec(`
+		var relID uuid.UUID
+		err := tx.QueryRow(`
 			INSERT INTO relationships
 			  (workspace_id, source_id, type, source_element, target_element,
 			   name, documentation, access_type, is_directed, modifier)
@@ -214,13 +305,38 @@ func importInTx(db *sql.DB, wsID uuid.UUID, m *parser.Model) (*ImportResult, err
 			      access_type = EXCLUDED.access_type,
 			      is_directed = EXCLUDED.is_directed,
 			      modifier = EXCLUDED.modifier,
-			      version = relationships.version + 1, updated_at = now()`,
+			      version = relationships.version + 1, updated_at = now()
+			RETURNING id`,
 			wsID, r.ID, r.Type, r.Source, r.Target,
-			r.Name, r.Documentation, accessType, r.IsDirected, modifier)
+			r.Name, r.Documentation, accessType, r.IsDirected, modifier).Scan(&relID)
 		if err != nil {
 			return nil, errorf("upsert relationship %q: %w", r.ID, err)
 		}
 		result.Relationships++
+
+		// Lang variants — delete-then-insert for clean re-import.
+		if _, err := tx.Exec(`DELETE FROM relationship_names WHERE relationship_id = $1`, relID); err != nil {
+			return nil, errorf("clear relationship names for %q: %w", r.ID, err)
+		}
+		if err := insertLangStrings(tx, "relationship_names", "relationship_id", relID, "name", r.Names); err != nil {
+			return nil, errorf("insert relationship names for %q: %w", r.ID, err)
+		}
+		if err := insertLangStrings(tx, "relationship_names", "relationship_id", relID, "documentation", r.Documentations); err != nil {
+			return nil, errorf("insert relationship docs for %q: %w", r.ID, err)
+		}
+
+		// Always clear then re-insert model properties so a re-import stays clean.
+		if _, err := tx.Exec(`DELETE FROM relationship_properties WHERE relationship_id = $1 AND source = 'model'`, relID); err != nil {
+			return nil, errorf("clear model properties for relationship %q: %w", r.ID, err)
+		}
+		for _, p := range r.Properties {
+			if _, err := tx.Exec(`
+				INSERT INTO relationship_properties (relationship_id, definition_ref, key, value, source)
+				VALUES ($1, $2, $3, $4, 'model')`,
+				relID, p.DefinitionRef, p.Key, p.Value); err != nil {
+				return nil, errorf("insert property %q for relationship %q: %w", p.Key, r.ID, err)
+			}
+		}
 	}
 
 	// --- Diagram folders (parser returns them parent-first) ---
@@ -281,7 +397,8 @@ func importInTx(db *sql.DB, wsID uuid.UUID, m *parser.Model) (*ImportResult, err
 			viewpointRef = &d.ViewpointRef
 		}
 
-		_, err = tx.Exec(`
+		var diagID uuid.UUID
+		err = tx.QueryRow(`
 			INSERT INTO diagrams
 			  (workspace_id, source_id, name, documentation, layout, folder_id, viewpoint, viewpoint_ref)
 			VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
@@ -292,13 +409,38 @@ func importInTx(db *sql.DB, wsID uuid.UUID, m *parser.Model) (*ImportResult, err
 			      folder_id = EXCLUDED.folder_id,
 			      viewpoint = EXCLUDED.viewpoint,
 			      viewpoint_ref = EXCLUDED.viewpoint_ref,
-			      version = diagrams.version + 1, updated_at = now()`,
+			      version = diagrams.version + 1, updated_at = now()
+			RETURNING id`,
 			wsID, d.ID, d.Name, d.Documentation, layoutJSON, folderID,
-			viewpoint, viewpointRef)
+			viewpoint, viewpointRef).Scan(&diagID)
 		if err != nil {
 			return nil, errorf("upsert diagram %q: %w", d.ID, err)
 		}
 		result.Diagrams++
+
+		// Lang variants — delete-then-insert for clean re-import.
+		if _, err := tx.Exec(`DELETE FROM diagram_names WHERE diagram_id = $1`, diagID); err != nil {
+			return nil, errorf("clear diagram names for %q: %w", d.ID, err)
+		}
+		if err := insertLangStrings(tx, "diagram_names", "diagram_id", diagID, "name", d.Names); err != nil {
+			return nil, errorf("insert diagram names for %q: %w", d.ID, err)
+		}
+		if err := insertLangStrings(tx, "diagram_names", "diagram_id", diagID, "documentation", d.Documentations); err != nil {
+			return nil, errorf("insert diagram docs for %q: %w", d.ID, err)
+		}
+
+		// View-level properties — always clear then re-insert.
+		if _, err := tx.Exec(`DELETE FROM view_properties WHERE diagram_id = $1`, diagID); err != nil {
+			return nil, errorf("clear view properties for %q: %w", d.ID, err)
+		}
+		for _, p := range d.Properties {
+			if _, err := tx.Exec(`
+				INSERT INTO view_properties (diagram_id, definition_ref, key, value)
+				VALUES ($1, $2, $3, $4)`,
+				diagID, p.DefinitionRef, p.Key, p.Value); err != nil {
+				return nil, errorf("insert view property %q for %q: %w", p.Key, d.ID, err)
+			}
+		}
 	}
 
 	if err := tx.Commit(); err != nil {
