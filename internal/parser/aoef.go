@@ -26,10 +26,43 @@ type aoefModel struct {
 	Version       string             `xml:"version,attr"`
 	Names         []aoefLangString   `xml:"name"`
 	PropertyDefs  []aoefPropertyDef  `xml:"propertyDefinitions>propertyDefinition"`
+	Properties    []aoefProperty     `xml:"properties>property"`
 	Elements      []aoefElement      `xml:"elements>element"`
 	Relationships []aoefRelationship `xml:"relationships>relationship"`
 	Views         []aoefView         `xml:"views>diagrams>view"`
+	Viewpoints    []aoefViewpoint    `xml:"views>viewpoints>viewpoint"`
 	Organizations []aoefOrgItem      `xml:"organizations>item"`
+}
+
+type aoefViewpoint struct {
+	ID             string             `xml:"identifier,attr"`
+	Names          []aoefLangString   `xml:"name"`
+	Documentations []aoefLangString   `xml:"documentation"`
+	Purpose        string             `xml:"viewpointPurpose"`
+	Content        string             `xml:"viewpointContent"`
+	Concerns       []aoefConcern      `xml:"concern"`
+	AllowedElems   []aoefAllowedType  `xml:"allowedElementType"`
+	AllowedRels    []aoefAllowedType  `xml:"allowedRelationshipType"`
+	Notes          []aoefModelingNote `xml:"modelingNote"`
+}
+
+type aoefConcern struct {
+	Labels         []aoefLangString  `xml:"label"`
+	Documentations []aoefLangString  `xml:"documentation"`
+	Stakeholders   []aoefStakeholder `xml:"stakeholders>stakeholder"`
+}
+
+type aoefStakeholder struct {
+	Labels []aoefLangString `xml:"label"`
+}
+
+type aoefAllowedType struct {
+	Type string `xml:"type,attr"`
+}
+
+type aoefModelingNote struct {
+	Type           string           `xml:"type,attr"`
+	Documentations []aoefLangString `xml:"documentation"`
 }
 
 type aoefPropertyDef struct {
@@ -58,6 +91,7 @@ type aoefRelationship struct {
 	Target         string           `xml:"target,attr"`
 	Names          []aoefLangString `xml:"name"`
 	Documentations []aoefLangString `xml:"documentation"`
+	Properties     []aoefProperty   `xml:"properties>property"`
 	// Type-specific attributes.
 	AccessType string `xml:"accessType,attr"` // Access relationship
 	IsDirected string `xml:"isDirected,attr"` // Association relationship ("true"/"false")
@@ -70,6 +104,7 @@ type aoefView struct {
 	ViewpointRef   string           `xml:"viewpointRef,attr"`
 	Names          []aoefLangString `xml:"name"`
 	Documentations []aoefLangString `xml:"documentation"`
+	Properties     []aoefProperty   `xml:"properties>property"`
 	Nodes          []aoefNode       `xml:"node"`
 	Connections    []aoefConn       `xml:"connection"`
 }
@@ -88,6 +123,7 @@ type aoefNode struct {
 }
 
 type aoefConn struct {
+	Identifier      string           `xml:"identifier,attr"`
 	RelationshipRef string           `xml:"relationshipRef,attr"`
 	Source          string           `xml:"source,attr"`
 	Target          string           `xml:"target,attr"`
@@ -136,6 +172,18 @@ type aoefLangString struct {
 	Value string `xml:",chardata"`
 }
 
+// toLangStrings converts raw AOEF lang strings to the model type, skipping blanks.
+func toLangStrings(ss []aoefLangString) []LangString {
+	out := make([]LangString, 0, len(ss))
+	for _, s := range ss {
+		v := strings.TrimSpace(s.Value)
+		if v != "" {
+			out = append(out, LangString{Lang: s.Lang, Value: v})
+		}
+	}
+	return out
+}
+
 // firstLang returns the first non-empty value from a slice of lang strings.
 // If lang is specified, it prefers the matching entry, falling back to the first non-empty.
 func firstLang(ss []aoefLangString, prefer string) string {
@@ -157,8 +205,9 @@ func firstLang(ss []aoefLangString, prefer string) string {
 
 func (m *aoefModel) toModel() *Model {
 	out := &Model{
-		Name:    firstLang(m.Names, ""),
-		Version: m.Version,
+		Identifier: m.Identifier,
+		Name:       firstLang(m.Names, ""),
+		Version:    m.Version,
 	}
 
 	// Build property definition ID → (name, dataType) lookup and populate output.
@@ -177,12 +226,31 @@ func (m *aoefModel) toModel() *Model {
 		})
 	}
 
+	// Model-level properties.
+	for _, p := range m.Properties {
+		def := propDefs[p.DefinitionRef]
+		key := def.name
+		if key == "" {
+			key = p.DefinitionRef
+		}
+		val := firstLang(p.Values, "")
+		if key != "" && val != "" {
+			out.Properties = append(out.Properties, Property{
+				DefinitionRef: p.DefinitionRef,
+				Key:           key,
+				Value:         val,
+			})
+		}
+	}
+
 	for _, e := range m.Elements {
 		elem := Element{
-			ID:            e.ID,
-			Type:          e.Type,
-			Name:          firstLang(e.Names, ""),
-			Documentation: firstLang(e.Documentations, ""),
+			ID:             e.ID,
+			Type:           e.Type,
+			Name:           firstLang(e.Names, ""),
+			Documentation:  firstLang(e.Documentations, ""),
+			Names:          toLangStrings(e.Names),
+			Documentations: toLangStrings(e.Documentations),
 		}
 		for _, p := range e.Properties {
 			def := propDefs[p.DefinitionRef]
@@ -192,7 +260,11 @@ func (m *aoefModel) toModel() *Model {
 			}
 			val := firstLang(p.Values, "")
 			if key != "" && val != "" {
-				elem.Properties = append(elem.Properties, Property{Key: key, Value: val})
+				elem.Properties = append(elem.Properties, Property{
+					DefinitionRef: p.DefinitionRef,
+					Key:           key,
+					Value:         val,
+				})
 			}
 		}
 		out.Elements = append(out.Elements, elem)
@@ -200,28 +272,62 @@ func (m *aoefModel) toModel() *Model {
 
 	for _, r := range m.Relationships {
 		rel := Relationship{
-			ID:            r.ID,
-			Type:          r.Type,
-			Source:        r.Source,
-			Target:        r.Target,
-			Name:          firstLang(r.Names, ""),
-			Documentation: firstLang(r.Documentations, ""),
-			AccessType:    r.AccessType,
-			Modifier:      r.Modifier,
+			ID:             r.ID,
+			Type:           r.Type,
+			Source:         r.Source,
+			Target:         r.Target,
+			Name:           firstLang(r.Names, ""),
+			Documentation:  firstLang(r.Documentations, ""),
+			Names:          toLangStrings(r.Names),
+			Documentations: toLangStrings(r.Documentations),
+			AccessType:     r.AccessType,
+			Modifier:       r.Modifier,
 		}
 		if strings.EqualFold(r.IsDirected, "true") {
 			rel.IsDirected = true
+		}
+		for _, p := range r.Properties {
+			def := propDefs[p.DefinitionRef]
+			key := def.name
+			if key == "" {
+				key = p.DefinitionRef
+			}
+			val := firstLang(p.Values, "")
+			if key != "" && val != "" {
+				rel.Properties = append(rel.Properties, Property{
+					DefinitionRef: p.DefinitionRef,
+					Key:           key,
+					Value:         val,
+				})
+			}
 		}
 		out.Relationships = append(out.Relationships, rel)
 	}
 
 	for _, v := range m.Views {
 		d := Diagram{
-			ID:            v.ID,
-			Name:          firstLang(v.Names, ""),
-			Documentation: firstLang(v.Documentations, ""),
-			Viewpoint:     v.Viewpoint,
-			ViewpointRef:  v.ViewpointRef,
+			ID:             v.ID,
+			Name:           firstLang(v.Names, ""),
+			Documentation:  firstLang(v.Documentations, ""),
+			Names:          toLangStrings(v.Names),
+			Documentations: toLangStrings(v.Documentations),
+			Viewpoint:      v.Viewpoint,
+			ViewpointRef:   v.ViewpointRef,
+		}
+		for _, p := range v.Properties {
+			def := propDefs[p.DefinitionRef]
+			key := def.name
+			if key == "" {
+				key = p.DefinitionRef
+			}
+			val := firstLang(p.Values, "")
+			if key != "" && val != "" {
+				d.Properties = append(d.Properties, Property{
+					DefinitionRef: p.DefinitionRef,
+					Key:           key,
+					Value:         val,
+				})
+			}
 		}
 		// Build node-identifier → element-ID map for connection source/target resolution.
 		nodeToElem := map[string]string{}
@@ -239,6 +345,7 @@ func (m *aoefModel) toModel() *Model {
 		collectNodes(v.Nodes, "", &d.Layout.Nodes)
 		for _, c := range v.Connections {
 			cl := ConnectionLayout{
+				ConnectionID:    c.Identifier,
 				RelationshipID:  c.RelationshipRef,
 				SourceNodeID:    c.Source,
 				TargetNodeID:    c.Target,
@@ -268,6 +375,40 @@ func (m *aoefModel) toModel() *Model {
 			out.ViewFolders = append(out.ViewFolders, folders...)
 			out.DiagramFolders = append(out.DiagramFolders, diagFolders...)
 		}
+	}
+
+	// Parse viewpoint definitions.
+	for _, vp := range m.Viewpoints {
+		v := Viewpoint{
+			ID:            vp.ID,
+			Name:          firstLang(vp.Names, ""),
+			Documentation: firstLang(vp.Documentations, ""),
+			Purpose:       strings.TrimSpace(vp.Purpose),
+			Content:       strings.TrimSpace(vp.Content),
+		}
+		for _, ae := range vp.AllowedElems {
+			v.AllowedElementTypes = append(v.AllowedElementTypes, ae.Type)
+		}
+		for _, ar := range vp.AllowedRels {
+			v.AllowedRelationshipTypes = append(v.AllowedRelationshipTypes, ar.Type)
+		}
+		for _, c := range vp.Concerns {
+			concern := ViewpointConcern{
+				Label:         firstLang(c.Labels, ""),
+				Documentation: firstLang(c.Documentations, ""),
+			}
+			for _, s := range c.Stakeholders {
+				concern.Stakeholders = append(concern.Stakeholders, firstLang(s.Labels, ""))
+			}
+			v.Concerns = append(v.Concerns, concern)
+		}
+		for _, n := range vp.Notes {
+			v.ModelingNotes = append(v.ModelingNotes, ViewpointModelingNote{
+				Type:          n.Type,
+				Documentation: firstLang(n.Documentations, ""),
+			})
+		}
+		out.Viewpoints = append(out.Viewpoints, v)
 	}
 
 	return out

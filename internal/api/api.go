@@ -11,7 +11,9 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 
+	"github.com/DisruptiveWorks/archipulse/internal/audit"
 	"github.com/DisruptiveWorks/archipulse/internal/auth"
+	"github.com/DisruptiveWorks/archipulse/internal/snapshot"
 	"github.com/DisruptiveWorks/archipulse/internal/workspace"
 )
 
@@ -31,16 +33,20 @@ func NewRouter(db *sql.DB, svc *auth.Service, oidc *auth.OIDCProvider, static ..
 		// Protected API: require a valid session.
 		r.Group(func(r chi.Router) {
 			r.Use(svc.RequireAuth)
+			auditStore := audit.NewStore(db)
+			snapStore := snapshot.NewStore(db)
 			registerWorkspaceRoutes(r, workspace.NewStore(db), svc)
-			registerMembershipRoutes(r, svc)
+			registerMembershipRoutes(r, svc, auditStore)
 			registerUserRoutes(r, svc)
-			registerElementRoutes(r, db, svc)
-			registerRelationshipRoutes(r, db, svc)
-			registerDiagramRoutes(r, db, svc)
+			registerElementRoutes(r, db, svc, auditStore)
+			registerRelationshipRoutes(r, db, svc, auditStore)
+			registerDiagramRoutes(r, db, svc, auditStore)
 			registerFolderRoutes(r, db, svc)
 			registerExportRoutes(r, db, svc)
-			registerImportRoutes(r, db, svc)
+			registerImportRoutes(r, db, svc, auditStore, snapStore)
 			registerViewerRoutes(r, db, svc)
+			registerEventRoutes(r, auditStore, svc)
+			registerSnapshotRoutes(r, db, snapStore, auditStore, svc)
 		})
 	})
 

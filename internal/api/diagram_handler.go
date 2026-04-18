@@ -9,12 +9,14 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 
+	"github.com/DisruptiveWorks/archipulse/internal/audit"
 	"github.com/DisruptiveWorks/archipulse/internal/auth"
 	"github.com/DisruptiveWorks/archipulse/internal/diagram"
 )
 
 type diagramHandler struct {
 	store *diagram.Store
+	audit *audit.Store
 }
 
 func (h *diagramHandler) list(w http.ResponseWriter, r *http.Request) {
@@ -74,6 +76,13 @@ func (h *diagramHandler) create(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusInternalServerError, err)
 		return
 	}
+	if claims := auth.ClaimsFromCtx(r.Context()); claims != nil && h.audit != nil {
+		_ = h.audit.Record(audit.RecordParams{
+			WorkspaceID: wsID, UserID: claims.UserID, UserEmail: claims.Email,
+			Action: audit.ActionCreate, EntityType: audit.EntityDiagram,
+			EntityID: d.ID.String(), EntityName: d.Name,
+		})
+	}
 	respondJSON(w, http.StatusCreated, d)
 }
 
@@ -106,6 +115,14 @@ func (h *diagramHandler) update(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusInternalServerError, err)
 		return
 	}
+	if claims := auth.ClaimsFromCtx(r.Context()); claims != nil && h.audit != nil {
+		wsID, _ := uuid.Parse(chi.URLParam(r, "wsID"))
+		_ = h.audit.Record(audit.RecordParams{
+			WorkspaceID: wsID, UserID: claims.UserID, UserEmail: claims.Email,
+			Action: audit.ActionUpdate, EntityType: audit.EntityDiagram,
+			EntityID: d.ID.String(), EntityName: d.Name,
+		})
+	}
 	respondJSON(w, http.StatusOK, d)
 }
 
@@ -121,6 +138,14 @@ func (h *diagramHandler) delete(w http.ResponseWriter, r *http.Request) {
 	} else if err != nil {
 		respondError(w, http.StatusInternalServerError, err)
 		return
+	}
+	if claims := auth.ClaimsFromCtx(r.Context()); claims != nil && h.audit != nil {
+		wsID, _ := uuid.Parse(chi.URLParam(r, "wsID"))
+		_ = h.audit.Record(audit.RecordParams{
+			WorkspaceID: wsID, UserID: claims.UserID, UserEmail: claims.Email,
+			Action: audit.ActionDelete, EntityType: audit.EntityDiagram,
+			EntityID: id.String(),
+		})
 	}
 	w.WriteHeader(http.StatusNoContent)
 }
@@ -143,8 +168,8 @@ func (h *diagramHandler) render(w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusOK, rd)
 }
 
-func registerDiagramRoutes(r chi.Router, db *sql.DB, svc *auth.Service) {
-	h := &diagramHandler{store: diagram.NewStore(db)}
+func registerDiagramRoutes(r chi.Router, db *sql.DB, svc *auth.Service, auditStore *audit.Store) {
+	h := &diagramHandler{store: diagram.NewStore(db), audit: auditStore}
 	view := svc.RequireWorkspaceAccess(auth.RoleViewer)
 	edit := svc.RequireWorkspaceAccess(auth.RoleEditor)
 	r.With(view).Get("/workspaces/{wsID}/diagrams", h.list)

@@ -9,6 +9,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 
+	"github.com/DisruptiveWorks/archipulse/internal/audit"
 	"github.com/DisruptiveWorks/archipulse/internal/auth"
 	"github.com/DisruptiveWorks/archipulse/internal/element"
 	"github.com/DisruptiveWorks/archipulse/internal/parser"
@@ -16,6 +17,7 @@ import (
 
 type elementHandler struct {
 	store *element.Store
+	audit *audit.Store
 }
 
 func (h *elementHandler) list(w http.ResponseWriter, r *http.Request) {
@@ -92,6 +94,13 @@ func (h *elementHandler) create(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusInternalServerError, err)
 		return
 	}
+	if claims := auth.ClaimsFromCtx(r.Context()); claims != nil && h.audit != nil {
+		_ = h.audit.Record(audit.RecordParams{
+			WorkspaceID: wsID, UserID: claims.UserID, UserEmail: claims.Email,
+			Action: audit.ActionCreate, EntityType: audit.EntityElement,
+			EntityID: e.ID.String(), EntityName: e.Name,
+		})
+	}
 	respondJSON(w, http.StatusCreated, e)
 }
 
@@ -124,6 +133,14 @@ func (h *elementHandler) update(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusInternalServerError, err)
 		return
 	}
+	if claims := auth.ClaimsFromCtx(r.Context()); claims != nil && h.audit != nil {
+		wsID, _ := uuid.Parse(chi.URLParam(r, "wsID"))
+		_ = h.audit.Record(audit.RecordParams{
+			WorkspaceID: wsID, UserID: claims.UserID, UserEmail: claims.Email,
+			Action: audit.ActionUpdate, EntityType: audit.EntityElement,
+			EntityID: e.ID.String(), EntityName: e.Name,
+		})
+	}
 	respondJSON(w, http.StatusOK, e)
 }
 
@@ -140,11 +157,19 @@ func (h *elementHandler) delete(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusInternalServerError, err)
 		return
 	}
+	if claims := auth.ClaimsFromCtx(r.Context()); claims != nil && h.audit != nil {
+		wsID, _ := uuid.Parse(chi.URLParam(r, "wsID"))
+		_ = h.audit.Record(audit.RecordParams{
+			WorkspaceID: wsID, UserID: claims.UserID, UserEmail: claims.Email,
+			Action: audit.ActionDelete, EntityType: audit.EntityElement,
+			EntityID: id.String(),
+		})
+	}
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func registerElementRoutes(r chi.Router, db *sql.DB, svc *auth.Service) {
-	h := &elementHandler{store: element.NewStore(db)}
+func registerElementRoutes(r chi.Router, db *sql.DB, svc *auth.Service, auditStore *audit.Store) {
+	h := &elementHandler{store: element.NewStore(db), audit: auditStore}
 	view := svc.RequireWorkspaceAccess(auth.RoleViewer)
 	edit := svc.RequireWorkspaceAccess(auth.RoleEditor)
 	r.With(view).Get("/workspaces/{wsID}/elements", h.list)
