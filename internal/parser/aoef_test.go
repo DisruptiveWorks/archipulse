@@ -2,10 +2,13 @@ package parser_test
 
 import (
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/DisruptiveWorks/archipulse/internal/parser"
 )
+
+func badReader(s string) *strings.Reader { return strings.NewReader(s) }
 
 func TestParseAOEF(t *testing.T) {
 	f, err := os.Open("../../examples/minimal.xml")

@@ -68,10 +68,8 @@ func (h *importHandler) previewImport(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case strings.HasSuffix(name, ".xml"):
 		m, err = parser.ParseAOEF(file)
-	case strings.HasSuffix(name, ".ajx"), strings.HasSuffix(name, ".json"):
-		m, err = parser.ParseAJX(file)
 	default:
-		respondError(w, http.StatusBadRequest, errorf("unsupported file format: use .xml (AOEF) or .ajx/.json (AJX)"))
+		respondError(w, http.StatusBadRequest, errorf("unsupported file format: use .xml (AOEF / Open Exchange Format)"))
 		return
 	}
 	if err != nil {

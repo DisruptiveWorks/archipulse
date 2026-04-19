@@ -1,3 +1,3 @@
-// Package parser implements AOEF (XML) and AJX (JSON) parsers
+// Package parser implements the AOEF (XML) parser
 // for ArchiMate Open Exchange Format models.
 package parser

@@ -249,12 +249,12 @@
     >
       <div class="text-2xl mb-1.5">↑</div>
       <p class="text-xs">Import model</p>
-      <div class="text-[11px] mt-0.5 opacity-70">.xml · .ajx · .json</div>
+      <div class="text-[11px] mt-0.5 opacity-70">.xml (AOEF)</div>
     </div>
     <input
       type="file"
       id="sb-file-input-{wsId}"
-      accept=".xml,.ajx,.json"
+      accept=".xml"
       style="display:none"
       onchange={handleFileInput}
     />
