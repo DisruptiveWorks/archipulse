@@ -80,7 +80,7 @@
     {:else if elements === 0}
       <div class="text-center py-16 px-6 text-muted-foreground">
         <div class="text-[40px] mb-3.5">📭</div>
-        <p class="text-[14px] leading-relaxed">No model imported yet.<br>Use the import panel on the left to upload an AOEF or AJX file.</p>
+        <p class="text-[14px] leading-relaxed">No model imported yet.<br>Use the import panel on the left to upload an AOEF (.xml) file.</p>
       </div>
     {:else}
       <div class="text-[11px] font-bold tracking-[0.6px] uppercase text-muted-foreground mb-3">Model overview</div>
