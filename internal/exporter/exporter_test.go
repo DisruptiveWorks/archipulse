@@ -39,21 +39,6 @@ func TestWriteAOEF_RoundTrip(t *testing.T) {
 	assertModelsEqual(t, original, reparsed)
 }
 
-func TestWriteAJX_RoundTrip(t *testing.T) {
-	original := fixtureModel(t)
-
-	var buf bytes.Buffer
-	if err := exporter.WriteAJX(&buf, original); err != nil {
-		t.Fatalf("WriteAJX: %v", err)
-	}
-
-	reparsed, err := parser.ParseAJX(&buf)
-	if err != nil {
-		t.Fatalf("re-parse exported AJX: %v", err)
-	}
-
-	assertModelsEqual(t, original, reparsed)
-}
 
 func TestWriteAOEF_RoundTrip_ArchiMetal(t *testing.T) {
 	f, err := os.Open("../../examples/ArchiMetal.xml")

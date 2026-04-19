@@ -1,4 +1,4 @@
-// Package exporter serializes a workspace to AOEF (XML) and AJX (JSON).
+// Package exporter serializes a workspace to AOEF (XML / Open Exchange Format).
 package exporter
 
 import (

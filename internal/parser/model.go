@@ -1,7 +1,6 @@
 package parser
 
 // Model is the in-memory representation of a parsed ArchiMate model.
-// It is format-agnostic — produced by both the AOEF and AJX parsers.
 type Model struct {
 	Identifier          string // AOEF model/@identifier
 	Name                string
