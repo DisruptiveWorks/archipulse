@@ -39,7 +39,6 @@ func TestWriteAOEF_RoundTrip(t *testing.T) {
 	assertModelsEqual(t, original, reparsed)
 }
 
-
 func TestWriteAOEF_RoundTrip_ArchiMetal(t *testing.T) {
 	f, err := os.Open("../../examples/ArchiMetal.xml")
 	if err != nil {
