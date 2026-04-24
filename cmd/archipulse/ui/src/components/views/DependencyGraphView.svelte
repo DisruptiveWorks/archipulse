@@ -13,12 +13,14 @@
   import { api } from '../../lib/api.js';
   import AppNode from '../flow/AppNode.svelte';
   import FlowControls from '../flow/FlowControls.svelte';
+  import SaveViewDialog from './SaveViewDialog.svelte';
 
-  let { params = {} } = $props();
+  let { params = {}, initialFilters = null, savedViewName = null } = $props();
+  let showSaveDialog = $state(false);
 
   // ── XyFlow state ──────────────────────────────────────────────────────────
-  let nodes = $state([]);
-  let edges = $state([]);
+  let nodes = $state.raw([]);
+  let edges = $state.raw([]);
   const nodeTypes = { appNode: AppNode };
 
   // fitView comes from useSvelteFlow() via child FlowControls
@@ -59,7 +61,7 @@
   const EXTRA_PALETTE = ['#0891b2','#db2777','#ca8a04','#9333ea','#059669','#d97706','#6366f1'];
 
   // Built dynamically from data so any lifecycle value gets a consistent color.
-  let LIFECYCLE_COLORS = {};
+  let LIFECYCLE_COLORS = $state({});
   function buildLifecycleColors(nodes) {
     const vals = [...new Set(nodes.map(n => n.lifecycle_status).filter(Boolean))];
     const result = {};
@@ -246,6 +248,11 @@
     searchQ ? allNodes.filter(n => n.name.toLowerCase().includes(searchQ.toLowerCase())) : allNodes
   );
 
+  const saveFilters = $derived({
+    activeRels: [...activeRels].sort(),
+    focusedApps: [...selectedApps],
+  });
+
   // ── Load ──────────────────────────────────────────────────────────────────
   onMount(async () => {
     try {
@@ -253,7 +260,16 @@
       allNodes = data.nodes ?? [];
       allEdges = data.edges ?? [];
       LIFECYCLE_COLORS = buildLifecycleColors(allNodes);
-      applyLayout();
+
+      if (initialFilters?.activeRels?.length) {
+        activeRels = new Set(initialFilters.activeRels);
+      }
+      if (initialFilters?.focusedApps?.length) {
+        selectedApps = new Set(initialFilters.focusedApps);
+        applyLayout(neighboursOfMany(selectedApps));
+      } else {
+        applyLayout();
+      }
     } catch (e) {
       error = e.message;
     } finally {
@@ -275,14 +291,29 @@
   <!-- Header -->
   <div class="flex items-center justify-between gap-4 px-6 pt-5 pb-4 flex-shrink-0">
     <div>
-      <h1 class="text-[18px] font-semibold">Dependency Graph</h1>
+      <h1 class="text-[18px] font-semibold">{savedViewName ?? 'Dependency Graph'}</h1>
       <div class="text-muted-foreground text-[13px] mt-0.5">Interactive application dependency map</div>
     </div>
-    <button
-      class="bg-card border border-border rounded-md px-3 py-1.5 text-[13px] hover:bg-muted transition-colors"
-      onclick={fit}
-    >⊡ Fit</button>
+    <div class="flex items-center gap-2">
+      {#if !savedViewName}
+        <button
+          onclick={() => showSaveDialog = true}
+          class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-border text-[12px] text-muted-foreground hover:text-foreground hover:border-primary transition-colors"
+        >⊕ Save view</button>
+      {/if}
+      <button
+        class="bg-card border border-border rounded-md px-3 py-1.5 text-[13px] hover:bg-muted transition-colors"
+        onclick={fit}
+      >⊡ Fit</button>
+    </div>
   </div>
+
+  <SaveViewDialog
+    bind:open={showSaveDialog}
+    wsId={params.wsId}
+    viewType="application-dependency"
+    filters={saveFilters}
+  />
 
   {#if loading}
     <div class="flex items-center gap-2 text-muted-foreground py-6 px-6">

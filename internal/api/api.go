@@ -45,6 +45,7 @@ func NewRouter(db *sql.DB, svc *auth.Service, oidc *auth.OIDCProvider, static ..
 			registerExportRoutes(r, db, svc)
 			registerImportRoutes(r, db, svc, auditStore, snapStore)
 			registerViewerRoutes(r, db, svc)
+			registerSavedViewsRoutes(r, db, svc)
 			registerEventRoutes(r, auditStore, svc)
 			registerSnapshotRoutes(r, db, snapStore, auditStore, svc)
 		})

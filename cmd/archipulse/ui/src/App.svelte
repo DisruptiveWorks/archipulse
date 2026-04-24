@@ -15,6 +15,8 @@
   import EditorPlaceholder from './routes/EditorPlaceholder.svelte';
   import WorkspaceSettings from './routes/WorkspaceSettings.svelte';
   import WorkspaceHistory from './routes/WorkspaceHistory.svelte';
+  import SavedViewLoader from './components/views/SavedViewLoader.svelte';
+  import SavedViewsPage from './routes/SavedViewsPage.svelte';
 
   import { Toaster, toast } from 'svelte-sonner';
   import { api } from './lib/api.js';
@@ -37,6 +39,8 @@
     '/ws/:wsId/view/:viewName/map': ApplicationLandscapeMap,
     '/ws/:wsId/settings': WorkspaceSettings,
     '/ws/:wsId/history': WorkspaceHistory,
+    '/ws/:wsId/saved-views': SavedViewsPage,
+    '/ws/:wsId/saved-view/:svId': SavedViewLoader,
   };
 
   // Auth state
@@ -99,8 +103,12 @@
     m = loc.match(/^\/ws\/([^/]+)\/diagrams\/([^/]+)$/);
     if (m) return { wsId: m[1], viewName: null, activeView: null };
 
-    // Match /ws/:wsId/diagrams or /ws/:wsId/editor or /ws/:wsId/settings
-    m = loc.match(/^\/ws\/([^/]+)\/(diagrams|editor|settings)$/);
+    // Match /ws/:wsId/<section> — any single-segment sub-route
+    m = loc.match(/^\/ws\/([^/]+)\/[^/]+$/);
+    if (m) return { wsId: m[1], viewName: null, activeView: null };
+
+    // Match /ws/:wsId/<section>/:id — any two-segment sub-route (saved-view/:svId, diagrams/:diagId, etc.)
+    m = loc.match(/^\/ws\/([^/]+)\/[^/]+\/[^/]+$/);
     if (m) return { wsId: m[1], viewName: null, activeView: null };
 
     // Match /ws/:wsId

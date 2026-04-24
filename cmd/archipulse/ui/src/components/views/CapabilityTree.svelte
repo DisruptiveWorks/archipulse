@@ -14,12 +14,14 @@
   import CapabilityNode from '../flow/CapabilityNode.svelte';
   import AppNode       from '../flow/AppNode.svelte';
   import FlowControls  from '../flow/FlowControls.svelte';
+  import SaveViewDialog from './SaveViewDialog.svelte';
 
-  let { params = {} } = $props();
+  let { params = {}, initialFilters = null, savedViewName = null } = $props();
+  let showSaveDialog = $state(false);
 
   // ── XyFlow state ──────────────────────────────────────────────────────────
-  let nodes     = $state([]);
-  let edges     = $state([]);
+  let nodes     = $state.raw([]);
+  let edges     = $state.raw([]);
   const nodeTypes = { capNode: CapabilityNode, appNode: AppNode };
 
   let fitView = $state(null);
@@ -186,12 +188,19 @@
     applyLayout(null);
   }
 
+  const saveFilters = $derived(selectedId
+    ? { focusedCapabilityId: selectedId, focusedCapabilityName: allCaps.find(c => c.id === selectedId)?.name ?? null }
+    : {}
+  );
+
   // ── Load ──────────────────────────────────────────────────────────────────
   onMount(async () => {
     try {
       const data = await api.get('/workspaces/' + params.wsId + '/views/capability-tree/tree');
       allCaps = data.nodes ?? [];
-      applyLayout(null);
+      const focusId = initialFilters?.focusedCapabilityId ?? null;
+      selectedId = focusId;
+      applyLayout(focusId);
     } catch (e) {
       error = e.message;
     } finally {
@@ -206,14 +215,29 @@
   <!-- Header -->
   <div class="flex items-center justify-between gap-4 px-6 pt-5 pb-4 flex-shrink-0">
     <div>
-      <h1 class="text-[18px] font-semibold">Capability Tree</h1>
+      <h1 class="text-[18px] font-semibold">{savedViewName ?? 'Capability Tree'}</h1>
       <div class="text-muted-foreground text-[13px] mt-0.5">Business capabilities and supporting applications</div>
     </div>
-    <button
-      class="bg-card border border-border rounded-md px-3 py-1.5 text-[13px] hover:bg-muted transition-colors"
-      onclick={fit}
-    >⊡ Fit</button>
+    <div class="flex items-center gap-2">
+      {#if !savedViewName}
+        <button
+          onclick={() => showSaveDialog = true}
+          class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-border text-[12px] text-muted-foreground hover:text-foreground hover:border-primary transition-colors"
+        >⊕ Save view</button>
+      {/if}
+      <button
+        class="bg-card border border-border rounded-md px-3 py-1.5 text-[13px] hover:bg-muted transition-colors"
+        onclick={fit}
+      >⊡ Fit</button>
+    </div>
   </div>
+
+  <SaveViewDialog
+    bind:open={showSaveDialog}
+    wsId={params.wsId}
+    viewType="capability-tree"
+    filters={saveFilters}
+  />
 
   {#if loading}
     <div class="flex items-center gap-2 text-muted-foreground py-6 px-6">
