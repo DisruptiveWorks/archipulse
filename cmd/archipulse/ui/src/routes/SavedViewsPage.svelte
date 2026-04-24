@@ -20,6 +20,7 @@
 
   const VIEW_TYPE_LABELS = {
     'application-dashboard':  'Application Dashboard',
+    'capability-landscape':   'Capability Landscape',
     'application-landscape':  'Application Landscape',
     'capability-tree':        'Capability Tree',
     'application-dependency': 'Dependency Graph',
@@ -27,6 +28,7 @@
 
   const VIEW_TYPE_DOTS = {
     'application-dashboard':  '#2563eb',
+    'capability-landscape':   '#d97706',
     'application-landscape':  '#2563eb',
     'capability-tree':        '#d97706',
     'application-dependency': '#2563eb',
@@ -39,6 +41,8 @@
     const parts = [];
     if (f.capability) parts.push(f.capability);
     if (f.overlay) parts.push(f.overlay.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()));
+    if (f.colorBy) parts.push(f.colorBy.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()));
+    if (f.heatmap && f.heatmap !== 'none') parts.push({ appCount: 'Coverage heatmap', gap: 'Gap heatmap', avgCrit: 'Criticality heatmap' }[f.heatmap] ?? f.heatmap);
     if (f.focusedCapabilityName) parts.push(f.focusedCapabilityName);
     if (f.focusedApps?.length) parts.push(`${f.focusedApps.length} app${f.focusedApps.length !== 1 ? 's' : ''} focused`);
     if (f.activeRels?.length && f.activeRels.length < ALL_RELS.length) {

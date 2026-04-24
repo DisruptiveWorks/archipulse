@@ -93,9 +93,14 @@ func (r *Registry) ApplicationDashboard(workspaceID uuid.UUID, capability string
 	return views.ApplicationDashboard(r.db, workspaceID, capability)
 }
 
-// ApplicationLandscapeMap returns the L1 → L2 → apps hierarchy for the landscape map view.
-func (r *Registry) ApplicationLandscapeMap(workspaceID uuid.UUID) (*views.ApplicationLandscapeMapData, error) {
+// CapabilityLandscapeMap returns the L1 → L2 → apps hierarchy for the capability landscape view.
+func (r *Registry) CapabilityLandscapeMap(workspaceID uuid.UUID) (*views.ApplicationLandscapeMapData, error) {
 	return views.ApplicationLandscapeMap(r.db, workspaceID)
+}
+
+// ApplicationLandscapeDomain returns apps grouped by domain property for the application landscape view.
+func (r *Registry) ApplicationLandscapeDomain(workspaceID uuid.UUID) (*views.DomainLandscapeData, error) {
+	return views.ApplicationLandscapeDomain(r.db, workspaceID)
 }
 
 // AppCatalogueEntries returns all application elements with properties for the rich catalogue view.
@@ -106,6 +111,21 @@ func (r *Registry) AppCatalogueEntries(workspaceID uuid.UUID) (*views.AppCatalog
 // TechCatalogueEntries returns all technology elements with assigned apps for the rich catalogue view.
 func (r *Registry) TechCatalogueEntries(workspaceID uuid.UUID) (*views.TechCatalogueData, error) {
 	return views.TechCatalogueEntries(r.db, workspaceID)
+}
+
+// AppElementDetail returns the rich detail for a single application element.
+func (r *Registry) AppElementDetail(workspaceID uuid.UUID, appSourceID string) (*views.AppElementDetailData, error) {
+	return views.AppElementDetail(r.db, workspaceID, appSourceID)
+}
+
+// ProcessApplicationMap returns the process × application usage matrix.
+func (r *Registry) ProcessApplicationMap(workspaceID uuid.UUID) (*views.ProcessApplicationData, error) {
+	return views.ProcessApplication(r.db, workspaceID)
+}
+
+// TechnologyStackMap returns the app × technology matrix grouped by tech category.
+func (r *Registry) TechnologyStackMap(workspaceID uuid.UUID) (*views.TechStackData, error) {
+	return views.TechnologyStack(r.db, workspaceID)
 }
 
 // List returns the names of all registered tabular views, sorted.

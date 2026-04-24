@@ -104,14 +104,29 @@ func (h *viewerHandler) getApplicationDashboard(w http.ResponseWriter, r *http.R
 	respondJSON(w, http.StatusOK, data)
 }
 
-// getLandscapeMap returns the L1 → L2 → apps hierarchy for the landscape map view.
-func (h *viewerHandler) getLandscapeMap(w http.ResponseWriter, r *http.Request) {
+// getCapabilityLandscapeMap returns the L1 → L2 → apps hierarchy for the capability landscape view.
+func (h *viewerHandler) getCapabilityLandscapeMap(w http.ResponseWriter, r *http.Request) {
 	wsID, err := uuid.Parse(chi.URLParam(r, "id"))
 	if err != nil {
 		respondError(w, http.StatusBadRequest, err)
 		return
 	}
-	data, err := h.registry.ApplicationLandscapeMap(wsID)
+	data, err := h.registry.CapabilityLandscapeMap(wsID)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, err)
+		return
+	}
+	respondJSON(w, http.StatusOK, data)
+}
+
+// getApplicationLandscapeDomain returns apps grouped by domain property.
+func (h *viewerHandler) getApplicationLandscapeDomain(w http.ResponseWriter, r *http.Request) {
+	wsID, err := uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		respondError(w, http.StatusBadRequest, err)
+		return
+	}
+	data, err := h.registry.ApplicationLandscapeDomain(wsID)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, err)
 		return
@@ -149,6 +164,56 @@ func (h *viewerHandler) getTechCatalogueEntries(w http.ResponseWriter, r *http.R
 	respondJSON(w, http.StatusOK, data)
 }
 
+// getProcessApplicationMap returns the process × application usage matrix.
+func (h *viewerHandler) getProcessApplicationMap(w http.ResponseWriter, r *http.Request) {
+	wsID, err := uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		respondError(w, http.StatusBadRequest, err)
+		return
+	}
+	data, err := h.registry.ProcessApplicationMap(wsID)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, err)
+		return
+	}
+	respondJSON(w, http.StatusOK, data)
+}
+
+// getTechnologyStackMap returns the app × technology matrix.
+func (h *viewerHandler) getTechnologyStackMap(w http.ResponseWriter, r *http.Request) {
+	wsID, err := uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		respondError(w, http.StatusBadRequest, err)
+		return
+	}
+	data, err := h.registry.TechnologyStackMap(wsID)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, err)
+		return
+	}
+	respondJSON(w, http.StatusOK, data)
+}
+
+// getAppElementDetail returns the rich detail panel data for a single application element.
+func (h *viewerHandler) getAppElementDetail(w http.ResponseWriter, r *http.Request) {
+	wsID, err := uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		respondError(w, http.StatusBadRequest, err)
+		return
+	}
+	appID := chi.URLParam(r, "appID")
+	data, err := h.registry.AppElementDetail(wsID, appID)
+	if err != nil {
+		if strings.Contains(err.Error(), "element not found") {
+			respondError(w, http.StatusNotFound, err)
+			return
+		}
+		respondError(w, http.StatusInternalServerError, err)
+		return
+	}
+	respondJSON(w, http.StatusOK, data)
+}
+
 func registerViewerRoutes(r chi.Router, db *sql.DB, svc *auth.Service) {
 	h := &viewerHandler{registry: viewer.NewRegistry(db)}
 	view := svc.RequireWorkspaceAccess(auth.RoleViewer)
@@ -157,8 +222,12 @@ func registerViewerRoutes(r chi.Router, db *sql.DB, svc *auth.Service) {
 	r.With(view).Get("/workspaces/{id}/views/application-dependency/graph", h.getDependencyGraph)
 	r.With(view).Get("/workspaces/{id}/views/integration-map/graph", h.getIntegrationMap)
 	r.With(view).Get("/workspaces/{id}/views/application-dashboard/stats", h.getApplicationDashboard)
-	r.With(view).Get("/workspaces/{id}/views/application-landscape/map", h.getLandscapeMap)
+	r.With(view).Get("/workspaces/{id}/views/capability-landscape/map", h.getCapabilityLandscapeMap)
+	r.With(view).Get("/workspaces/{id}/views/application-landscape/map", h.getApplicationLandscapeDomain)
 	r.With(view).Get("/workspaces/{id}/views/application-catalogue/entries", h.getAppCatalogueEntries)
 	r.With(view).Get("/workspaces/{id}/views/technology-catalogue/entries", h.getTechCatalogueEntries)
+	r.With(view).Get("/workspaces/{id}/views/process-application/matrix", h.getProcessApplicationMap)
+	r.With(view).Get("/workspaces/{id}/views/technology-stack/matrix", h.getTechnologyStackMap)
 	r.With(view).Get("/workspaces/{id}/views/{view}", h.getView)
+	r.With(view).Get("/workspaces/{id}/elements/{appID}/app-detail", h.getAppElementDetail)
 }

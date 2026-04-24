@@ -8,7 +8,10 @@
   import ViewRouter from './components/views/ViewRouter.svelte';
   import DependencyGraphView from './components/views/DependencyGraphView.svelte';
   import CapabilityTree from './components/views/CapabilityTree.svelte';
-  import ApplicationLandscapeMap from './components/views/ApplicationLandscapeMap.svelte';
+  import CapabilityLandscape from './components/views/CapabilityLandscape.svelte';
+  import ApplicationLandscape from './components/views/ApplicationLandscape.svelte';
+  import ProcessApplication from './components/views/ProcessApplication.svelte';
+  import TechnologyStack from './components/views/TechnologyStack.svelte';
   import Login from './routes/Login.svelte';
   import DiagramList from './routes/DiagramList.svelte';
   import DiagramViewer from './routes/DiagramViewer.svelte';
@@ -35,8 +38,11 @@
     '/ws/:wsId/diagrams/:diagId': DiagramList,
     '/ws/:wsId/view/:viewName': ViewRouter,
     '/ws/:wsId/view/application-dependency/graph': DependencyGraphView,
+    '/ws/:wsId/view/capability-landscape/map': CapabilityLandscape,
+    '/ws/:wsId/view/application-landscape/map': ApplicationLandscape,
+    '/ws/:wsId/view/process-application/matrix': ProcessApplication,
+    '/ws/:wsId/view/technology-stack/matrix': TechnologyStack,
     '/ws/:wsId/view/:viewName/tree': CapabilityTree,
-    '/ws/:wsId/view/:viewName/map': ApplicationLandscapeMap,
     '/ws/:wsId/settings': WorkspaceSettings,
     '/ws/:wsId/history': WorkspaceHistory,
     '/ws/:wsId/saved-views': SavedViewsPage,
@@ -86,8 +92,8 @@
   }
 
   function extractParams(loc) {
-    // Match /ws/:wsId/view/:viewName/graph or /tree or /map
-    let m = loc.match(/^\/ws\/([^/]+)\/view\/([^/]+)\/(graph|tree|map)$/);
+    // Match /ws/:wsId/view/:viewName/graph or /tree or /map or /matrix
+    let m = loc.match(/^\/ws\/([^/]+)\/view\/([^/]+)\/(graph|tree|map|matrix)$/);
     if (m) return { wsId: m[1], viewName: m[2], activeView: m[2] + '/' + m[3] };
 
     // Match /ws/:wsId/view/:viewName
@@ -95,7 +101,7 @@
     if (m) {
       const vn = m[2];
       const v = VIEWS[vn];
-      const target = v && v.graph ? vn + '/graph' : v && v.tree ? vn + '/tree' : v && v.map ? vn + '/map' : vn;
+      const target = v && v.graph ? vn + '/graph' : v && v.tree ? vn + '/tree' : v && v.map ? vn + '/map' : v && v.matrix ? vn + '/matrix' : vn;
       return { wsId: m[1], viewName: vn, activeView: target };
     }
 
