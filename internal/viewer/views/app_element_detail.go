@@ -32,10 +32,10 @@ type AppDetailProcRef struct {
 
 // AppElementDetailData is the payload for the application detail panel.
 type AppElementDetailData struct {
-	ID         string            `json:"id"`
-	Name       string            `json:"name"`
-	Type       string            `json:"type"`
-	Properties map[string]string `json:"properties"`
+	ID         string             `json:"id"`
+	Name       string             `json:"name"`
+	Type       string             `json:"type"`
+	Properties map[string]string  `json:"properties"`
 	RunsOn     []AppDetailTechRef `json:"runs_on"`
 	Interfaces []AppDetailRelRef  `json:"interfaces"`
 	Processes  []AppDetailProcRef `json:"processes"`
