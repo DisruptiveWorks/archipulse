@@ -1,0 +1,5 @@
+# Local development overrides — exposes DB port to the host so `go run` can connect directly.
+services:
+  db:
+    ports:
+      - "5432:5432"

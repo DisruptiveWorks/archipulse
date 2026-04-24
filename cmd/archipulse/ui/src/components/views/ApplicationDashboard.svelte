@@ -2,8 +2,11 @@
   import { onMount } from 'svelte';
   import { api } from '../../lib/api.js';
   import { ArcChart } from 'layerchart';
+  import SaveViewDialog from './SaveViewDialog.svelte';
 
   export let params = {};
+  export let initialFilters = null;
+  export let savedViewName = null;
 
   $: wsId = params.wsId;
 
@@ -12,6 +15,7 @@
   let error = null;
   let selectedCapability = 'all';
   let selectedApp = null; // source_id of highlighted app
+  let showSaveDialog = false;
 
   // Tooltip state
   let tooltip = null; // { key, value, apps, x, y }
@@ -109,12 +113,13 @@
     }
   }
 
-  onMount(() => load('all'));
+  $: saveFilters = { capability: selectedCapability === 'all' ? null : selectedCapability };
 
-  function onCapabilityChange(e) {
-    selectedCapability = e.target.value;
-    load(selectedCapability);
-  }
+  onMount(() => {
+    const cap = initialFilters?.capability ?? 'all';
+    selectedCapability = cap;
+    load(cap);
+  });
 </script>
 
 <!-- Rich tooltip (rendered at body level via fixed position) -->
@@ -152,29 +157,45 @@
     <!-- Header -->
     <div class="flex items-start justify-between gap-4 mb-6 flex-wrap">
       <div>
-        <h1 class="text-[18px] font-semibold">Application Dashboard</h1>
+        <h1 class="text-[18px] font-semibold">{savedViewName ?? 'Application Dashboard'}</h1>
         <div class="text-muted-foreground text-[13px] mt-0.5">
           Applications in scope: <span class="font-semibold text-foreground">{data.total_apps}</span>
           {#if loading}<span class="ml-2 text-[11px]">Updating…</span>{/if}
         </div>
       </div>
 
-      {#if data.capabilities?.length > 0}
-        <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2 flex-wrap">
+        {#if data.capabilities?.length > 0}
           <label for="cap-filter" class="text-[12px] text-muted-foreground whitespace-nowrap">Business Capability</label>
           <select
             id="cap-filter"
-            onchange={onCapabilityChange}
+            bind:value={selectedCapability}
+            onchange={() => load(selectedCapability)}
             class="bg-card border border-border rounded-md px-3 py-1.5 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[200px]"
           >
-            <option value="all" selected={selectedCapability === 'all'}>All</option>
+            <option value="all">All</option>
             {#each data.capabilities as cap}
-              <option value={cap} selected={selectedCapability === cap}>{cap}</option>
+              <option value={cap}>{cap}</option>
             {/each}
           </select>
-        </div>
-      {/if}
+        {/if}
+        {#if !savedViewName}
+          <button
+            onclick={() => showSaveDialog = true}
+            class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-border text-[12px] text-muted-foreground hover:text-foreground hover:border-primary transition-colors"
+          >
+            ⊕ Save view
+          </button>
+        {/if}
+      </div>
     </div>
+
+    <SaveViewDialog
+      bind:open={showSaveDialog}
+      {wsId}
+      viewType="application-dashboard"
+      filters={saveFilters}
+    />
 
     {#if data.total_apps === 0}
       <div class="text-center py-16 px-6 text-muted-foreground">

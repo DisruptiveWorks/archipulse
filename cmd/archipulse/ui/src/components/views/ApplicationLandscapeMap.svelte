@@ -1,14 +1,19 @@
 <script>
   import { onMount } from 'svelte';
   import { api } from '../../lib/api.js';
+  import SaveViewDialog from './SaveViewDialog.svelte';
 
   export let params = {};
+  export let initialFilters = null;
+  export let savedViewName = null;
+
   $: wsId = params.wsId;
 
   let data = null;
   let loading = true;
   let error = null;
-  let overlay = 'lifecycle_status';
+  let overlay = 'lifecycle_status'; // overridden in onMount from initialFilters if present
+  let showSaveDialog = false;
 
   // Tooltip
   let tooltip = null; // { app, x, y }
@@ -120,8 +125,11 @@
   }
   function hideTooltip() { tooltip = null; }
 
+  $: saveFilters = { overlay };
+
   // ── Load ──────────────────────────────────────────────────────────────────
   onMount(async () => {
+    overlay = initialFilters?.overlay ?? 'lifecycle_status';
     loading = true;
     try {
       data = await api.get('/workspaces/' + wsId + '/views/application-landscape/map');
@@ -167,13 +175,13 @@
     <!-- Header -->
     <div class="flex items-center justify-between gap-4 mb-5 flex-wrap">
       <div>
-        <h1 class="text-[18px] font-semibold">Application Landscape</h1>
+        <h1 class="text-[18px] font-semibold">{savedViewName ?? 'Application Landscape'}</h1>
         <div class="text-muted-foreground text-[13px] mt-0.5">Capabilities mapped to realizing applications</div>
       </div>
 
-      <!-- Overlay selector -->
-      {#if data.properties?.length > 0}
-        <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2 flex-wrap">
+        <!-- Overlay selector -->
+        {#if data.properties?.length > 0}
           <span class="text-[12px] text-muted-foreground">Overlay</span>
           <select
             bind:value={overlay}
@@ -183,9 +191,24 @@
               <option value={p}>{propLabel(p)}</option>
             {/each}
           </select>
-        </div>
-      {/if}
+        {/if}
+        {#if !savedViewName}
+          <button
+            onclick={() => showSaveDialog = true}
+            class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-border text-[12px] text-muted-foreground hover:text-foreground hover:border-primary transition-colors"
+          >
+            ⊕ Save view
+          </button>
+        {/if}
+      </div>
     </div>
+
+    <SaveViewDialog
+      bind:open={showSaveDialog}
+      {wsId}
+      viewType="application-landscape"
+      filters={saveFilters}
+    />
 
     <!-- Colour legend -->
     {#if legendEntries.length > 0}

@@ -1,5 +1,5 @@
 <script>
-  import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher, onMount } from 'svelte';
   import { push, location } from 'svelte-spa-router';
   import { VIEWS, LAYER_GROUPS } from '../lib/views.js';
   import { api } from '../lib/api.js';
@@ -199,6 +199,22 @@
   {/each}
 
   <div class="mx-2 mt-3">
+    <Separator />
+  </div>
+  <div class="px-2 pt-2 pb-1">
+    <div
+      class="flex items-center gap-2 px-2 py-1.5 rounded-md text-sm cursor-pointer transition-colors {loc === '/ws/' + wsId + '/saved-views' || loc.startsWith('/ws/' + wsId + '/saved-view/') ? 'bg-white text-foreground font-medium shadow-sm' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}"
+      onclick={() => push('/ws/' + wsId + '/saved-views')}
+      onkeydown={e => e.key === 'Enter' && push('/ws/' + wsId + '/saved-views')}
+      role="button"
+      tabindex="0"
+    >
+      <span class="text-[12px] flex-shrink-0 w-[18px] text-center">⊛</span>
+      Saved Views
+    </div>
+  </div>
+
+  <div class="mx-2 mt-1">
     <Separator />
   </div>
   <div class="px-2 pt-3 pb-1">
