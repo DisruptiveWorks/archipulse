@@ -164,6 +164,36 @@ func (h *viewerHandler) getTechCatalogueEntries(w http.ResponseWriter, r *http.R
 	respondJSON(w, http.StatusOK, data)
 }
 
+// getProcessApplicationMap returns the process × application usage matrix.
+func (h *viewerHandler) getProcessApplicationMap(w http.ResponseWriter, r *http.Request) {
+	wsID, err := uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		respondError(w, http.StatusBadRequest, err)
+		return
+	}
+	data, err := h.registry.ProcessApplicationMap(wsID)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, err)
+		return
+	}
+	respondJSON(w, http.StatusOK, data)
+}
+
+// getTechnologyStackMap returns the app × technology matrix.
+func (h *viewerHandler) getTechnologyStackMap(w http.ResponseWriter, r *http.Request) {
+	wsID, err := uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		respondError(w, http.StatusBadRequest, err)
+		return
+	}
+	data, err := h.registry.TechnologyStackMap(wsID)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, err)
+		return
+	}
+	respondJSON(w, http.StatusOK, data)
+}
+
 // getAppElementDetail returns the rich detail panel data for a single application element.
 func (h *viewerHandler) getAppElementDetail(w http.ResponseWriter, r *http.Request) {
 	wsID, err := uuid.Parse(chi.URLParam(r, "id"))
@@ -196,6 +226,8 @@ func registerViewerRoutes(r chi.Router, db *sql.DB, svc *auth.Service) {
 	r.With(view).Get("/workspaces/{id}/views/application-landscape/map", h.getApplicationLandscapeDomain)
 	r.With(view).Get("/workspaces/{id}/views/application-catalogue/entries", h.getAppCatalogueEntries)
 	r.With(view).Get("/workspaces/{id}/views/technology-catalogue/entries", h.getTechCatalogueEntries)
+	r.With(view).Get("/workspaces/{id}/views/process-application/matrix", h.getProcessApplicationMap)
+	r.With(view).Get("/workspaces/{id}/views/technology-stack/matrix", h.getTechnologyStackMap)
 	r.With(view).Get("/workspaces/{id}/views/{view}", h.getView)
 	r.With(view).Get("/workspaces/{id}/elements/{appID}/app-detail", h.getAppElementDetail)
 }

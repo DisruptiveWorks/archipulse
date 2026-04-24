@@ -118,6 +118,16 @@ func (r *Registry) AppElementDetail(workspaceID uuid.UUID, appSourceID string) (
 	return views.AppElementDetail(r.db, workspaceID, appSourceID)
 }
 
+// ProcessApplicationMap returns the process × application usage matrix.
+func (r *Registry) ProcessApplicationMap(workspaceID uuid.UUID) (*views.ProcessApplicationData, error) {
+	return views.ProcessApplication(r.db, workspaceID)
+}
+
+// TechnologyStackMap returns the app × technology matrix grouped by tech category.
+func (r *Registry) TechnologyStackMap(workspaceID uuid.UUID) (*views.TechStackData, error) {
+	return views.TechnologyStack(r.db, workspaceID)
+}
+
 // List returns the names of all registered tabular views, sorted.
 func (r *Registry) List() []string {
 	names := make([]string, 0, len(r.views))

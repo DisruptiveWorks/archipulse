@@ -69,7 +69,7 @@
   $: showErrorDialog = !!importError;
 
   function navTarget(key, v) {
-    return v.graph ? key + '/graph' : v.tree ? key + '/tree' : v.map ? key + '/map' : key;
+    return v.graph ? key + '/graph' : v.tree ? key + '/tree' : v.map ? key + '/map' : v.matrix ? key + '/matrix' : key;
   }
 
   function handleFileInput(e) {

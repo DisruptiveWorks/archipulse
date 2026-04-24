@@ -6,6 +6,8 @@
   import ApplicationLandscape from './ApplicationLandscape.svelte';
   import CapabilityTree from './CapabilityTree.svelte';
   import DependencyGraphView from './DependencyGraphView.svelte';
+  import ProcessApplication from './ProcessApplication.svelte';
+  import TechnologyStack from './TechnologyStack.svelte';
 
   export let params = {};
   $: wsId = params.wsId;
@@ -52,6 +54,10 @@
     <CapabilityTree params={childParams} initialFilters={sv.filters} savedViewName={sv.name} />
   {:else if sv.view_type === 'application-dependency'}
     <DependencyGraphView params={childParams} initialFilters={sv.filters} savedViewName={sv.name} />
+  {:else if sv.view_type === 'process-application'}
+    <ProcessApplication params={childParams} initialFilters={sv.filters} savedViewName={sv.name} />
+  {:else if sv.view_type === 'technology-stack'}
+    <TechnologyStack params={childParams} initialFilters={sv.filters} savedViewName={sv.name} />
   {:else}
     <div class="p-6 text-sm text-muted-foreground">Unknown view type: {sv.view_type}</div>
   {/if}
