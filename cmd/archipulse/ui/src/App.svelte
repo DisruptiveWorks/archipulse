@@ -8,7 +8,8 @@
   import ViewRouter from './components/views/ViewRouter.svelte';
   import DependencyGraphView from './components/views/DependencyGraphView.svelte';
   import CapabilityTree from './components/views/CapabilityTree.svelte';
-  import ApplicationLandscapeMap from './components/views/ApplicationLandscapeMap.svelte';
+  import CapabilityLandscape from './components/views/CapabilityLandscape.svelte';
+  import ApplicationLandscape from './components/views/ApplicationLandscape.svelte';
   import Login from './routes/Login.svelte';
   import DiagramList from './routes/DiagramList.svelte';
   import DiagramViewer from './routes/DiagramViewer.svelte';
@@ -35,8 +36,9 @@
     '/ws/:wsId/diagrams/:diagId': DiagramList,
     '/ws/:wsId/view/:viewName': ViewRouter,
     '/ws/:wsId/view/application-dependency/graph': DependencyGraphView,
+    '/ws/:wsId/view/capability-landscape/map': CapabilityLandscape,
+    '/ws/:wsId/view/application-landscape/map': ApplicationLandscape,
     '/ws/:wsId/view/:viewName/tree': CapabilityTree,
-    '/ws/:wsId/view/:viewName/map': ApplicationLandscapeMap,
     '/ws/:wsId/settings': WorkspaceSettings,
     '/ws/:wsId/history': WorkspaceHistory,
     '/ws/:wsId/saved-views': SavedViewsPage,

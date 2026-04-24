@@ -2,7 +2,8 @@
   import { onMount } from 'svelte';
   import { api } from '../../lib/api.js';
   import ApplicationDashboard from './ApplicationDashboard.svelte';
-  import ApplicationLandscapeMap from './ApplicationLandscapeMap.svelte';
+  import CapabilityLandscape from './CapabilityLandscape.svelte';
+  import ApplicationLandscape from './ApplicationLandscape.svelte';
   import CapabilityTree from './CapabilityTree.svelte';
   import DependencyGraphView from './DependencyGraphView.svelte';
 
@@ -43,8 +44,10 @@
 {:else if sv}
   {#if sv.view_type === 'application-dashboard'}
     <ApplicationDashboard params={childParams} initialFilters={sv.filters} savedViewName={sv.name} />
+  {:else if sv.view_type === 'capability-landscape'}
+    <CapabilityLandscape params={childParams} initialFilters={sv.filters} savedViewName={sv.name} />
   {:else if sv.view_type === 'application-landscape'}
-    <ApplicationLandscapeMap params={childParams} initialFilters={sv.filters} savedViewName={sv.name} />
+    <ApplicationLandscape params={childParams} initialFilters={sv.filters} savedViewName={sv.name} />
   {:else if sv.view_type === 'capability-tree'}
     <CapabilityTree params={childParams} initialFilters={sv.filters} savedViewName={sv.name} />
   {:else if sv.view_type === 'application-dependency'}
