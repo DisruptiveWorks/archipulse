@@ -1,5 +1,6 @@
 <script>
   import { Handle, Position } from '@xyflow/svelte';
+  import { getIcon } from '../diagram/archimate-icons.js';
 
   let { data = {} } = $props();
 
@@ -19,9 +20,11 @@
     data.tier === 'service'   ? 'dashed' :
     data.tier === 'interface' || data.tier === 'function' ? 'dotted' : 'solid'
   );
+  const icon = $derived(getIcon(data.elementType ?? ''));
 </script>
 
 <div style="
+  position:relative;
   background:{style.bg};
   border:{bw} {bs} {style.border};
   color:{style.text};
@@ -29,7 +32,7 @@
   font-size:{isComponent ? '12px' : '11px'};
   min-width:{isComponent ? '148px' : '118px'};
   max-width:{isComponent ? '190px' : '160px'};
-  padding:{isComponent ? '10px 14px' : '7px 11px'};
+  padding:{isComponent ? '10px 28px 10px 14px' : '7px 24px 7px 11px'};
   border-radius:8px;
   text-align:center;
   line-height:1.35;
@@ -38,6 +41,13 @@
   user-select:none;
 ">
   <Handle type="target" position={Position.Left}  style="background:{style.border}; width:9px; height:9px; border:none; border-radius:50%;" />
+  {#if icon}
+    <svg viewBox="0 0 16 16" width="13" height="13"
+      style="position:absolute; top:4px; right:4px; stroke:{style.border}; fill:none; opacity:0.75; pointer-events:none; overflow:visible;">
+      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+      {@html icon}
+    </svg>
+  {/if}
   <div style="word-break:break-word;">{data.label}</div>
   {#if data.badge}
     <div style="font-size:9px; opacity:0.6; margin-top:3px; font-weight:400; letter-spacing:0.3px;">{data.badge}</div>

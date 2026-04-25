@@ -111,26 +111,38 @@
   {:else if data}
 
     <!-- Header -->
-    <div class="flex items-center justify-between gap-4 mb-5 flex-wrap">
-      <div>
-        <h1 class="text-[18px] font-semibold">{savedViewName ?? 'Application Landscape'}</h1>
-        <div class="text-muted-foreground text-[13px] mt-0.5">Applications grouped by business domain</div>
-      </div>
-      <div class="flex items-center gap-2 flex-wrap">
-        <span class="text-[12px] text-muted-foreground">Color by</span>
-        <select bind:value={colorBy}
-          class="bg-card border border-border rounded-md px-3 py-1.5 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary">
-          <option value="criticality">Business Criticality</option>
-          <option value="lifecycle_status">Lifecycle Status</option>
-          <option value="deployment_model">Deployment Model</option>
-        </select>
-        {#if !savedViewName}
-          <button onclick={() => showSaveDialog = true}
-            class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-border text-[12px] text-muted-foreground hover:text-foreground hover:border-primary transition-colors">
-            ⊕ Save view
-          </button>
-        {/if}
-        <ViewInfoDialog title="Application Landscape — setup guide" bind:open={showInfo}>
+    <div class="mb-5">
+      <h1 class="text-[18px] font-semibold">{savedViewName ?? 'Landscape by Domain'}</h1>
+      <div class="text-muted-foreground text-[13px] mt-0.5 mb-3">Applications grouped by business domain</div>
+      <div class="flex items-center justify-between gap-4 flex-wrap">
+        <!-- Left: Color by + legend -->
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="text-[12px] text-muted-foreground">Color by</span>
+          <select bind:value={colorBy}
+            class="bg-card border border-border rounded-md px-3 py-1.5 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary">
+            <option value="criticality">Business Criticality</option>
+            <option value="lifecycle_status">Lifecycle Status</option>
+            <option value="deployment_model">Deployment Model</option>
+          </select>
+          {#if legendEntries.length > 0}
+            <span class="w-px h-4 bg-border self-center flex-shrink-0"></span>
+            {#each legendEntries as entry}
+              <div class="flex items-center gap-1 text-[11px]">
+                <span class="size-2.5 rounded flex-shrink-0" style="background:{entry.c}"></span>
+                <span class="text-muted-foreground">{entry.v}</span>
+              </div>
+            {/each}
+          {/if}
+        </div>
+        <!-- Right: Save + Info -->
+        <div class="flex items-center gap-2">
+          {#if !savedViewName}
+            <button onclick={() => showSaveDialog = true}
+              class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-border text-[12px] text-muted-foreground hover:text-foreground hover:border-primary transition-colors">
+              ⊕ Save view
+            </button>
+          {/if}
+          <ViewInfoDialog title="Application Landscape — setup guide" bind:open={showInfo}>
           <p>This view groups <strong>ApplicationComponent</strong> and <strong>ApplicationService</strong> elements by their <strong>business domain</strong>, letting you see which apps belong to each area of the business.</p>
 
           <div>
@@ -204,6 +216,7 @@
 </element>`}</pre>
           </div>
         </ViewInfoDialog>
+        </div>
       </div>
     </div>
 
@@ -292,16 +305,6 @@
             {/each}
           </div>
 
-          {#if legendEntries.length > 0}
-            <div class="mt-5 flex flex-wrap gap-x-4 gap-y-1.5 px-1">
-              {#each legendEntries as entry}
-                <div class="flex items-center gap-1.5 text-[12px]">
-                  <span class="size-3 rounded flex-shrink-0" style="background:{entry.c}"></span>
-                  <span class="text-muted-foreground">{entry.v}</span>
-                </div>
-              {/each}
-            </div>
-          {/if}
         </div>
       </div>
     {/if}

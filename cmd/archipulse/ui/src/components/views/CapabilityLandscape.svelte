@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { api } from '../../lib/api.js';
+  import { getIcon } from '../diagram/archimate-icons.js';
   import SaveViewDialog from './SaveViewDialog.svelte';
   import SaveViewUpdateBar from './SaveViewUpdateBar.svelte';
   import AppDetailPanel from './AppDetailPanel.svelte';
@@ -168,36 +169,48 @@
   {:else if data}
 
     <!-- Header -->
-    <div class="flex items-center justify-between gap-4 mb-5 flex-wrap">
-      <div>
-        <h1 class="text-[18px] font-semibold">{savedViewName ?? 'Capability Landscape'}</h1>
-        <div class="text-muted-foreground text-[13px] mt-0.5">Business capabilities mapped to realizing applications</div>
-      </div>
-      <div class="flex items-center gap-2 flex-wrap">
-        <span class="text-[12px] text-muted-foreground">Overlay</span>
-        <select bind:value={overlay}
-          class="bg-card border border-border rounded-md px-3 py-1.5 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary">
-          <option value="none">None</option>
-          <option value="lifecycle_status">Lifecycle Status</option>
-          <option value="criticality">Business Criticality</option>
-          <option value="deployment_model">Deployment Model</option>
-          <option value="fit">Application Fit</option>
-        </select>
-        <span class="text-[12px] text-muted-foreground">Heatmap</span>
-        <select bind:value={heatmap}
-          class="bg-card border border-border rounded-md px-3 py-1.5 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary">
-          <option value="none">None</option>
-          <option value="appCount">App Coverage</option>
-          <option value="gap">Gap Analysis</option>
-          <option value="avgCrit">Avg. Criticality</option>
-        </select>
-        {#if !savedViewName}
-          <button onclick={() => showSaveDialog = true}
-            class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-border text-[12px] text-muted-foreground hover:text-foreground hover:border-primary transition-colors">
-            ⊕ Save view
-          </button>
-        {/if}
-        <ViewInfoDialog title="Capability Landscape — setup guide" bind:open={showInfo}>
+    <div class="mb-5">
+      <h1 class="text-[18px] font-semibold">{savedViewName ?? 'Landscape by Capability'}</h1>
+      <div class="text-muted-foreground text-[13px] mt-0.5 mb-3">Applications mapped to realizing capabilities — hierarchical</div>
+      <div class="flex items-center justify-between gap-4 flex-wrap">
+        <!-- Left: Overlay + legend -->
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="text-[12px] text-muted-foreground">Overlay</span>
+          <select bind:value={overlay}
+            class="bg-card border border-border rounded-md px-3 py-1.5 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary">
+            <option value="none">None</option>
+            <option value="lifecycle_status">Lifecycle Status</option>
+            <option value="criticality">Business Criticality</option>
+            <option value="deployment_model">Deployment Model</option>
+            <option value="fit">Application Fit</option>
+          </select>
+          {#if overlay !== 'none' && legendEntries.length > 0}
+            <span class="w-px h-4 bg-border self-center flex-shrink-0"></span>
+            {#each legendEntries as entry}
+              <div class="flex items-center gap-1 text-[11px]">
+                <span class="size-2.5 rounded flex-shrink-0" style="background:{entry.c}"></span>
+                <span class="text-muted-foreground">{entry.l}</span>
+              </div>
+            {/each}
+          {/if}
+        </div>
+        <!-- Right: Heatmap + Save + Info -->
+        <div class="flex items-center gap-2">
+          <span class="text-[12px] text-muted-foreground">Heatmap</span>
+          <select bind:value={heatmap}
+            class="bg-card border border-border rounded-md px-3 py-1.5 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary">
+            <option value="none">None</option>
+            <option value="appCount">App Coverage</option>
+            <option value="gap">Gap Analysis</option>
+            <option value="avgCrit">Avg. Criticality</option>
+          </select>
+          {#if !savedViewName}
+            <button onclick={() => showSaveDialog = true}
+              class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-border text-[12px] text-muted-foreground hover:text-foreground hover:border-primary transition-colors">
+              ⊕ Save view
+            </button>
+          {/if}
+          <ViewInfoDialog title="Capability Landscape — setup guide" bind:open={showInfo}>
           <p>This view maps <strong>business capabilities</strong> (L1 groups → L2 capabilities) to the applications that realize them, showing coverage, gaps, and overlaps across your capability model.</p>
 
           <div>
@@ -280,11 +293,13 @@
             </table>
           </div>
         </ViewInfoDialog>
+        </div>
       </div>
     </div>
 
     <SaveViewDialog bind:open={showSaveDialog} {wsId} viewType="capability-landscape" filters={saveFilters} />
     <SaveViewUpdateBar {wsId} {savedViewId} {savedViewName} currentFilters={saveFilters} {initialFilters} />
+
 
     <div class="flex gap-4 items-start">
 
@@ -354,6 +369,7 @@
                   role="button" tabindex="0"
                   onkeydown={e => e.key === 'Enter' && toggleCollapsed(l1.id)}>
                   <span class="text-muted-foreground text-[12px] transition-transform {isCollapsed ? '' : 'rotate-90'}" style="display:inline-block">▶</span>
+                  <svg viewBox="0 0 16 16" width="12" height="12" style="flex-shrink:0; stroke:#d97706; fill:none; opacity:0.8; overflow:visible;">{@html getIcon('Capability')}</svg>
                   <span class="text-[12px] font-bold text-foreground tracking-[0.6px] uppercase">{l1.name}</span>
                   {#if heatmap === 'gap' && stats.gaps > 0}
                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-red-50 text-red-700 border border-dashed border-red-200">
@@ -385,6 +401,13 @@
                               onclick={() => selectedApp = app}>
                               <span class="absolute left-0 top-0 bottom-0 w-[3px] rounded-l" style="background:{col.border}"></span>
                               {app.name}
+                              {#if getIcon(app.type)}
+                                <svg viewBox="0 0 16 16" width="11" height="11"
+                                  style="flex-shrink:0; margin-left:4px; stroke:{col.border}; fill:none; opacity:0.65; overflow:visible;">
+                                  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+                                  {@html getIcon(app.type)}
+                                </svg>
+                              {/if}
                             </button>
                           {/each}
                         </div>
@@ -396,9 +419,10 @@
                       {@const isDup = l2.apps.length >= 3}
 
                       <div class="flex items-start gap-3 px-4 py-2 hover:bg-white/40 transition-colors">
-                        <div class="w-52 flex-shrink-0 pt-0.5">
+                        <div class="w-52 flex-shrink-0 pt-0.5 flex items-start gap-1.5">
+                          <svg viewBox="0 0 16 16" width="11" height="11" style="flex-shrink:0; margin-top:2px; stroke:#d97706; fill:none; opacity:0.7; overflow:visible;">{@html getIcon('Capability')}</svg>
                           <span class="text-[12.5px] font-medium text-foreground">{l2.name}</span>
-                          <span class="ml-1.5 text-[11px] {isGap ? 'text-red-600 font-semibold' : 'text-muted-foreground'}">{l2.apps.length}</span>
+                          <span class="ml-1 text-[11px] {isGap ? 'text-red-600 font-semibold' : 'text-muted-foreground'}">{l2.apps.length}</span>
                         </div>
 
                         <div class="flex flex-wrap gap-1.5 flex-1 items-center">
@@ -425,6 +449,13 @@
                               <span class="absolute left-0 top-0 bottom-0 w-[3px] rounded-l"
                                 style="background:{col.border}"></span>
                               {app.name}
+                              {#if getIcon(app.type)}
+                                <svg viewBox="0 0 16 16" width="11" height="11"
+                                  style="flex-shrink:0; margin-left:4px; stroke:{col.border}; fill:none; opacity:0.65; overflow:visible;">
+                                  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+                                  {@html getIcon(app.type)}
+                                </svg>
+                              {/if}
                             </button>
                           {/each}
                         </div>
@@ -436,16 +467,6 @@
             {/each}
           </div>
 
-          {#if overlay !== 'none' && legendEntries.length > 0}
-            <div class="mt-5 flex flex-wrap gap-x-4 gap-y-1.5 px-1">
-              {#each legendEntries as entry}
-                <div class="flex items-center gap-1.5 text-[12px]">
-                  <span class="size-3 rounded flex-shrink-0" style="background:{entry.c}"></span>
-                  <span class="text-muted-foreground">{entry.l}</span>
-                </div>
-              {/each}
-            </div>
-          {/if}
         {/if}
       </div>
     </div>

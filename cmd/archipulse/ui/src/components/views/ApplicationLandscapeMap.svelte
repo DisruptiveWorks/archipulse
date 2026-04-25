@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { api } from '../../lib/api.js';
+  import { getIcon } from '../diagram/archimate-icons.js';
   import SaveViewDialog from './SaveViewDialog.svelte';
 
   export let params = {};
@@ -50,23 +51,26 @@
   const UNSET_COLOR = '#94a3b8';
 
   // Per-overlay, assign consistent colours to each distinct value
+  function allApps(l1List) {
+    const apps = [];
+    for (const l1 of l1List) {
+      for (const a of (l1.apps ?? [])) apps.push(a);
+      for (const l2 of l1.l2) for (const a of l2.apps) apps.push(a);
+    }
+    return apps;
+  }
+
   function buildColorMap(overlay, l1List) {
     const known = KNOWN_COLORS[overlay] ?? {};
-    const seen = new Set(Object.keys(known));
     let idx = 0;
     const map = { ...known };
 
-    for (const l1 of l1List) {
-      for (const l2 of l1.l2) {
-        for (const app of l2.apps) {
-          const v = app.properties?.[overlay] ?? '';
-          if (v && !map[v]) {
-            // skip palette slots already used by known values
-            while (PALETTE[idx] && Object.values(known).includes(PALETTE[idx])) idx++;
-            map[v] = PALETTE[idx % PALETTE.length];
-            idx++;
-          }
-        }
+    for (const app of allApps(l1List)) {
+      const v = app.properties?.[overlay] ?? '';
+      if (v && !map[v]) {
+        while (PALETTE[idx] && Object.values(known).includes(PALETTE[idx])) idx++;
+        map[v] = PALETTE[idx % PALETTE.length];
+        idx++;
       }
     }
     return map;
@@ -86,14 +90,10 @@
   $: legendEntries = (() => {
     if (!data) return [];
     const seen = new Map();
-    for (const l1 of data.l1) {
-      for (const l2 of l1.l2) {
-        for (const app of l2.apps) {
-          const v = app.properties?.[overlay] ?? '(unset)';
-          const c = v === '(unset)' ? UNSET_COLOR : (colorMap[v] ?? '#6b7280');
-          if (!seen.has(v)) seen.set(v, c);
-        }
-      }
+    for (const app of allApps(data.l1)) {
+      const v = app.properties?.[overlay] ?? '(unset)';
+      const c = v === '(unset)' ? UNSET_COLOR : (colorMap[v] ?? '#6b7280');
+      if (!seen.has(v)) seen.set(v, c);
     }
     // Sort: known order first if lifecycle, then alpha, (unset) last
     return [...seen.entries()]
@@ -173,33 +173,44 @@
   {:else if data}
 
     <!-- Header -->
-    <div class="flex items-center justify-between gap-4 mb-5 flex-wrap">
-      <div>
-        <h1 class="text-[18px] font-semibold">{savedViewName ?? 'Application Landscape'}</h1>
-        <div class="text-muted-foreground text-[13px] mt-0.5">Capabilities mapped to realizing applications</div>
-      </div>
-
-      <div class="flex items-center gap-2 flex-wrap">
-        <!-- Overlay selector -->
-        {#if data.properties?.length > 0}
-          <span class="text-[12px] text-muted-foreground">Overlay</span>
-          <select
-            bind:value={overlay}
-            class="bg-card border border-border rounded-md px-3 py-1.5 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-          >
-            {#each data.properties as p}
-              <option value={p}>{propLabel(p)}</option>
-            {/each}
-          </select>
-        {/if}
-        {#if !savedViewName}
-          <button
-            onclick={() => showSaveDialog = true}
-            class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-border text-[12px] text-muted-foreground hover:text-foreground hover:border-primary transition-colors"
-          >
-            ⊕ Save view
-          </button>
-        {/if}
+    <div class="mb-5">
+      <h1 class="text-[18px] font-semibold">{savedViewName ?? 'Application Landscape'}</h1>
+      <div class="text-muted-foreground text-[13px] mt-0.5 mb-3">Capabilities mapped to realizing applications</div>
+      <div class="flex items-center justify-between gap-4 flex-wrap">
+        <!-- Left: Overlay + legend -->
+        <div class="flex items-center gap-2 flex-wrap">
+          {#if data.properties?.length > 0}
+            <span class="text-[12px] text-muted-foreground">Overlay</span>
+            <select
+              bind:value={overlay}
+              class="bg-card border border-border rounded-md px-3 py-1.5 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+            >
+              {#each data.properties as p}
+                <option value={p}>{propLabel(p)}</option>
+              {/each}
+            </select>
+            {#if legendEntries.length > 0}
+              <span class="w-px h-4 bg-border self-center flex-shrink-0"></span>
+              {#each legendEntries as entry}
+                <div class="flex items-center gap-1 text-[11px]">
+                  <span class="size-2.5 rounded flex-shrink-0" style="background:{entry.color}"></span>
+                  <span class="text-muted-foreground">{entry.value}</span>
+                </div>
+              {/each}
+            {/if}
+          {/if}
+        </div>
+        <!-- Right: Save view -->
+        <div class="flex items-center gap-2">
+          {#if !savedViewName}
+            <button
+              onclick={() => showSaveDialog = true}
+              class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-border text-[12px] text-muted-foreground hover:text-foreground hover:border-primary transition-colors"
+            >
+              ⊕ Save view
+            </button>
+          {/if}
+        </div>
       </div>
     </div>
 
@@ -210,18 +221,6 @@
       filters={saveFilters}
     />
 
-    <!-- Colour legend -->
-    {#if legendEntries.length > 0}
-      <div class="flex flex-wrap gap-x-4 gap-y-1.5 mb-5 px-1">
-        {#each legendEntries as entry}
-          <div class="flex items-center gap-1.5 text-[12px]">
-            <span class="size-3 rounded flex-shrink-0" style="background:{entry.color}"></span>
-            <span class="text-muted-foreground">{entry.value}</span>
-          </div>
-        {/each}
-      </div>
-    {/if}
-
     <!-- Landscape grid -->
     {#if data.l1.length === 0}
       <div class="text-center py-16 text-muted-foreground">
@@ -231,22 +230,51 @@
     {:else}
       <div class="space-y-4">
         {#each data.l1 as l1}
-          {@const totalApps = l1.l2.reduce((s, l2) => s + l2.apps.length, 0)}
+          {@const totalApps = (l1.apps?.length ?? 0) + l1.l2.reduce((s, l2) => s + l2.apps.length, 0)}
           <div class="border border-slate-300 rounded-xl overflow-hidden" style="box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04);">
             <!-- L1 header -->
-            <div class="bg-slate-100 border-b border-slate-200 px-4 py-2.5 flex items-center gap-3">
+            <div class="bg-slate-100 border-b border-slate-200 px-4 py-2.5 flex items-center gap-2">
+              <svg viewBox="0 0 16 16" width="12" height="12" style="flex-shrink:0; stroke:#d97706; fill:none; opacity:0.8; overflow:visible;">{@html getIcon('Capability')}</svg>
               <span class="text-[12px] font-bold text-slate-600 tracking-[0.8px] uppercase">{l1.name}</span>
               <span class="text-[11px] text-slate-400 ml-auto">{totalApps} app{totalApps !== 1 ? 's' : ''}</span>
             </div>
 
             <!-- L2 rows -->
             <div class="divide-y divide-slate-200">
+              <!-- General row: apps linked directly to L1 -->
+              {#if (l1.apps ?? []).length > 0}
+                <div class="flex items-start gap-3 px-4 py-2.5 bg-muted/20 hover:bg-muted/30 transition-colors">
+                  <div class="w-52 flex-shrink-0 pt-0.5 flex items-start gap-1.5">
+                    <svg viewBox="0 0 16 16" width="11" height="11" style="flex-shrink:0; margin-top:1px; stroke:#d97706; fill:none; opacity:0.7; overflow:visible;">{@html getIcon('Capability')}</svg>
+                    <span class="text-[12px] text-muted-foreground font-medium italic">General</span>
+                    <span class="ml-1 text-[11px] text-muted-foreground">{l1.apps.length}</span>
+                  </div>
+                  <div class="flex flex-wrap gap-1.5 flex-1">
+                    {#each l1.apps as app}
+                      <button
+                        class="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-medium transition-opacity hover:opacity-80 cursor-default"
+                        style="{chipStyle(app, overlay)}"
+                        onmouseenter={(e) => showTooltip(e, app)}
+                        onmouseleave={hideTooltip}
+                        onfocus={(e) => showTooltip(e, app)}
+                        onblur={hideTooltip}
+                      >
+                        {app.name}
+                        {#if getIcon(app.type)}
+                          <svg viewBox="0 0 16 16" width="10" height="10" style="flex-shrink:0; stroke:currentColor; fill:none; opacity:0.6; overflow:visible;">{@html getIcon(app.type)}</svg>
+                        {/if}
+                      </button>
+                    {/each}
+                  </div>
+                </div>
+              {/if}
               {#each l1.l2 as l2}
                 <div class="flex items-start gap-3 px-4 py-2.5 hover:bg-muted/20 transition-colors">
                   <!-- L2 name + count -->
-                  <div class="w-52 flex-shrink-0 pt-0.5">
+                  <div class="w-52 flex-shrink-0 pt-0.5 flex items-start gap-1.5">
+                    <svg viewBox="0 0 16 16" width="11" height="11" style="flex-shrink:0; margin-top:1px; stroke:#d97706; fill:none; opacity:0.7; overflow:visible;">{@html getIcon('Capability')}</svg>
                     <span class="text-[12px] text-foreground font-medium">{l2.name}</span>
-                    <span class="ml-1.5 text-[11px] text-muted-foreground">{l2.apps.length}</span>
+                    <span class="ml-1 text-[11px] text-muted-foreground">{l2.apps.length}</span>
                   </div>
 
                   <!-- App chips -->
@@ -256,7 +284,7 @@
                     {:else}
                       {#each l2.apps as app}
                         <button
-                          class="inline-flex items-center px-2.5 py-1 rounded text-[11px] font-medium transition-opacity hover:opacity-80 cursor-default"
+                          class="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-medium transition-opacity hover:opacity-80 cursor-default"
                           style="{chipStyle(app, overlay)}"
                           onmouseenter={(e) => showTooltip(e, app)}
                           onmouseleave={hideTooltip}
@@ -264,6 +292,9 @@
                           onblur={hideTooltip}
                         >
                           {app.name}
+                          {#if getIcon(app.type)}
+                            <svg viewBox="0 0 16 16" width="10" height="10" style="flex-shrink:0; stroke:currentColor; fill:none; opacity:0.6; overflow:visible;">{@html getIcon(app.type)}</svg>
+                          {/if}
                         </button>
                       {/each}
                     {/if}
