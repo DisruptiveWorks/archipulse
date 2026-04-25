@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model xmlns="http://www.opengroup.org/xsd/archimate/3.0/"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.opengroup.org/xsd/archimate/3.0/ http://www.opengroup.org/xsd/archimate/3.1/archimate3_Diagram.xsd"
+       identifier="id-model-001">
+  <name>Minimal ArchiPulse Test Model</name>
+  <elements>
+    <element identifier="id-app-001" xsi:type="ApplicationComponent">
+      <name>PaymentService</name>
+      <documentation>Handles payment processing</documentation>
+    </element>
+    <element identifier="id-app-002" xsi:type="ApplicationComponent">
+      <name>OrderService</name>
+      <documentation>Manages order lifecycle</documentation>
+    </element>
+    <element identifier="id-bp-001" xsi:type="BusinessProcess">
+      <name>ProcessPayment</name>
+      <documentation></documentation>
+    </element>
+  </elements>
+  <relationships>
+    <relationship identifier="id-rel-001" xsi:type="AssociationRelationship"
+                  source="id-app-001" target="id-app-002">
+      <name>calls</name>
+      <documentation></documentation>
+    </relationship>
+    <relationship identifier="id-rel-002" xsi:type="RealizationRelationship"
+                  source="id-app-001" target="id-bp-001">
+      <name></name>
+      <documentation></documentation>
+    </relationship>
+  </relationships>
+  <views>
+    <diagrams>
+      <view identifier="id-view-001">
+        <name>Application Overview</name>
+        <documentation>Shows main application components</documentation>
+        <node elementRef="id-app-001" x="100" y="50" w="120" h="55"/>
+        <node elementRef="id-app-002" x="300" y="50" w="120" h="55"/>
+        <connection relationshipRef="id-rel-001">
+          <bendpoint x="220" y="77"/>
+        </connection>
+      </view>
+    </diagrams>
+  </views>
+</model>

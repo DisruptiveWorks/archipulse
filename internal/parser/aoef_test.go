@@ -11,7 +11,7 @@ import (
 func badReader(s string) *strings.Reader { return strings.NewReader(s) }
 
 func TestParseAOEF(t *testing.T) {
-	f, err := os.Open("../../examples/minimal.xml")
+	f, err := os.Open("../testdata/minimal.xml")
 	if err != nil {
 		t.Fatalf("open fixture: %v", err)
 	}

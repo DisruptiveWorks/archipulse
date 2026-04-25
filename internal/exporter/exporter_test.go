@@ -11,7 +11,7 @@ import (
 
 func fixtureModel(t *testing.T) *parser.Model {
 	t.Helper()
-	f, err := os.Open("../../examples/minimal.xml")
+	f, err := os.Open("../testdata/minimal.xml")
 	if err != nil {
 		t.Fatalf("open fixture: %v", err)
 	}
