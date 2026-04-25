@@ -4,12 +4,28 @@
 
   const { wsId, savedViewId, savedViewName, currentFilters, initialFilters } = $props();
 
-  // Track the last successfully saved filter state for change detection.
-  let lastSaved = $state(JSON.stringify(initialFilters ?? {}));
+  // Deep-sort object keys so key-order differences between API response and
+  // derived state don't trigger false positives. Arrays are preserved as-is.
+  function stable(v) {
+    if (v == null) return 'null';
+    return JSON.stringify(v, (_, val) => {
+      if (val !== null && typeof val === 'object' && !Array.isArray(val)) {
+        return Object.fromEntries(Object.entries(val).sort(([a], [b]) => a < b ? -1 : 1));
+      }
+      return val;
+    });
+  }
+
+  // Reset baseline whenever the saved view is (re)loaded with new initialFilters.
+  let lastSaved = $state('null');
+  $effect(() => {
+    lastSaved = stable(initialFilters);
+  });
+
   let showConfirm = $state(false);
   let saving = $state(false);
 
-  const changed = $derived(JSON.stringify(currentFilters ?? {}) !== lastSaved);
+  const changed = $derived(stable(currentFilters) !== lastSaved);
 
   async function doUpdate() {
     saving = true;
