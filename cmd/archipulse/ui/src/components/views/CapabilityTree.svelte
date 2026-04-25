@@ -143,7 +143,7 @@
         type:      'appNode',
         draggable: false,
         position:  gn ? { x: gn.x - APP_W / 2, y: gn.y - APP_H / 2 } : { x: 0, y: 0 },
-        data:      { label: app.name, badge: app.type.replace('Application', ''), tier, lifecycle: app.lifecycle_status },
+        data:      { label: app.name, badge: app.type.replace('Application', ''), tier, lifecycle: app.lifecycle_status, elementType: app.type },
       });
     });
 
