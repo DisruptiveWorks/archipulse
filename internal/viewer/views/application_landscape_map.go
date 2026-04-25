@@ -26,9 +26,10 @@ type LandscapeL2 struct {
 
 // LandscapeL1 is a top-level capability group.
 type LandscapeL1 struct {
-	ID   string        `json:"id"`
-	Name string        `json:"name"`
-	L2   []LandscapeL2 `json:"l2"`
+	ID   string         `json:"id"`
+	Name string         `json:"name"`
+	Apps []LandscapeApp `json:"apps"` // apps linked directly to this L1 (not via an L2 child)
+	L2   []LandscapeL2  `json:"l2"`
 }
 
 // ApplicationLandscapeMapData is the payload for the landscape map view.
@@ -74,6 +75,11 @@ func ApplicationLandscapeMap(db *sql.DB, workspaceID uuid.UUID) (*ApplicationLan
 	l1List := make([]LandscapeL1, 0, len(l1Order))
 	for _, l1ID := range l1Order {
 		l1 := l1Map[l1ID]
+		if apps := appsByCapID[l1ID]; apps != nil {
+			l1.Apps = apps
+		} else {
+			l1.Apps = []LandscapeApp{}
+		}
 		for i, l2 := range l1.L2 {
 			apps := appsByCapID[l2.ID]
 			if apps == nil {

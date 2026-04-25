@@ -97,6 +97,7 @@
   function groupStats(l1) {
     let totalApps = new Set();
     let gaps = 0;
+    for (const a of (l1.apps ?? [])) totalApps.add(a.id);
     for (const l2 of l1.l2) {
       if (l2.apps.length === 0) gaps++;
       for (const a of l2.apps) totalApps.add(a.id);
@@ -319,7 +320,7 @@
         {#if data.l1.length > 0}
           <div class="text-[11px] text-muted-foreground border border-dashed border-border rounded-md px-2 py-1.5">
             {data.l1.reduce((s, l) => s + l.l2.length, 0)} capabilities ·
-            {data.l1.reduce((s, l) => s + l.l2.reduce((ss, l2) => ss + l2.apps.length, 0), 0)} realizations
+            {data.l1.reduce((s, l) => (l.apps?.length ?? 0) + l.l2.reduce((ss, l2) => ss + l2.apps.length, 0) + s, 0)} realizations
           </div>
         {/if}
       </aside>
@@ -366,6 +367,29 @@
 
                 {#if !isCollapsed}
                   <div class="divide-y divide-border">
+                    {#if (l1.apps ?? []).length > 0}
+                      {@const visibleL1Apps = showRetired ? l1.apps : l1.apps.filter(a => !isRetired(a))}
+                      <div class="flex items-start gap-3 px-4 py-2 bg-muted/20 hover:bg-white/40 transition-colors">
+                        <div class="w-52 flex-shrink-0 pt-0.5">
+                          <span class="text-[11.5px] font-medium text-muted-foreground italic">General</span>
+                          <span class="ml-1.5 text-[11px] text-muted-foreground">{l1.apps.length}</span>
+                        </div>
+                        <div class="flex flex-wrap gap-1.5 flex-1 items-center">
+                          {#each visibleL1Apps as app}
+                            {@const col = overlayColor(app)}
+                            {@const retired = isRetired(app)}
+                            <button
+                              class="inline-flex items-center relative px-2.5 py-1 pl-[14px] rounded text-[11.5px] font-medium transition-shadow hover:shadow-sm cursor-pointer {retired ? 'opacity-45 line-through' : ''}"
+                              style="background:{col.bg}; border:1px solid {col.border}; color:#0b2936;"
+                              title="{app.name} · {app.properties?.lifecycle_status ?? ''} · {app.properties?.criticality ?? ''}"
+                              onclick={() => selectedApp = app}>
+                              <span class="absolute left-0 top-0 bottom-0 w-[3px] rounded-l" style="background:{col.border}"></span>
+                              {app.name}
+                            </button>
+                          {/each}
+                        </div>
+                      </div>
+                    {/if}
                     {#each l1.l2.filter(l2 => !search || l2.name.toLowerCase().includes(search.toLowerCase())) as l2}
                       {@const visibleApps = showRetired ? l2.apps : l2.apps.filter(a => !isRetired(a))}
                       {@const isGap = l2.apps.length === 0}
