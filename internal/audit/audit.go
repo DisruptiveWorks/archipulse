@@ -31,6 +31,7 @@ const (
 	EntityWorkspace    = "workspace"
 	EntityMember       = "member"
 	EntitySnapshot     = "snapshot"
+	EntitySavedView    = "saved_view"
 )
 
 // Event is a single audit log entry.

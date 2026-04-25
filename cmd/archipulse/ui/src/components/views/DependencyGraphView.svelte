@@ -14,8 +14,9 @@
   import AppNode from '../flow/AppNode.svelte';
   import FlowControls from '../flow/FlowControls.svelte';
   import SaveViewDialog from './SaveViewDialog.svelte';
+  import SaveViewUpdateBar from './SaveViewUpdateBar.svelte';
 
-  let { params = {}, initialFilters = null, savedViewName = null } = $props();
+  let { params = {}, initialFilters = null, savedViewName = null, savedViewId = null } = $props();
   let showSaveDialog = $state(false);
 
   // ── XyFlow state ──────────────────────────────────────────────────────────
@@ -314,6 +315,7 @@
     viewType="application-dependency"
     filters={saveFilters}
   />
+  <SaveViewUpdateBar wsId={params.wsId} {savedViewId} {savedViewName} currentFilters={saveFilters} {initialFilters} />
 
   {#if loading}
     <div class="flex items-center gap-2 text-muted-foreground py-6 px-6">

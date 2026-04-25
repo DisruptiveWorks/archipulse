@@ -13,6 +13,7 @@ import (
 
 	"github.com/DisruptiveWorks/archipulse/internal/audit"
 	"github.com/DisruptiveWorks/archipulse/internal/auth"
+	"github.com/DisruptiveWorks/archipulse/internal/events"
 	"github.com/DisruptiveWorks/archipulse/internal/snapshot"
 	"github.com/DisruptiveWorks/archipulse/internal/workspace"
 )
@@ -35,6 +36,29 @@ func NewRouter(db *sql.DB, svc *auth.Service, oidc *auth.OIDCProvider, static ..
 			r.Use(svc.RequireAuth)
 			auditStore := audit.NewStore(db)
 			snapStore := snapshot.NewStore(db)
+
+			// Event bus: async dispatcher; audit writes are subscribers.
+			bus := events.New(256)
+			bus.Subscribe(func(e events.Event) {
+				action := map[events.Kind]string{
+					events.KindSavedViewCreated: audit.ActionCreate,
+					events.KindSavedViewUpdated: audit.ActionUpdate,
+					events.KindSavedViewDeleted: audit.ActionDelete,
+				}[e.Kind]
+				if action == "" {
+					return
+				}
+				_ = auditStore.Record(audit.RecordParams{
+					WorkspaceID: e.WorkspaceID,
+					UserID:      e.ActorID,
+					UserEmail:   e.ActorEmail,
+					Action:      action,
+					EntityType:  audit.EntitySavedView,
+					EntityID:    e.ObjectID,
+					EntityName:  e.ObjectName,
+				})
+			})
+
 			registerWorkspaceRoutes(r, workspace.NewStore(db), svc)
 			registerMembershipRoutes(r, svc, auditStore)
 			registerUserRoutes(r, svc)
@@ -45,7 +69,7 @@ func NewRouter(db *sql.DB, svc *auth.Service, oidc *auth.OIDCProvider, static ..
 			registerExportRoutes(r, db, svc)
 			registerImportRoutes(r, db, svc, auditStore, snapStore)
 			registerViewerRoutes(r, db, svc)
-			registerSavedViewsRoutes(r, db, svc)
+			registerSavedViewsRoutes(r, db, svc, bus)
 			registerEventRoutes(r, auditStore, svc)
 			registerSnapshotRoutes(r, db, snapStore, auditStore, svc)
 		})
