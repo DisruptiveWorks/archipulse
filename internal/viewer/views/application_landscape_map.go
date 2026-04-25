@@ -135,26 +135,60 @@ func buildCapabilityHierarchy(db *sql.DB, workspaceID uuid.UUID) (map[string]Lan
 }
 
 // loadAppsByCapability returns a map of capability source_id → []LandscapeApp.
-// Uses both "Realization" and "RealizationRelationship" type names.
+// Supports two paths:
+//
+//	A) App → Realization → Capability (direct)
+//	B) App → Serving → BusinessProcess → Realization → Capability (2-hop)
 func loadAppsByCapability(db *sql.DB, workspaceID uuid.UUID) (map[string][]LandscapeApp, error) {
 	rows, err := db.Query(fmt.Sprintf(`
-		SELECT DISTINCT
-			cap.source_id AS cap_id,
-			e.source_id   AS app_id,
-			e.name        AS app_name,
-			e.type        AS app_type
-		FROM relationships r
-		JOIN elements e
-			ON  e.workspace_id = $1
-			AND e.source_id    = r.source_element
-			AND e.type IN (%s)
-		JOIN elements cap
-			ON  cap.workspace_id = $1
-			AND cap.source_id    = r.target_element
-			AND cap.type         = 'Capability'
-		WHERE r.workspace_id = $1
-		  AND r.type IN ('Realization', 'RealizationRelationship')
-		ORDER BY cap.source_id, e.name`, appTypesSQL), workspaceID)
+		SELECT DISTINCT cap_id, app_id, app_name, app_type FROM (
+			-- Path A: App → Realization → Capability (direct)
+			SELECT
+				cap.source_id AS cap_id,
+				e.source_id   AS app_id,
+				e.name        AS app_name,
+				e.type        AS app_type
+			FROM relationships r
+			JOIN elements e
+				ON  e.workspace_id = $1
+				AND e.source_id    = r.source_element
+				AND e.type IN (%s)
+			JOIN elements cap
+				ON  cap.workspace_id = $1
+				AND cap.source_id    = r.target_element
+				AND cap.type         = 'Capability'
+			WHERE r.workspace_id = $1
+			  AND r.type IN ('Realization', 'RealizationRelationship')
+
+			UNION
+
+			-- Path B: App → Serving → BusinessProcess → Realization → Capability
+			SELECT
+				cap.source_id AS cap_id,
+				a.source_id   AS app_id,
+				a.name        AS app_name,
+				a.type        AS app_type
+			FROM relationships r1
+			JOIN elements a
+				ON  a.workspace_id = r1.workspace_id
+				AND a.source_id    = r1.source_element
+				AND a.type IN (%s)
+			JOIN elements bp
+				ON  bp.workspace_id = r1.workspace_id
+				AND bp.source_id    = r1.target_element
+				AND bp.type IN ('BusinessProcess','BusinessFunction','BusinessService','BusinessInteraction')
+			JOIN relationships r2
+				ON  r2.workspace_id   = $1
+				AND r2.source_element = bp.source_id
+				AND r2.type IN ('Realization', 'RealizationRelationship')
+			JOIN elements cap
+				ON  cap.workspace_id = r2.workspace_id
+				AND cap.source_id    = r2.target_element
+				AND cap.type         = 'Capability'
+			WHERE r1.workspace_id = $1
+			  AND r1.type IN ('ServingRelationship','Serving','AssociationRelationship','Association')
+		) combined
+		ORDER BY cap_id, app_name`, appTypesSQL, appTypesSQL), workspaceID)
 	if err != nil {
 		return nil, fmt.Errorf("apps by capability: %w", err)
 	}

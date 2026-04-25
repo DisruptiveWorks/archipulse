@@ -211,7 +211,8 @@
               <tbody>
                 {#each [
                   ['Capability', 'L1 groups and L2 capabilities (Strategy layer)'],
-                  ['ApplicationComponent / ApplicationService', 'Applications that realize capabilities'],
+                  ['ApplicationComponent / ApplicationService', 'Applications that support capabilities'],
+                  ['BusinessProcess / BusinessFunction', 'Intermediate process elements (recommended path)'],
                 ] as [t, r]}
                   <tr class="border-t border-border">
                     <td class="px-3 py-1.5 font-mono text-[11.5px]">{t}</td>
@@ -224,21 +225,26 @@
 
           <div>
             <div class="font-semibold text-[12px] uppercase tracking-wide text-muted-foreground mb-1.5">Required relationships</div>
+            <p class="text-[12px] text-muted-foreground mb-2">Two paths are supported. The recommended one follows the ArchiMate standard more closely:</p>
             <table class="w-full text-[12px] border border-border rounded-md overflow-hidden">
               <thead>
                 <tr class="bg-muted/60">
-                  <th class="text-left px-3 py-1.5 font-semibold">Relationship</th>
-                  <th class="text-left px-3 py-1.5 font-semibold">From → To</th>
+                  <th class="text-left px-3 py-1.5 font-semibold">Path</th>
+                  <th class="text-left px-3 py-1.5 font-semibold">Relationships</th>
                 </tr>
               </thead>
               <tbody>
                 <tr class="border-t border-border">
-                  <td class="px-3 py-1.5 font-mono">Composition</td>
-                  <td class="px-3 py-1.5 text-muted-foreground">L1 Capability → L2 Capability (creates the hierarchy)</td>
+                  <td class="px-3 py-1.5 text-muted-foreground">Hierarchy</td>
+                  <td class="px-3 py-1.5 font-mono">Composition: L1 Capability → L2 Capability</td>
+                </tr>
+                <tr class="border-t border-border bg-muted/20">
+                  <td class="px-3 py-1.5 font-medium text-foreground">Recommended</td>
+                  <td class="px-3 py-1.5 font-mono">App <span class="text-muted-foreground">–Serving→</span> BusinessProcess <span class="text-muted-foreground">–Realization→</span> Capability</td>
                 </tr>
                 <tr class="border-t border-border">
-                  <td class="px-3 py-1.5 font-mono">Realization</td>
-                  <td class="px-3 py-1.5 text-muted-foreground">ApplicationComponent → Capability (links apps to capabilities)</td>
+                  <td class="px-3 py-1.5 text-muted-foreground">Alternative</td>
+                  <td class="px-3 py-1.5 font-mono">App <span class="text-muted-foreground">–Realization→</span> Capability (direct)</td>
                 </tr>
               </tbody>
             </table>

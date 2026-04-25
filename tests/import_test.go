@@ -70,7 +70,7 @@ func TestImport_InvalidXML(t *testing.T) {
 func TestImport_WorkspaceNotFound(t *testing.T) {
 	conn := openTestDB(t)
 
-	body, ct := multipartFile(t, fixture("minimal.xml"))
+	body, ct := multipartFile(t, fixture("archisurance.xml"))
 	req := httptest.NewRequest(http.MethodPost,
 		"/api/v1/workspaces/"+nonExistentUUID().String()+"/import", body)
 	req.Header.Set("Content-Type", ct)

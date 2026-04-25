@@ -66,35 +66,69 @@ func CapabilityTreeData(db *sql.DB, workspaceID uuid.UUID) ([]CapabilityNode, er
 		return nodes, nil
 	}
 
-	// 2. Fetch supporting application elements via ServingRelationship.
-	// Source = application element, Target = capability/process element.
+	// 2. Fetch supporting application elements.
+	// Two paths are accepted:
+	//   a) Direct:  App → Serving/Association → Capability
+	//   b) Via process: App → Serving → BusinessProcess → Realization → Capability
 	appRows, err := db.Query(`
-		SELECT
-			r.target_element AS cap_id,
-			a.source_id,
-			a.name,
-			a.type,
-			COALESCE(
-				(SELECT ep.value
-				 FROM element_properties ep
-				 WHERE ep.element_id = a.id
-				   AND ep.key = 'lifecycle_status'
-				   AND ep.source = 'model'
-				 LIMIT 1),
-				''
-			) AS lifecycle_status
-		FROM relationships r
-		JOIN elements a
-			ON  a.workspace_id = r.workspace_id
-			AND a.source_id    = r.source_element
-			AND a.layer        = 'Application'
-		JOIN elements cap
-			ON  cap.workspace_id = r.workspace_id
-			AND cap.source_id    = r.target_element
-			AND cap.type = 'Capability'
-		WHERE r.workspace_id = $1
-		  AND r.type IN ('ServingRelationship', 'Serving', 'AssociationRelationship', 'Association')
-		ORDER BY cap_id, a.name`, workspaceID)
+		SELECT DISTINCT cap_id, app_id, app_name, app_type, lifecycle_status FROM (
+			-- Path A: App → Serving/Association → Capability (direct)
+			SELECT
+				r.target_element AS cap_id,
+				a.source_id      AS app_id,
+				a.name           AS app_name,
+				a.type           AS app_type,
+				COALESCE(
+					(SELECT ep.value FROM element_properties ep
+					 WHERE ep.element_id = a.id AND ep.key = 'lifecycle_status'
+					   AND ep.source = 'model' LIMIT 1), ''
+				) AS lifecycle_status
+			FROM relationships r
+			JOIN elements a
+				ON  a.workspace_id = r.workspace_id
+				AND a.source_id    = r.source_element
+				AND a.layer        = 'Application'
+			JOIN elements cap
+				ON  cap.workspace_id = r.workspace_id
+				AND cap.source_id    = r.target_element
+				AND cap.type         = 'Capability'
+			WHERE r.workspace_id = $1
+			  AND r.type IN ('ServingRelationship','Serving','AssociationRelationship','Association')
+
+			UNION
+
+			-- Path B: App → Serving → BusinessProcess → Realization → Capability
+			SELECT
+				cap.source_id AS cap_id,
+				a.source_id   AS app_id,
+				a.name        AS app_name,
+				a.type        AS app_type,
+				COALESCE(
+					(SELECT ep.value FROM element_properties ep
+					 WHERE ep.element_id = a.id AND ep.key = 'lifecycle_status'
+					   AND ep.source = 'model' LIMIT 1), ''
+				) AS lifecycle_status
+			FROM relationships r1
+			JOIN elements a
+				ON  a.workspace_id = r1.workspace_id
+				AND a.source_id    = r1.source_element
+				AND a.layer        = 'Application'
+			JOIN elements bp
+				ON  bp.workspace_id = r1.workspace_id
+				AND bp.source_id    = r1.target_element
+				AND bp.type IN ('BusinessProcess','BusinessFunction','BusinessService','BusinessInteraction')
+			JOIN relationships r2
+				ON  r2.workspace_id    = $1
+				AND r2.source_element  = bp.source_id
+				AND r2.type IN ('RealizationRelationship','Realization')
+			JOIN elements cap
+				ON  cap.workspace_id = r2.workspace_id
+				AND cap.source_id    = r2.target_element
+				AND cap.type         = 'Capability'
+			WHERE r1.workspace_id = $1
+			  AND r1.type IN ('ServingRelationship','Serving','AssociationRelationship','Association')
+		) combined
+		ORDER BY cap_id, app_name`, workspaceID)
 	if err != nil {
 		return nil, fmt.Errorf("capability tree apps: %w", err)
 	}
