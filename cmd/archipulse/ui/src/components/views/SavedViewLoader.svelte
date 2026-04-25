@@ -45,19 +45,19 @@
   <div class="p-6 text-sm text-destructive">{error}</div>
 {:else if sv}
   {#if sv.view_type === 'application-dashboard'}
-    <ApplicationDashboard params={childParams} initialFilters={sv.filters} savedViewName={sv.name} />
+    <ApplicationDashboard params={childParams} initialFilters={sv.filters} savedViewName={sv.name} savedViewId={sv.id} />
   {:else if sv.view_type === 'capability-landscape'}
-    <CapabilityLandscape params={childParams} initialFilters={sv.filters} savedViewName={sv.name} />
+    <CapabilityLandscape params={childParams} initialFilters={sv.filters} savedViewName={sv.name} savedViewId={sv.id} />
   {:else if sv.view_type === 'application-landscape'}
-    <ApplicationLandscape params={childParams} initialFilters={sv.filters} savedViewName={sv.name} />
+    <ApplicationLandscape params={childParams} initialFilters={sv.filters} savedViewName={sv.name} savedViewId={sv.id} />
   {:else if sv.view_type === 'capability-tree'}
-    <CapabilityTree params={childParams} initialFilters={sv.filters} savedViewName={sv.name} />
+    <CapabilityTree params={childParams} initialFilters={sv.filters} savedViewName={sv.name} savedViewId={sv.id} />
   {:else if sv.view_type === 'application-dependency'}
-    <DependencyGraphView params={childParams} initialFilters={sv.filters} savedViewName={sv.name} />
+    <DependencyGraphView params={childParams} initialFilters={sv.filters} savedViewName={sv.name} savedViewId={sv.id} />
   {:else if sv.view_type === 'process-application'}
-    <ProcessApplication params={childParams} initialFilters={sv.filters} savedViewName={sv.name} />
+    <ProcessApplication params={childParams} initialFilters={sv.filters} savedViewName={sv.name} savedViewId={sv.id} />
   {:else if sv.view_type === 'technology-stack'}
-    <TechnologyStack params={childParams} initialFilters={sv.filters} savedViewName={sv.name} />
+    <TechnologyStack params={childParams} initialFilters={sv.filters} savedViewName={sv.name} savedViewId={sv.id} />
   {:else}
     <div class="p-6 text-sm text-muted-foreground">Unknown view type: {sv.view_type}</div>
   {/if}

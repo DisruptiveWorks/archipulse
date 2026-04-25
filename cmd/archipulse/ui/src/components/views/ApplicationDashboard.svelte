@@ -3,10 +3,12 @@
   import { api } from '../../lib/api.js';
   import { ArcChart } from 'layerchart';
   import SaveViewDialog from './SaveViewDialog.svelte';
+  import SaveViewUpdateBar from './SaveViewUpdateBar.svelte';
 
   export let params = {};
   export let initialFilters = null;
   export let savedViewName = null;
+  export let savedViewId = null;
 
   $: wsId = params.wsId;
 
@@ -196,6 +198,7 @@
       viewType="application-dashboard"
       filters={saveFilters}
     />
+    <SaveViewUpdateBar {wsId} {savedViewId} {savedViewName} currentFilters={saveFilters} {initialFilters} />
 
     {#if data.total_apps === 0}
       <div class="text-center py-16 px-6 text-muted-foreground">

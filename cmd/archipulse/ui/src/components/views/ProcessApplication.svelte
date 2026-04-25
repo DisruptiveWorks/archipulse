@@ -3,9 +3,10 @@
   import { api } from '../../lib/api.js';
   import AppDetailPanel from './AppDetailPanel.svelte';
   import SaveViewDialog from './SaveViewDialog.svelte';
+  import SaveViewUpdateBar from './SaveViewUpdateBar.svelte';
   import ViewInfoDialog from './ViewInfoDialog.svelte';
 
-  const { params = {}, initialFilters = null, savedViewName = null } = $props();
+  const { params = {}, initialFilters = null, savedViewName = null, savedViewId = null } = $props();
 
   const wsId = $derived(params.wsId);
 
@@ -152,6 +153,7 @@
     </div>
 
     <SaveViewDialog bind:open={showSaveDialog} {wsId} viewType="process-application" filters={saveFilters} />
+    <SaveViewUpdateBar {wsId} {savedViewId} {savedViewName} currentFilters={saveFilters} {initialFilters} />
 
     {#if !data.processes?.length}
       <div class="text-center py-20 text-muted-foreground">

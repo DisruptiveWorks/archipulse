@@ -2,10 +2,11 @@
   import { onMount } from 'svelte';
   import { api } from '../../lib/api.js';
   import SaveViewDialog from './SaveViewDialog.svelte';
+  import SaveViewUpdateBar from './SaveViewUpdateBar.svelte';
   import AppDetailPanel from './AppDetailPanel.svelte';
   import ViewInfoDialog from './ViewInfoDialog.svelte';
 
-  const { params = {}, initialFilters = null, savedViewName = null } = $props();
+  const { params = {}, initialFilters = null, savedViewName = null, savedViewId = null } = $props();
 
   const wsId = $derived(params.wsId);
 
@@ -276,6 +277,7 @@
     </div>
 
     <SaveViewDialog bind:open={showSaveDialog} {wsId} viewType="capability-landscape" filters={saveFilters} />
+    <SaveViewUpdateBar {wsId} {savedViewId} {savedViewName} currentFilters={saveFilters} {initialFilters} />
 
     <div class="flex gap-4 items-start">
 

@@ -9,11 +9,13 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/DisruptiveWorks/archipulse/internal/auth"
+	"github.com/DisruptiveWorks/archipulse/internal/events"
 	"github.com/DisruptiveWorks/archipulse/internal/savedviews"
 )
 
 type savedViewsHandler struct {
 	store *savedviews.Store
+	bus   *events.Bus
 }
 
 func (h *savedViewsHandler) list(w http.ResponseWriter, r *http.Request) {
@@ -82,6 +84,19 @@ func (h *savedViewsHandler) create(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusInternalServerError, err)
 		return
 	}
+	if h.bus != nil {
+		claims := auth.ClaimsFromCtx(r.Context())
+		if claims != nil {
+			h.bus.Publish(events.Event{
+				Kind:        events.KindSavedViewCreated,
+				WorkspaceID: wsID,
+				ActorID:     claims.UserID,
+				ActorEmail:  claims.Email,
+				ObjectID:    sv.ID.String(),
+				ObjectName:  sv.Name,
+			})
+		}
+	}
 	respondJSON(w, http.StatusCreated, sv)
 }
 
@@ -114,6 +129,19 @@ func (h *savedViewsHandler) update(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusNotFound, errorf("saved view not found"))
 		return
 	}
+	if h.bus != nil {
+		claims := auth.ClaimsFromCtx(r.Context())
+		if claims != nil {
+			h.bus.Publish(events.Event{
+				Kind:        events.KindSavedViewUpdated,
+				WorkspaceID: wsID,
+				ActorID:     claims.UserID,
+				ActorEmail:  claims.Email,
+				ObjectID:    sv.ID.String(),
+				ObjectName:  sv.Name,
+			})
+		}
+	}
 	respondJSON(w, http.StatusOK, sv)
 }
 
@@ -136,11 +164,23 @@ func (h *savedViewsHandler) delete(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusInternalServerError, err)
 		return
 	}
+	if h.bus != nil {
+		claims := auth.ClaimsFromCtx(r.Context())
+		if claims != nil {
+			h.bus.Publish(events.Event{
+				Kind:        events.KindSavedViewDeleted,
+				WorkspaceID: wsID,
+				ActorID:     claims.UserID,
+				ActorEmail:  claims.Email,
+				ObjectID:    svID.String(),
+			})
+		}
+	}
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func registerSavedViewsRoutes(r chi.Router, db *sql.DB, svc *auth.Service) {
-	h := &savedViewsHandler{store: savedviews.NewStore(db)}
+func registerSavedViewsRoutes(r chi.Router, db *sql.DB, svc *auth.Service, bus *events.Bus) {
+	h := &savedViewsHandler{store: savedviews.NewStore(db), bus: bus}
 	viewer := svc.RequireWorkspaceAccess(auth.RoleViewer)
 	editor := svc.RequireWorkspaceAccess(auth.RoleEditor)
 
