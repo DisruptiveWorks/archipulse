@@ -1,6 +1,6 @@
 module github.com/DisruptiveWorks/archipulse
 
-go 1.25.0
+go 1.25.5
 
 require (
 	github.com/casbin/casbin/v2 v2.135.0
@@ -18,6 +18,10 @@ require (
 	github.com/bmatcuk/doublestar/v4 v4.6.1 // indirect
 	github.com/casbin/govaluate v1.3.0 // indirect
 	github.com/go-jose/go-jose/v4 v4.1.4 // indirect
+	github.com/google/jsonschema-go v0.4.2 // indirect
+	github.com/mark3labs/mcp-go v0.49.0 // indirect
+	github.com/spf13/cast v1.7.1 // indirect
+	github.com/yosida95/uritemplate/v3 v3.0.2 // indirect
 	golang.org/x/sys v0.43.0 // indirect
 	golang.org/x/term v0.42.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

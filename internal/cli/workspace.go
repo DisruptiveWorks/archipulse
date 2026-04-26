@@ -49,7 +49,7 @@ func workspaceList(args []string) error {
 		return err
 	}
 
-	resp, err := client.do(http.MethodGet, "/workspaces", nil)
+	resp, err := client.Do(http.MethodGet, "/workspaces", nil)
 	if err != nil {
 		return err
 	}
@@ -95,7 +95,7 @@ func workspaceGet(id string, args []string) error {
 		return err
 	}
 
-	resp, err := client.do(http.MethodGet, "/workspaces/"+id, nil)
+	resp, err := client.Do(http.MethodGet, "/workspaces/"+id, nil)
 	if err != nil {
 		return err
 	}

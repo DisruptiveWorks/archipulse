@@ -26,7 +26,7 @@ func NewClient(server, token string) *Client {
 	}
 }
 
-func (c *Client) do(method, path string, body any) (*http.Response, error) {
+func (c *Client) Do(method, path string, body any) (*http.Response, error) {
 	var buf bytes.Buffer
 	if body != nil {
 		if err := json.NewEncoder(&buf).Encode(body); err != nil {

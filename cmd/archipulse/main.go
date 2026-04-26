@@ -14,6 +14,7 @@ import (
 	"github.com/DisruptiveWorks/archipulse/internal/auth"
 	"github.com/DisruptiveWorks/archipulse/internal/cli"
 	"github.com/DisruptiveWorks/archipulse/internal/db"
+	"github.com/DisruptiveWorks/archipulse/internal/mcpserver"
 	"github.com/DisruptiveWorks/archipulse/internal/parser"
 	"github.com/DisruptiveWorks/archipulse/internal/workspace"
 )
@@ -86,6 +87,15 @@ func main() {
 			fmt.Fprintf(os.Stderr, "export: %v\n", err)
 			os.Exit(1)
 		}
+	case "mcp":
+		var contextOverride string
+		if len(os.Args) >= 4 && os.Args[2] == "--context" {
+			contextOverride = os.Args[3]
+		}
+		if err := mcpserver.Serve(contextOverride); err != nil {
+			fmt.Fprintf(os.Stderr, "mcp: %v\n", err)
+			os.Exit(1)
+		}
 	default:
 		fmt.Fprintf(os.Stderr, "unknown command: %s\n\n", os.Args[1])
 		printUsage()
@@ -110,6 +120,9 @@ func printUsage() {
 	fmt.Fprintln(os.Stderr, "  diagram      list and inspect diagrams")
 	fmt.Fprintln(os.Stderr, "  import       import an AOEF (.xml) file into a workspace")
 	fmt.Fprintln(os.Stderr, "  export       export a workspace as AOEF (.xml)")
+	fmt.Fprintln(os.Stderr, "")
+	fmt.Fprintln(os.Stderr, "agent commands:")
+	fmt.Fprintln(os.Stderr, "  mcp          start the MCP server (stdio transport)")
 }
 
 func runServe() error {

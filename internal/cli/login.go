@@ -68,7 +68,7 @@ func RunLogin(args []string) error {
 	}
 
 	client := NewClient(server, "")
-	resp, err := client.do(http.MethodPost, "/auth/login", map[string]string{
+	resp, err := client.Do(http.MethodPost, "/auth/login", map[string]string{
 		"email":    email,
 		"password": password,
 	})
