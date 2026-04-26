@@ -2,13 +2,13 @@ package api
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 
 	"github.com/DisruptiveWorks/archipulse/internal/audit"
 	"github.com/DisruptiveWorks/archipulse/internal/auth"
+	"github.com/DisruptiveWorks/archipulse/internal/pagination"
 )
 
 type eventHandler struct {
@@ -21,16 +21,13 @@ func (h *eventHandler) list(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, errorf("invalid workspace id"))
 		return
 	}
-	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
-	events, err := h.store.List(wsID, limit)
+	p := parsePage(r)
+	items, total, err := h.store.List(wsID, p)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, err)
 		return
 	}
-	if events == nil {
-		events = []audit.Event{}
-	}
-	respondJSON(w, http.StatusOK, events)
+	respondJSON(w, http.StatusOK, pagination.NewPage(items, total, p.Page, p.Limit))
 }
 
 func registerEventRoutes(r chi.Router, store *audit.Store, svc *auth.Service) {

@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+
+	"github.com/DisruptiveWorks/archipulse/internal/pagination"
 )
 
 // ErrNotFound is returned when a snapshot does not exist.
@@ -42,29 +44,32 @@ func NewStore(db *sql.DB) *Store {
 	return &Store{db: db}
 }
 
-// List returns all snapshots for a workspace (newest first), without payload.
-func (s *Store) List(workspaceID uuid.UUID) ([]Snapshot, error) {
+// List returns snapshots for a workspace (newest first), without payload.
+func (s *Store) List(workspaceID uuid.UUID, p pagination.Params) ([]Snapshot, int, error) {
 	rows, err := s.db.Query(`
 		SELECT id, workspace_id, created_by, created_by_email,
-		       COALESCE(label, ''), trigger, created_at
+		       COALESCE(label, ''), trigger, created_at,
+		       COUNT(*) OVER() AS total
 		FROM   workspace_snapshots
 		WHERE  workspace_id = $1
-		ORDER  BY created_at DESC`, workspaceID)
+		ORDER  BY created_at DESC
+		LIMIT  $2 OFFSET $3`, workspaceID, p.Limit, p.Offset())
 	if err != nil {
-		return nil, fmt.Errorf("list snapshots: %w", err)
+		return nil, 0, fmt.Errorf("list snapshots: %w", err)
 	}
 	defer func() { _ = rows.Close() }()
 
 	var out []Snapshot
+	var total int
 	for rows.Next() {
 		var snap Snapshot
 		if err := rows.Scan(&snap.ID, &snap.WorkspaceID, &snap.CreatedBy,
-			&snap.CreatedByEmail, &snap.Label, &snap.Trigger, &snap.CreatedAt); err != nil {
-			return nil, err
+			&snap.CreatedByEmail, &snap.Label, &snap.Trigger, &snap.CreatedAt, &total); err != nil {
+			return nil, 0, err
 		}
 		out = append(out, snap)
 	}
-	return out, rows.Err()
+	return out, total, rows.Err()
 }
 
 // Get returns a single snapshot including its AOEF XML payload.

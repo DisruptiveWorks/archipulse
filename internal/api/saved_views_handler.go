@@ -10,6 +10,7 @@ import (
 
 	"github.com/DisruptiveWorks/archipulse/internal/auth"
 	"github.com/DisruptiveWorks/archipulse/internal/events"
+	"github.com/DisruptiveWorks/archipulse/internal/pagination"
 	"github.com/DisruptiveWorks/archipulse/internal/savedviews"
 )
 
@@ -24,15 +25,13 @@ func (h *savedViewsHandler) list(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, err)
 		return
 	}
-	views, err := h.store.List(wsID)
+	p := parsePage(r)
+	items, total, err := h.store.List(wsID, p)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, err)
 		return
 	}
-	if views == nil {
-		views = []savedviews.SavedView{}
-	}
-	respondJSON(w, http.StatusOK, views)
+	respondJSON(w, http.StatusOK, pagination.NewPage(items, total, p.Page, p.Limit))
 }
 
 func (h *savedViewsHandler) get(w http.ResponseWriter, r *http.Request) {

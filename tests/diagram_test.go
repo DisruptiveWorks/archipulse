@@ -41,7 +41,7 @@ func TestDiagramStore_CRUD(t *testing.T) {
 	}
 
 	// List
-	list, err := dStore.List(ws.ID)
+	list, err := dStore.ListAll(ws.ID)
 	if err != nil {
 		t.Fatalf("List diagrams: %v", err)
 	}

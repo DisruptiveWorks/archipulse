@@ -38,7 +38,7 @@ func TestRelationshipStore_CRUD(t *testing.T) {
 	}
 
 	// List
-	list, err := rStore.List(ws.ID)
+	list, err := rStore.ListAll(ws.ID)
 	if err != nil {
 		t.Fatalf("List relationships: %v", err)
 	}

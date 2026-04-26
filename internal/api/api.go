@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -14,6 +15,7 @@ import (
 	"github.com/DisruptiveWorks/archipulse/internal/audit"
 	"github.com/DisruptiveWorks/archipulse/internal/auth"
 	"github.com/DisruptiveWorks/archipulse/internal/events"
+	"github.com/DisruptiveWorks/archipulse/internal/pagination"
 	"github.com/DisruptiveWorks/archipulse/internal/snapshot"
 	"github.com/DisruptiveWorks/archipulse/internal/workspace"
 )
@@ -100,4 +102,11 @@ func respondError(w http.ResponseWriter, status int, err error) {
 
 func errorf(format string, args ...any) error {
 	return fmt.Errorf(format, args...)
+}
+
+// parsePage extracts pagination params from ?page= and ?limit= query params.
+func parsePage(r *http.Request) pagination.Params {
+	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
+	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
+	return pagination.Normalize(page, limit)
 }

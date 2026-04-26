@@ -12,6 +12,7 @@ import (
 	"github.com/DisruptiveWorks/archipulse/internal/audit"
 	"github.com/DisruptiveWorks/archipulse/internal/auth"
 	"github.com/DisruptiveWorks/archipulse/internal/diagram"
+	"github.com/DisruptiveWorks/archipulse/internal/pagination"
 )
 
 type diagramHandler struct {
@@ -25,12 +26,13 @@ func (h *diagramHandler) list(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, err)
 		return
 	}
-	diags, err := h.store.List(wsID)
+	p := parsePage(r)
+	items, total, err := h.store.List(wsID, p)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, err)
 		return
 	}
-	respondJSON(w, http.StatusOK, diags)
+	respondJSON(w, http.StatusOK, pagination.NewPage(items, total, p.Page, p.Limit))
 }
 
 func (h *diagramHandler) get(w http.ResponseWriter, r *http.Request) {

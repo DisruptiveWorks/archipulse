@@ -79,12 +79,12 @@ func LoadModel(db *sql.DB, workspaceID uuid.UUID) (*parser.Model, error) {
 		return nil, fmt.Errorf("load workspace: %w", err)
 	}
 
-	elems, err := element.NewStore(db).List(workspaceID)
+	elems, err := element.NewStore(db).ListAll(workspaceID)
 	if err != nil {
 		return nil, fmt.Errorf("load elements: %w", err)
 	}
 
-	rels, err := relationship.NewStore(db).List(workspaceID)
+	rels, err := relationship.NewStore(db).ListAll(workspaceID)
 	if err != nil {
 		return nil, fmt.Errorf("load relationships: %w", err)
 	}
