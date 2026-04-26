@@ -56,6 +56,16 @@ func main() {
 			fmt.Fprintf(os.Stderr, "context: %v\n", err)
 			os.Exit(1)
 		}
+	case "workspace":
+		if err := cli.RunWorkspace(os.Args[2:]); err != nil {
+			fmt.Fprintf(os.Stderr, "workspace: %v\n", err)
+			os.Exit(1)
+		}
+	case "element":
+		if err := cli.RunElement(os.Args[2:]); err != nil {
+			fmt.Fprintf(os.Stderr, "element: %v\n", err)
+			os.Exit(1)
+		}
 	default:
 		fmt.Fprintf(os.Stderr, "unknown command: %s\n\n", os.Args[1])
 		printUsage()
@@ -74,6 +84,8 @@ func printUsage() {
 	fmt.Fprintln(os.Stderr, "client commands:")
 	fmt.Fprintln(os.Stderr, "  login      authenticate and save credentials")
 	fmt.Fprintln(os.Stderr, "  context    manage named server contexts")
+	fmt.Fprintln(os.Stderr, "  workspace  list and inspect workspaces")
+	fmt.Fprintln(os.Stderr, "  element    list and inspect elements")
 }
 
 func runServe() error {
