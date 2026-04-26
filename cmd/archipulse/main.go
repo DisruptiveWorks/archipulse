@@ -12,6 +12,7 @@ import (
 
 	"github.com/DisruptiveWorks/archipulse/internal/api"
 	"github.com/DisruptiveWorks/archipulse/internal/auth"
+	"github.com/DisruptiveWorks/archipulse/internal/cli"
 	"github.com/DisruptiveWorks/archipulse/internal/db"
 	"github.com/DisruptiveWorks/archipulse/internal/parser"
 	"github.com/DisruptiveWorks/archipulse/internal/workspace"
@@ -25,8 +26,7 @@ func main() {
 	_ = godotenv.Load()
 
 	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "usage: archipulse <command>")
-		fmt.Fprintln(os.Stderr, "commands: serve, migrate")
+		printUsage()
 		os.Exit(1)
 	}
 
@@ -46,10 +46,34 @@ func main() {
 			fmt.Fprintf(os.Stderr, "serve: %v\n", err)
 			os.Exit(1)
 		}
+	case "login":
+		if err := cli.RunLogin(os.Args[2:]); err != nil {
+			fmt.Fprintf(os.Stderr, "login: %v\n", err)
+			os.Exit(1)
+		}
+	case "context":
+		if err := cli.RunContext(os.Args[2:]); err != nil {
+			fmt.Fprintf(os.Stderr, "context: %v\n", err)
+			os.Exit(1)
+		}
 	default:
-		fmt.Fprintf(os.Stderr, "unknown command: %s\n", os.Args[1])
+		fmt.Fprintf(os.Stderr, "unknown command: %s\n\n", os.Args[1])
+		printUsage()
 		os.Exit(1)
 	}
+}
+
+func printUsage() {
+	fmt.Fprintln(os.Stderr, "usage: archipulse <command>")
+	fmt.Fprintln(os.Stderr, "")
+	fmt.Fprintln(os.Stderr, "server commands:")
+	fmt.Fprintln(os.Stderr, "  serve      start the API server")
+	fmt.Fprintln(os.Stderr, "  migrate    run database migrations")
+	fmt.Fprintln(os.Stderr, "  seed       load demo data")
+	fmt.Fprintln(os.Stderr, "")
+	fmt.Fprintln(os.Stderr, "client commands:")
+	fmt.Fprintln(os.Stderr, "  login      authenticate and save credentials")
+	fmt.Fprintln(os.Stderr, "  context    manage named server contexts")
 }
 
 func runServe() error {
