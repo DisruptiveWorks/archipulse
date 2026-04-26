@@ -379,8 +379,8 @@
         </div>
       </div>
 
-      <!-- Danger zone — owners only -->
-      {#if isOwner}
+      <!-- Danger zone — owners and org admins -->
+      {#if canManage}
         <div class="border border-destructive/40 rounded-lg overflow-hidden mt-2">
           <div class="bg-destructive/5 border-b border-destructive/40 px-5 py-3 flex items-center gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" class="size-4 text-destructive flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">

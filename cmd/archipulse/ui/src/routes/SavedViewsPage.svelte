@@ -59,7 +59,7 @@
     loading = true;
     error = null;
     try {
-      views = await api.get('/workspaces/' + wsId + '/saved-views');
+      views = (await api.get('/workspaces/' + wsId + '/saved-views'))?.items ?? [];
     } catch (e) {
       error = e.message;
     } finally {
