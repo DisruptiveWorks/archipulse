@@ -30,8 +30,8 @@
         api.get('/workspaces/' + id + '/snapshots'),
         api.get('/workspaces/' + id + '/members'),
       ]);
-      events = evts || [];
-      snapshots = snaps || [];
+      events = evts?.items ?? [];
+      snapshots = snaps?.items ?? [];
       const me = members.find(m => m.user_id === $user?.id);
       myWsRole = me?.role ?? null;
     } catch (e) {

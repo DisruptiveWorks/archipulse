@@ -16,6 +16,7 @@ func (svc *Service) RegisterRoutes(mux interface {
 }, oidc *OIDCProvider) {
 	mux.Post("/auth/login", svc.handleLogin)
 	mux.Post("/auth/logout", svc.handleLogout)
+	mux.Post("/auth/refresh", svc.handleRefresh)
 	mux.Get("/auth/me", svc.handleMe)
 	mux.Get("/auth/config", svc.handleConfig(oidc))
 
@@ -92,6 +93,29 @@ func (svc *Service) handleLogin(w http.ResponseWriter, r *http.Request) {
 func (svc *Service) handleLogout(w http.ResponseWriter, r *http.Request) {
 	svc.clearSessionCookie(w)
 	writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
+}
+
+func (svc *Service) handleRefresh(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie(svc.Cfg.CookieName)
+	if err != nil {
+		writeError(w, http.StatusUnauthorized, "not authenticated")
+		return
+	}
+	claims, err := ParseToken(svc.Cfg, cookie.Value)
+	if err != nil {
+		writeError(w, http.StatusUnauthorized, "invalid session")
+		return
+	}
+	token, err := IssueToken(svc.Cfg, claims.UserID, claims.Email, claims.OrgRole)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "token issue failed")
+		return
+	}
+	svc.setSessionCookie(w, token)
+	writeJSON(w, http.StatusOK, map[string]string{
+		"email":    claims.Email,
+		"org_role": claims.OrgRole,
+	})
 }
 
 func (svc *Service) handleMe(w http.ResponseWriter, r *http.Request) {
