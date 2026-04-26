@@ -5,6 +5,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
+	"mime/multipart"
 	"net/http"
 	"time"
 )
@@ -40,6 +42,29 @@ func (c *Client) Do(method, path string, body any) (*http.Response, error) {
 	if body != nil {
 		req.Header.Set("Content-Type", "application/json")
 	}
+	if c.token != "" {
+		req.Header.Set("Cookie", "ap_session="+c.token)
+	}
+	return c.http.Do(req)
+}
+
+// DoMultipart posts content as a multipart/form-data upload under the given field name.
+func (c *Client) DoMultipart(path, field string, content io.Reader) (*http.Response, error) {
+	var buf bytes.Buffer
+	w := multipart.NewWriter(&buf)
+	fw, err := w.CreateFormFile(field, "upload.xml")
+	if err != nil {
+		return nil, fmt.Errorf("create form file: %w", err)
+	}
+	if _, err := io.Copy(fw, content); err != nil {
+		return nil, fmt.Errorf("write content: %w", err)
+	}
+	w.Close()
+	req, err := http.NewRequest(http.MethodPost, c.server+"/api/v1"+path, &buf)
+	if err != nil {
+		return nil, fmt.Errorf("build request: %w", err)
+	}
+	req.Header.Set("Content-Type", w.FormDataContentType())
 	if c.token != "" {
 		req.Header.Set("Cookie", "ap_session="+c.token)
 	}
