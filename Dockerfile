@@ -21,7 +21,9 @@ RUN go mod download
 
 COPY . .
 COPY --from=ui-builder /src/cmd/archipulse/ui/dist ./cmd/archipulse/ui/dist
-RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" \
+ARG VERSION=dev
+RUN CGO_ENABLED=0 GOOS=linux go build -trimpath \
+    -ldflags="-s -w -X main.version=${VERSION}" \
     -o /archipulse ./cmd/archipulse
 
 # ── Runtime stage ───────────────────────────────────────────────────────────────
