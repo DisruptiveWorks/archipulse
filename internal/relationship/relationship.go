@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+
+	"github.com/DisruptiveWorks/archipulse/internal/pagination"
 )
 
 var ErrNotFound = errors.New("relationship not found")
@@ -36,7 +38,38 @@ type Store struct {
 
 func NewStore(db *sql.DB) *Store { return &Store{db: db} }
 
-func (s *Store) List(workspaceID uuid.UUID) ([]Relationship, error) {
+func (s *Store) List(workspaceID uuid.UUID, p pagination.Params) ([]Relationship, int, error) {
+	rows, err := s.db.Query(`
+		SELECT id, workspace_id, source_id, type, source_element, target_element,
+		       name, documentation,
+		       COALESCE(access_type, ''), is_directed, COALESCE(modifier, ''),
+		       version, created_at, updated_at,
+		       COUNT(*) OVER() AS total
+		FROM relationships WHERE workspace_id = $1 ORDER BY type, name
+		LIMIT $2 OFFSET $3`, workspaceID, p.Limit, p.Offset())
+	if err != nil {
+		return nil, 0, fmt.Errorf("list relationships: %w", err)
+	}
+	defer func() { _ = rows.Close() }()
+
+	var out []Relationship
+	var total int
+	for rows.Next() {
+		var rel Relationship
+		if err := rows.Scan(&rel.ID, &rel.WorkspaceID, &rel.SourceID, &rel.Type,
+			&rel.SourceElement, &rel.TargetElement, &rel.Name, &rel.Documentation,
+			&rel.AccessType, &rel.IsDirected, &rel.Modifier,
+			&rel.Version, &rel.CreatedAt, &rel.UpdatedAt, &total); err != nil {
+			return nil, 0, err
+		}
+		out = append(out, rel)
+	}
+	return out, total, rows.Err()
+}
+
+// ListAll returns every relationship in a workspace without pagination.
+// Use for internal operations (export, snapshot) that need the full dataset.
+func (s *Store) ListAll(workspaceID uuid.UUID) ([]Relationship, error) {
 	rows, err := s.db.Query(`
 		SELECT id, workspace_id, source_id, type, source_element, target_element,
 		       name, documentation,
@@ -44,7 +77,7 @@ func (s *Store) List(workspaceID uuid.UUID) ([]Relationship, error) {
 		       version, created_at, updated_at
 		FROM relationships WHERE workspace_id = $1 ORDER BY type, name`, workspaceID)
 	if err != nil {
-		return nil, fmt.Errorf("list relationships: %w", err)
+		return nil, fmt.Errorf("list all relationships: %w", err)
 	}
 	defer func() { _ = rows.Close() }()
 

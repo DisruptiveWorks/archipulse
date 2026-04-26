@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+
+	"github.com/DisruptiveWorks/archipulse/internal/pagination"
 )
 
 // Property is a key/value pair stored in element_properties.
@@ -43,12 +45,38 @@ type Store struct {
 
 func NewStore(db *sql.DB) *Store { return &Store{db: db} }
 
-func (s *Store) List(workspaceID uuid.UUID) ([]Element, error) {
+func (s *Store) List(workspaceID uuid.UUID, p pagination.Params) ([]Element, int, error) {
+	rows, err := s.db.Query(`
+		SELECT id, workspace_id, source_id, type, layer, name, documentation, version, created_at, updated_at,
+		       COUNT(*) OVER() AS total
+		FROM elements WHERE workspace_id = $1 ORDER BY name
+		LIMIT $2 OFFSET $3`, workspaceID, p.Limit, p.Offset())
+	if err != nil {
+		return nil, 0, fmt.Errorf("list elements: %w", err)
+	}
+	defer func() { _ = rows.Close() }()
+
+	var out []Element
+	var total int
+	for rows.Next() {
+		var e Element
+		if err := rows.Scan(&e.ID, &e.WorkspaceID, &e.SourceID, &e.Type, &e.Layer, &e.Name,
+			&e.Documentation, &e.Version, &e.CreatedAt, &e.UpdatedAt, &total); err != nil {
+			return nil, 0, err
+		}
+		out = append(out, e)
+	}
+	return out, total, rows.Err()
+}
+
+// ListAll returns every element in a workspace without pagination.
+// Use for internal operations (export, snapshot) that need the full dataset.
+func (s *Store) ListAll(workspaceID uuid.UUID) ([]Element, error) {
 	rows, err := s.db.Query(`
 		SELECT id, workspace_id, source_id, type, layer, name, documentation, version, created_at, updated_at
 		FROM elements WHERE workspace_id = $1 ORDER BY name`, workspaceID)
 	if err != nil {
-		return nil, fmt.Errorf("list elements: %w", err)
+		return nil, fmt.Errorf("list all elements: %w", err)
 	}
 	defer func() { _ = rows.Close() }()
 

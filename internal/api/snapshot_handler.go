@@ -14,6 +14,7 @@ import (
 	"github.com/DisruptiveWorks/archipulse/internal/audit"
 	"github.com/DisruptiveWorks/archipulse/internal/auth"
 	"github.com/DisruptiveWorks/archipulse/internal/exporter"
+	"github.com/DisruptiveWorks/archipulse/internal/pagination"
 	"github.com/DisruptiveWorks/archipulse/internal/parser"
 	"github.com/DisruptiveWorks/archipulse/internal/snapshot"
 )
@@ -30,15 +31,13 @@ func (h *snapshotHandler) list(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, errorf("invalid workspace id"))
 		return
 	}
-	snaps, err := h.store.List(wsID)
+	p := parsePage(r)
+	items, total, err := h.store.List(wsID, p)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, err)
 		return
 	}
-	if snaps == nil {
-		snaps = []snapshot.Snapshot{}
-	}
-	respondJSON(w, http.StatusOK, snaps)
+	respondJSON(w, http.StatusOK, pagination.NewPage(items, total, p.Page, p.Limit))
 }
 
 func (h *snapshotHandler) create(w http.ResponseWriter, r *http.Request) {

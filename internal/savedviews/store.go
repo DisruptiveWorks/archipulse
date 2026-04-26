@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+
+	"github.com/DisruptiveWorks/archipulse/internal/pagination"
 )
 
 // SavedView represents a persisted automatic view with its filter state.
@@ -28,26 +30,29 @@ func NewStore(db *sql.DB) *Store {
 	return &Store{db: db}
 }
 
-func (s *Store) List(wsID uuid.UUID) ([]SavedView, error) {
+func (s *Store) List(wsID uuid.UUID, p pagination.Params) ([]SavedView, int, error) {
 	rows, err := s.db.Query(`
-		SELECT id, workspace_id, view_type, name, filters, created_at, updated_at
+		SELECT id, workspace_id, view_type, name, filters, created_at, updated_at,
+		       COUNT(*) OVER() AS total
 		FROM saved_views
 		WHERE workspace_id = $1
-		ORDER BY name`, wsID)
+		ORDER BY name
+		LIMIT $2 OFFSET $3`, wsID, p.Limit, p.Offset())
 	if err != nil {
-		return nil, fmt.Errorf("list saved views: %w", err)
+		return nil, 0, fmt.Errorf("list saved views: %w", err)
 	}
 	defer func() { _ = rows.Close() }()
 
 	var out []SavedView
+	var total int
 	for rows.Next() {
 		var sv SavedView
-		if err := rows.Scan(&sv.ID, &sv.WorkspaceID, &sv.ViewType, &sv.Name, &sv.Filters, &sv.CreatedAt, &sv.UpdatedAt); err != nil {
-			return nil, err
+		if err := rows.Scan(&sv.ID, &sv.WorkspaceID, &sv.ViewType, &sv.Name, &sv.Filters, &sv.CreatedAt, &sv.UpdatedAt, &total); err != nil {
+			return nil, 0, err
 		}
 		out = append(out, sv)
 	}
-	return out, rows.Err()
+	return out, total, rows.Err()
 }
 
 func (s *Store) Get(wsID, id uuid.UUID) (*SavedView, error) {

@@ -11,6 +11,7 @@ import (
 
 	"github.com/DisruptiveWorks/archipulse/internal/audit"
 	"github.com/DisruptiveWorks/archipulse/internal/auth"
+	"github.com/DisruptiveWorks/archipulse/internal/pagination"
 	"github.com/DisruptiveWorks/archipulse/internal/relationship"
 )
 
@@ -25,12 +26,13 @@ func (h *relationshipHandler) list(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, err)
 		return
 	}
-	rels, err := h.store.List(wsID)
+	p := parsePage(r)
+	items, total, err := h.store.List(wsID, p)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, err)
 		return
 	}
-	respondJSON(w, http.StatusOK, rels)
+	respondJSON(w, http.StatusOK, pagination.NewPage(items, total, p.Page, p.Limit))
 }
 
 func (h *relationshipHandler) get(w http.ResponseWriter, r *http.Request) {

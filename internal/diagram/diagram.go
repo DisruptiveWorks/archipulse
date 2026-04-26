@@ -9,6 +9,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+
+	"github.com/DisruptiveWorks/archipulse/internal/pagination"
 )
 
 var ErrNotFound = errors.New("diagram not found")
@@ -32,12 +34,38 @@ type Store struct {
 
 func NewStore(db *sql.DB) *Store { return &Store{db: db} }
 
-func (s *Store) List(workspaceID uuid.UUID) ([]Diagram, error) {
+func (s *Store) List(workspaceID uuid.UUID, p pagination.Params) ([]Diagram, int, error) {
+	rows, err := s.db.Query(`
+		SELECT id, workspace_id, source_id, name, documentation, layout, version, created_at, updated_at,
+		       COUNT(*) OVER() AS total
+		FROM diagrams WHERE workspace_id = $1 ORDER BY name
+		LIMIT $2 OFFSET $3`, workspaceID, p.Limit, p.Offset())
+	if err != nil {
+		return nil, 0, fmt.Errorf("list diagrams: %w", err)
+	}
+	defer func() { _ = rows.Close() }()
+
+	var out []Diagram
+	var total int
+	for rows.Next() {
+		var d Diagram
+		if err := rows.Scan(&d.ID, &d.WorkspaceID, &d.SourceID, &d.Name,
+			&d.Documentation, &d.Layout, &d.Version, &d.CreatedAt, &d.UpdatedAt, &total); err != nil {
+			return nil, 0, err
+		}
+		out = append(out, d)
+	}
+	return out, total, rows.Err()
+}
+
+// ListAll returns every diagram in a workspace without pagination.
+// Use for internal operations (export, snapshot) that need the full dataset.
+func (s *Store) ListAll(workspaceID uuid.UUID) ([]Diagram, error) {
 	rows, err := s.db.Query(`
 		SELECT id, workspace_id, source_id, name, documentation, layout, version, created_at, updated_at
 		FROM diagrams WHERE workspace_id = $1 ORDER BY name`, workspaceID)
 	if err != nil {
-		return nil, fmt.Errorf("list diagrams: %w", err)
+		return nil, fmt.Errorf("list all diagrams: %w", err)
 	}
 	defer func() { _ = rows.Close() }()
 

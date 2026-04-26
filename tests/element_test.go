@@ -38,7 +38,7 @@ func TestElementStore_CRUD(t *testing.T) {
 	}
 
 	// List
-	list, err := eStore.List(ws.ID)
+	list, err := eStore.ListAll(ws.ID)
 	if err != nil {
 		t.Fatalf("List elements: %v", err)
 	}

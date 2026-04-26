@@ -8,9 +8,12 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+
+	"github.com/DisruptiveWorks/archipulse/internal/pagination"
 )
 
 // Action constants.
+
 const (
 	ActionCreate           = "create"
 	ActionUpdate           = "update"
@@ -94,39 +97,38 @@ func (s *Store) Record(p RecordParams) error {
 	return nil
 }
 
-// List returns the most recent events for a workspace (newest first).
-func (s *Store) List(workspaceID uuid.UUID, limit int) ([]Event, error) {
-	if limit <= 0 || limit > 200 {
-		limit = 50
-	}
+// List returns events for a workspace (newest first).
+func (s *Store) List(workspaceID uuid.UUID, p pagination.Params) ([]Event, int, error) {
 	rows, err := s.db.Query(`
 		SELECT id, workspace_id, user_id, user_email, action, entity_type,
 		       COALESCE(entity_id, ''), COALESCE(entity_name, ''),
-		       meta, created_at
+		       meta, created_at,
+		       COUNT(*) OVER() AS total
 		FROM   workspace_events
 		WHERE  workspace_id = $1
 		ORDER  BY created_at DESC
-		LIMIT  $2`, workspaceID, limit)
+		LIMIT  $2 OFFSET $3`, workspaceID, p.Limit, p.Offset())
 	if err != nil {
-		return nil, fmt.Errorf("audit list: %w", err)
+		return nil, 0, fmt.Errorf("audit list: %w", err)
 	}
 	defer func() { _ = rows.Close() }()
 
 	var out []Event
+	var total int
 	for rows.Next() {
 		var e Event
 		var meta []byte
 		if err := rows.Scan(&e.ID, &e.WorkspaceID, &e.UserID, &e.UserEmail,
 			&e.Action, &e.EntityType, &e.EntityID, &e.EntityName,
-			&meta, &e.CreatedAt); err != nil {
-			return nil, err
+			&meta, &e.CreatedAt, &total); err != nil {
+			return nil, 0, err
 		}
 		if len(meta) > 0 {
 			e.Meta = json.RawMessage(meta)
 		}
 		out = append(out, e)
 	}
-	return out, rows.Err()
+	return out, total, rows.Err()
 }
 
 // ── helpers ───────────────────────────────────────────────────────────────────
