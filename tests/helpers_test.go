@@ -54,7 +54,7 @@ func testAuthService(t *testing.T, conn *sql.DB) *auth.Service {
 func testRouter(t *testing.T, conn *sql.DB) http.Handler {
 	t.Helper()
 	svc := testAuthService(t, conn)
-	return api.NewRouter(conn, svc, nil)
+	return api.NewRouter(conn, svc, nil, "test")
 }
 
 // addAuthCookie attaches a signed admin JWT cookie to req, so that the

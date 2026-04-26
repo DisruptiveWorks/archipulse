@@ -17,6 +17,9 @@ import (
 	"github.com/DisruptiveWorks/archipulse/internal/workspace"
 )
 
+// version is set at build time via -ldflags="-X main.version=x.y.z".
+var version = "dev"
+
 func main() {
 	// Load .env if present — errors are intentionally ignored (file is optional).
 	_ = godotenv.Load()
@@ -81,7 +84,7 @@ func runServe() error {
 
 	addr := ":" + port
 	fmt.Printf("listening on %s\n", addr)
-	return http.ListenAndServe(addr, api.NewRouter(conn, svc, oidcProvider, staticFiles))
+	return http.ListenAndServe(addr, api.NewRouter(conn, svc, oidcProvider, version, staticFiles))
 }
 
 func runMigrate() error {
