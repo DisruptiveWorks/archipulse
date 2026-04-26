@@ -66,6 +66,26 @@ func main() {
 			fmt.Fprintf(os.Stderr, "element: %v\n", err)
 			os.Exit(1)
 		}
+	case "relationship":
+		if err := cli.RunRelationship(os.Args[2:]); err != nil {
+			fmt.Fprintf(os.Stderr, "relationship: %v\n", err)
+			os.Exit(1)
+		}
+	case "diagram":
+		if err := cli.RunDiagram(os.Args[2:]); err != nil {
+			fmt.Fprintf(os.Stderr, "diagram: %v\n", err)
+			os.Exit(1)
+		}
+	case "import":
+		if err := cli.RunImport(os.Args[2:]); err != nil {
+			fmt.Fprintf(os.Stderr, "import: %v\n", err)
+			os.Exit(1)
+		}
+	case "export":
+		if err := cli.RunExport(os.Args[2:]); err != nil {
+			fmt.Fprintf(os.Stderr, "export: %v\n", err)
+			os.Exit(1)
+		}
 	default:
 		fmt.Fprintf(os.Stderr, "unknown command: %s\n\n", os.Args[1])
 		printUsage()
@@ -85,7 +105,11 @@ func printUsage() {
 	fmt.Fprintln(os.Stderr, "  login      authenticate and save credentials")
 	fmt.Fprintln(os.Stderr, "  context    manage named server contexts")
 	fmt.Fprintln(os.Stderr, "  workspace  list and inspect workspaces")
-	fmt.Fprintln(os.Stderr, "  element    list and inspect elements")
+	fmt.Fprintln(os.Stderr, "  element      list and inspect elements")
+	fmt.Fprintln(os.Stderr, "  relationship list and inspect relationships")
+	fmt.Fprintln(os.Stderr, "  diagram      list and inspect diagrams")
+	fmt.Fprintln(os.Stderr, "  import       import an AOEF (.xml) file into a workspace")
+	fmt.Fprintln(os.Stderr, "  export       export a workspace as AOEF (.xml)")
 }
 
 func runServe() error {
