@@ -1,0 +1,1990 @@
+openapi: "3.1.0"
+
+info:
+  title: ArchiPulse API
+  version: "1.0.0"
+  description: |
+    REST API for ArchiPulse — an ArchiMate 3.2 workspace management platform.
+
+    **Authentication:** Cookie-based session (`ap_session`). Call `POST /api/v1/auth/login`
+    to obtain a session cookie, then include it with every subsequent request.
+    All `/api/v1/` endpoints except `/auth/login`, `/auth/logout`, `/auth/config`,
+    `/auth/oidc`, and `/auth/oidc/callback` require an active session.
+
+    **Pagination:** List endpoints accept `?page=N&limit=N` query params and return a
+    `Page` envelope: `{"items":[...],"total":N,"page":N,"limit":N}`.
+    Default limit: 100. Max limit: 500.
+
+    **Optimistic concurrency:** `PUT` on mutable resources requires a `version` field
+    matching the current version. A mismatch returns `409 Conflict`.
+
+servers:
+  - url: /
+    description: Same-origin (default deployment)
+
+tags:
+  - name: system
+    description: Health and liveness
+  - name: auth
+    description: Authentication and session management
+  - name: users
+    description: User lookup
+  - name: workspaces
+    description: Workspace management
+  - name: members
+    description: Workspace membership
+  - name: elements
+    description: ArchiMate elements
+  - name: relationships
+    description: ArchiMate relationships
+  - name: diagrams
+    description: Diagrams and rendering
+  - name: folders
+    description: Diagram folder tree
+  - name: saved-views
+    description: Persisted automatic-view filter states
+  - name: viewers
+    description: Automatic analytical views (read-only queries)
+  - name: snapshots
+    description: Point-in-time workspace snapshots
+  - name: import-export
+    description: AOEF (ArchiMate Open Exchange Format) import and export
+  - name: events
+    description: Workspace audit log
+
+# ─────────────────────────────────────────────────────────────────────────────
+paths:
+
+  # ── System ──────────────────────────────────────────────────────────────────
+
+  /health:
+    get:
+      tags: [system]
+      summary: Health check
+      operationId: healthCheck
+      security: []
+      responses:
+        "200":
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  version:
+                    type: string
+                    example: "1.2.0"
+
+  # ── Auth ────────────────────────────────────────────────────────────────────
+
+  /api/v1/auth/login:
+    post:
+      tags: [auth]
+      summary: Log in with email and password
+      operationId: login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Login successful — session cookie is set
+          headers:
+            Set-Cookie:
+              description: Session cookie (`ap_session`)
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/v1/auth/refresh:
+    post:
+      tags: [auth]
+      summary: Refresh session — re-issues the cookie with a fresh TTL
+      operationId: refreshSession
+      description: |
+        Requires an existing valid session cookie. Issues a new JWT with the same
+        claims and a fresh TTL, replacing the current cookie. Intended for long-lived
+        CLI sessions so the user does not need to re-authenticate periodically.
+      responses:
+        "200":
+          description: Session refreshed — new cookie set
+          headers:
+            Set-Cookie:
+              description: Refreshed session cookie (`ap_session`)
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/v1/auth/logout:
+    post:
+      tags: [auth]
+      summary: Log out and clear session cookie
+      operationId: logout
+      security: []
+      responses:
+        "200":
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatusOK"
+
+  /api/v1/auth/me:
+    get:
+      tags: [auth]
+      summary: Get the current authenticated user
+      operationId: getMe
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CurrentUser"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/v1/auth/config:
+    get:
+      tags: [auth]
+      summary: Get authentication configuration (OIDC enabled, demo mode)
+      operationId: getAuthConfig
+      security: []
+      responses:
+        "200":
+          description: Auth configuration
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthConfig"
+
+  /api/v1/auth/oidc:
+    get:
+      tags: [auth]
+      summary: Initiate OIDC login (redirects to identity provider)
+      operationId: oidcRedirect
+      security: []
+      responses:
+        "302":
+          description: Redirect to identity provider
+
+  /api/v1/auth/oidc/callback:
+    get:
+      tags: [auth]
+      summary: OIDC callback — exchanges code for session cookie
+      operationId: oidcCallback
+      security: []
+      parameters:
+        - name: code
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: state
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "302":
+          description: Login successful — redirects to `/` with session cookie set
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  # ── Users ───────────────────────────────────────────────────────────────────
+
+  /api/v1/users/lookup:
+    get:
+      tags: [users]
+      summary: Look up a user by email address
+      operationId: lookupUser
+      parameters:
+        - name: email
+          in: query
+          required: true
+          schema:
+            type: string
+            format: email
+      responses:
+        "200":
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  # ── Workspaces ──────────────────────────────────────────────────────────────
+
+  /api/v1/workspaces:
+    get:
+      tags: [workspaces]
+      summary: List workspaces accessible to the current user
+      operationId: listWorkspaces
+      responses:
+        "200":
+          description: Workspace list (admins see all; others see only their own)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Workspace"
+    post:
+      tags: [workspaces]
+      summary: Create a new workspace
+      operationId: createWorkspace
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WorkspaceInput"
+      responses:
+        "201":
+          description: Workspace created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Workspace"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /api/v1/workspaces/{id}:
+    parameters:
+      - $ref: "#/components/parameters/workspaceId"
+    get:
+      tags: [workspaces]
+      summary: Get a workspace by ID
+      operationId: getWorkspace
+      responses:
+        "200":
+          description: Workspace
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Workspace"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      tags: [workspaces]
+      summary: Update a workspace (owner only)
+      operationId: updateWorkspace
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WorkspaceUpdateInput"
+      responses:
+        "200":
+          description: Updated workspace
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Workspace"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+    delete:
+      tags: [workspaces]
+      summary: Delete a workspace (owner only)
+      operationId: deleteWorkspace
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  # ── Members ─────────────────────────────────────────────────────────────────
+
+  /api/v1/workspaces/{id}/members:
+    parameters:
+      - $ref: "#/components/parameters/workspaceId"
+    get:
+      tags: [members]
+      summary: List workspace members (viewer+)
+      operationId: listMembers
+      responses:
+        "200":
+          description: Member list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WorkspaceMember"
+    post:
+      tags: [members]
+      summary: Add a member to the workspace (owner only)
+      operationId: addMember
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddMemberInput"
+      responses:
+        "204":
+          description: Member added
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /api/v1/workspaces/{id}/members/{userId}:
+    parameters:
+      - $ref: "#/components/parameters/workspaceId"
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+    put:
+      tags: [members]
+      summary: Update a member's role (owner only)
+      operationId: updateMemberRole
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateRoleInput"
+      responses:
+        "204":
+          description: Role updated
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      tags: [members]
+      summary: Remove a member from the workspace (owner only)
+      operationId: removeMember
+      responses:
+        "204":
+          description: Member removed
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  # ── Elements ─────────────────────────────────────────────────────────────────
+
+  /api/v1/workspaces/{wsID}/elements:
+    parameters:
+      - $ref: "#/components/parameters/wsID"
+    get:
+      tags: [elements]
+      summary: List elements (paginated, viewer+)
+      operationId: listElements
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/limit"
+      responses:
+        "200":
+          description: Paginated element list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ElementPage"
+    post:
+      tags: [elements]
+      summary: Create an element (editor+)
+      operationId: createElement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ElementInput"
+      responses:
+        "201":
+          description: Element created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Element"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /api/v1/workspaces/{wsID}/elements/{id}:
+    parameters:
+      - $ref: "#/components/parameters/wsID"
+      - $ref: "#/components/parameters/resourceId"
+    get:
+      tags: [elements]
+      summary: Get an element with its properties (viewer+)
+      operationId: getElement
+      responses:
+        "200":
+          description: Element with properties grouped by source
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ElementDetail"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      tags: [elements]
+      summary: Update an element (editor+)
+      operationId: updateElement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ElementUpdateInput"
+      responses:
+        "200":
+          description: Updated element
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Element"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+    delete:
+      tags: [elements]
+      summary: Delete an element (editor+)
+      operationId: deleteElement
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  # ── Relationships ────────────────────────────────────────────────────────────
+
+  /api/v1/workspaces/{wsID}/relationships:
+    parameters:
+      - $ref: "#/components/parameters/wsID"
+    get:
+      tags: [relationships]
+      summary: List relationships (paginated, viewer+)
+      operationId: listRelationships
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/limit"
+      responses:
+        "200":
+          description: Paginated relationship list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RelationshipPage"
+    post:
+      tags: [relationships]
+      summary: Create a relationship (editor+)
+      operationId: createRelationship
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RelationshipInput"
+      responses:
+        "201":
+          description: Relationship created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Relationship"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /api/v1/workspaces/{wsID}/relationships/{id}:
+    parameters:
+      - $ref: "#/components/parameters/wsID"
+      - $ref: "#/components/parameters/resourceId"
+    get:
+      tags: [relationships]
+      summary: Get a relationship (viewer+)
+      operationId: getRelationship
+      responses:
+        "200":
+          description: Relationship
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Relationship"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      tags: [relationships]
+      summary: Update a relationship (editor+)
+      operationId: updateRelationship
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RelationshipUpdateInput"
+      responses:
+        "200":
+          description: Updated relationship
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Relationship"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+    delete:
+      tags: [relationships]
+      summary: Delete a relationship (editor+)
+      operationId: deleteRelationship
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  # ── Diagrams ─────────────────────────────────────────────────────────────────
+
+  /api/v1/workspaces/{wsID}/diagrams:
+    parameters:
+      - $ref: "#/components/parameters/wsID"
+    get:
+      tags: [diagrams]
+      summary: List diagrams (paginated, viewer+)
+      operationId: listDiagrams
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/limit"
+      responses:
+        "200":
+          description: Paginated diagram list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiagramPage"
+    post:
+      tags: [diagrams]
+      summary: Create a diagram (editor+)
+      operationId: createDiagram
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DiagramInput"
+      responses:
+        "201":
+          description: Diagram created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Diagram"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /api/v1/workspaces/{wsID}/diagrams/{id}:
+    parameters:
+      - $ref: "#/components/parameters/wsID"
+      - $ref: "#/components/parameters/resourceId"
+    get:
+      tags: [diagrams]
+      summary: Get a diagram (viewer+)
+      operationId: getDiagram
+      responses:
+        "200":
+          description: Diagram
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Diagram"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      tags: [diagrams]
+      summary: Update a diagram (editor+)
+      operationId: updateDiagram
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DiagramUpdateInput"
+      responses:
+        "200":
+          description: Updated diagram
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Diagram"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+    delete:
+      tags: [diagrams]
+      summary: Delete a diagram (editor+)
+      operationId: deleteDiagram
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/v1/workspaces/{wsID}/diagrams/{id}/render:
+    parameters:
+      - $ref: "#/components/parameters/wsID"
+      - $ref: "#/components/parameters/resourceId"
+    get:
+      tags: [diagrams]
+      summary: Render a diagram (returns nodes and connections with layout data)
+      operationId: renderDiagram
+      responses:
+        "200":
+          description: Rendered diagram data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiagramRender"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  # ── Folders ──────────────────────────────────────────────────────────────────
+
+  /api/v1/workspaces/{id}/diagram-tree:
+    parameters:
+      - $ref: "#/components/parameters/workspaceId"
+    get:
+      tags: [folders]
+      summary: Get the diagram folder tree (viewer+)
+      operationId: getDiagramTree
+      responses:
+        "200":
+          description: Nested folder/diagram tree
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FolderNode"
+
+  # ── Saved Views ──────────────────────────────────────────────────────────────
+
+  /api/v1/workspaces/{wsID}/saved-views:
+    parameters:
+      - $ref: "#/components/parameters/wsID"
+    get:
+      tags: [saved-views]
+      summary: List saved views (paginated, viewer+)
+      operationId: listSavedViews
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/limit"
+      responses:
+        "200":
+          description: Paginated saved-view list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SavedViewPage"
+    post:
+      tags: [saved-views]
+      summary: Create a saved view (editor+)
+      operationId: createSavedView
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SavedViewInput"
+      responses:
+        "201":
+          description: Saved view created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SavedView"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /api/v1/workspaces/{wsID}/saved-views/{svID}:
+    parameters:
+      - $ref: "#/components/parameters/wsID"
+      - name: svID
+        in: path
+        required: true
+        description: Saved view ID
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [saved-views]
+      summary: Get a saved view (viewer+)
+      operationId: getSavedView
+      responses:
+        "200":
+          description: Saved view
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SavedView"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      tags: [saved-views]
+      summary: Update a saved view (editor+)
+      operationId: updateSavedView
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SavedViewUpdateInput"
+      responses:
+        "200":
+          description: Updated saved view
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SavedView"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      tags: [saved-views]
+      summary: Delete a saved view (editor+)
+      operationId: deleteSavedView
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  # ── Viewers ──────────────────────────────────────────────────────────────────
+
+  /api/v1/workspaces/{id}/views:
+    parameters:
+      - $ref: "#/components/parameters/workspaceId"
+    get:
+      tags: [viewers]
+      summary: List available automatic views for this workspace
+      operationId: listViews
+      responses:
+        "200":
+          description: Available view descriptors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ViewDescriptor"
+
+  /api/v1/workspaces/{id}/views/{view}:
+    parameters:
+      - $ref: "#/components/parameters/workspaceId"
+      - name: view
+        in: path
+        required: true
+        description: View identifier (e.g. `capability-tree`)
+        schema:
+          type: string
+    get:
+      tags: [viewers]
+      summary: Execute a named view (viewer+)
+      operationId: getView
+      responses:
+        "200":
+          description: View result (shape depends on the view type)
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /api/v1/workspaces/{id}/views/capability-tree/tree:
+    parameters:
+      - $ref: "#/components/parameters/workspaceId"
+    get:
+      tags: [viewers]
+      summary: Capability tree — hierarchical capability breakdown
+      operationId: getCapabilityTree
+      responses:
+        "200":
+          description: Capability tree nodes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TreeNode"
+
+  /api/v1/workspaces/{id}/views/application-dependency/graph:
+    parameters:
+      - $ref: "#/components/parameters/workspaceId"
+    get:
+      tags: [viewers]
+      summary: Application dependency graph
+      operationId: getDependencyGraph
+      responses:
+        "200":
+          description: Dependency graph (nodes + edges)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Graph"
+
+  /api/v1/workspaces/{id}/views/integration-map/graph:
+    parameters:
+      - $ref: "#/components/parameters/workspaceId"
+    get:
+      tags: [viewers]
+      summary: Integration map — application-to-application flows
+      operationId: getIntegrationMap
+      responses:
+        "200":
+          description: Integration map graph
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Graph"
+
+  /api/v1/workspaces/{id}/views/application-dashboard/stats:
+    parameters:
+      - $ref: "#/components/parameters/workspaceId"
+    get:
+      tags: [viewers]
+      summary: Application dashboard statistics
+      operationId: getApplicationDashboard
+      responses:
+        "200":
+          description: Aggregated statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /api/v1/workspaces/{id}/views/capability-landscape/map:
+    parameters:
+      - $ref: "#/components/parameters/workspaceId"
+    get:
+      tags: [viewers]
+      summary: Landscape by Capability — applications mapped to capabilities (hierarchical)
+      operationId: getCapabilityLandscapeMap
+      responses:
+        "200":
+          description: Capability landscape map
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /api/v1/workspaces/{id}/views/application-landscape/map:
+    parameters:
+      - $ref: "#/components/parameters/workspaceId"
+    get:
+      tags: [viewers]
+      summary: Landscape by Domain — applications grouped by domain
+      operationId: getApplicationLandscapeDomainMap
+      responses:
+        "200":
+          description: Application landscape by domain
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /api/v1/workspaces/{id}/views/application-catalogue/entries:
+    parameters:
+      - $ref: "#/components/parameters/workspaceId"
+    get:
+      tags: [viewers]
+      summary: Application catalogue entries
+      operationId: getAppCatalogueEntries
+      responses:
+        "200":
+          description: Application catalogue
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+
+  /api/v1/workspaces/{id}/views/technology-catalogue/entries:
+    parameters:
+      - $ref: "#/components/parameters/workspaceId"
+    get:
+      tags: [viewers]
+      summary: Technology catalogue entries
+      operationId: getTechCatalogueEntries
+      responses:
+        "200":
+          description: Technology catalogue
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+
+  /api/v1/workspaces/{id}/views/process-application/matrix:
+    parameters:
+      - $ref: "#/components/parameters/workspaceId"
+    get:
+      tags: [viewers]
+      summary: Process-to-application mapping matrix
+      operationId: getProcessApplicationMatrix
+      responses:
+        "200":
+          description: Process-application matrix
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /api/v1/workspaces/{id}/views/technology-stack/matrix:
+    parameters:
+      - $ref: "#/components/parameters/workspaceId"
+    get:
+      tags: [viewers]
+      summary: Technology stack matrix
+      operationId: getTechnologyStackMatrix
+      responses:
+        "200":
+          description: Technology stack matrix
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /api/v1/workspaces/{id}/elements/{appID}/app-detail:
+    parameters:
+      - $ref: "#/components/parameters/workspaceId"
+      - name: appID
+        in: path
+        required: true
+        description: Application element ID
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [viewers]
+      summary: Application element detail (capabilities, dependencies, diagrams)
+      operationId: getAppElementDetail
+      responses:
+        "200":
+          description: Application detail
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  # ── Snapshots ────────────────────────────────────────────────────────────────
+
+  /api/v1/workspaces/{id}/snapshots:
+    parameters:
+      - $ref: "#/components/parameters/workspaceId"
+    get:
+      tags: [snapshots]
+      summary: List snapshots (paginated, viewer+)
+      operationId: listSnapshots
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/limit"
+      responses:
+        "200":
+          description: Paginated snapshot list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SnapshotPage"
+    post:
+      tags: [snapshots]
+      summary: Create a snapshot of the current workspace state (editor+)
+      operationId: createSnapshot
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                label:
+                  type: string
+                  description: Optional human-readable label
+      responses:
+        "201":
+          description: Snapshot created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Snapshot"
+
+  /api/v1/workspaces/{id}/snapshots/{snapID}:
+    parameters:
+      - $ref: "#/components/parameters/workspaceId"
+      - name: snapID
+        in: path
+        required: true
+        description: Snapshot ID
+        schema:
+          type: string
+          format: uuid
+    delete:
+      tags: [snapshots]
+      summary: Delete a snapshot (owner only)
+      operationId: deleteSnapshot
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/v1/workspaces/{id}/snapshots/{snapID}/restore:
+    parameters:
+      - $ref: "#/components/parameters/workspaceId"
+      - name: snapID
+        in: path
+        required: true
+        description: Snapshot ID
+        schema:
+          type: string
+          format: uuid
+    post:
+      tags: [snapshots]
+      summary: Restore workspace to a snapshot (editor+)
+      description: |
+        Before restoring, an automatic snapshot of the current state is taken.
+        The workspace is then replaced with the snapshot payload (AOEF XML).
+      operationId: restoreSnapshot
+      responses:
+        "204":
+          description: Restored successfully
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  # ── Import / Export ──────────────────────────────────────────────────────────
+
+  /api/v1/workspaces/{id}/import:
+    parameters:
+      - $ref: "#/components/parameters/workspaceId"
+    post:
+      tags: [import-export]
+      summary: Import an AOEF (.xml) file into the workspace (editor+)
+      operationId: importModel
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: AOEF XML file (max 32 MB)
+      responses:
+        "200":
+          description: Import summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportResult"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          description: File could not be parsed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/v1/workspaces/{id}/import/preview:
+    parameters:
+      - $ref: "#/components/parameters/workspaceId"
+    post:
+      tags: [import-export]
+      summary: Preview an AOEF import (diff against current state, no changes written)
+      operationId: previewImport
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: Preview diff
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportPreview"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "422":
+          description: File could not be parsed
+
+  /api/v1/workspaces/{id}/export/aoef:
+    parameters:
+      - $ref: "#/components/parameters/workspaceId"
+    get:
+      tags: [import-export]
+      summary: Export workspace as AOEF XML (viewer+)
+      operationId: exportAOEF
+      responses:
+        "200":
+          description: AOEF XML file
+          content:
+            application/xml:
+              schema:
+                type: string
+                format: binary
+
+  # ── Events ───────────────────────────────────────────────────────────────────
+
+  /api/v1/workspaces/{id}/events:
+    parameters:
+      - $ref: "#/components/parameters/workspaceId"
+    get:
+      tags: [events]
+      summary: List workspace audit events (paginated, viewer+)
+      operationId: listEvents
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/limit"
+      responses:
+        "200":
+          description: Paginated audit event list (newest first)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventPage"
+
+# ─────────────────────────────────────────────────────────────────────────────
+components:
+
+  # ── Security ─────────────────────────────────────────────────────────────────
+
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: ap_session
+
+  # ── Parameters ───────────────────────────────────────────────────────────────
+
+  parameters:
+    workspaceId:
+      name: id
+      in: path
+      required: true
+      description: Workspace ID
+      schema:
+        type: string
+        format: uuid
+
+    wsID:
+      name: wsID
+      in: path
+      required: true
+      description: Workspace ID
+      schema:
+        type: string
+        format: uuid
+
+    resourceId:
+      name: id
+      in: path
+      required: true
+      description: Resource ID
+      schema:
+        type: string
+        format: uuid
+
+    page:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+
+    limit:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 500
+        default: 100
+
+  # ── Responses ────────────────────────────────────────────────────────────────
+
+  responses:
+    BadRequest:
+      description: Invalid input
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Unauthorized:
+      description: Not authenticated
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Forbidden:
+      description: Insufficient workspace role
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Conflict:
+      description: Optimistic concurrency conflict — re-fetch and retry with updated version
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+  # ── Schemas ──────────────────────────────────────────────────────────────────
+
+  schemas:
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]
+
+    StatusOK:
+      type: object
+      properties:
+        status:
+          type: string
+          example: ok
+
+    # ── Auth ──
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+
+    LoginResponse:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        org_role:
+          type: string
+          enum: [admin, member]
+
+    CurrentUser:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+          format: email
+        org_role:
+          type: string
+          enum: [admin, member]
+
+    AuthConfig:
+      type: object
+      properties:
+        oidc_enabled:
+          type: boolean
+        demo_mode:
+          type: boolean
+        demo_email:
+          type: string
+          format: email
+          description: Only present when demo_mode is true
+        demo_password:
+          type: string
+          description: Only present when demo_mode is true
+
+    # ── Users ──
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        org_role:
+          type: string
+          enum: [admin, member]
+        created_at:
+          type: string
+          format: date-time
+
+    # ── Workspaces ──
+
+    Workspace:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        purpose:
+          type: string
+        description:
+          type: string
+        version:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    WorkspaceInput:
+      type: object
+      required: [name, purpose]
+      properties:
+        name:
+          type: string
+        purpose:
+          type: string
+        description:
+          type: string
+
+    WorkspaceUpdateInput:
+      type: object
+      required: [name, purpose, version]
+      properties:
+        name:
+          type: string
+        purpose:
+          type: string
+        description:
+          type: string
+        version:
+          type: integer
+          description: Current version for optimistic concurrency
+
+    # ── Members ──
+
+    WorkspaceMember:
+      type: object
+      properties:
+        user_id:
+          type: string
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          enum: [owner, editor, viewer]
+        invited_by:
+          type: string
+
+    AddMemberInput:
+      type: object
+      required: [user_id, role]
+      properties:
+        user_id:
+          type: string
+        role:
+          type: string
+          enum: [owner, editor, viewer]
+
+    UpdateRoleInput:
+      type: object
+      required: [role]
+      properties:
+        role:
+          type: string
+          enum: [owner, editor, viewer]
+
+    # ── Elements ──
+
+    Element:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        workspace_id:
+          type: string
+          format: uuid
+        source_id:
+          type: string
+          description: Original identifier from the import source (e.g. AOEF id)
+        type:
+          type: string
+          description: ArchiMate 3.2 element type (e.g. ApplicationComponent, BusinessProcess)
+        layer:
+          type: string
+          enum: [strategy, business, application, technology, physical, motivation, implementation, other]
+        name:
+          type: string
+        documentation:
+          type: string
+        version:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    ElementDetail:
+      type: object
+      properties:
+        element:
+          $ref: "#/components/schemas/Element"
+        properties:
+          type: object
+          description: Properties keyed by source name; each value is an array of Property objects
+          additionalProperties:
+            type: array
+            items:
+              $ref: "#/components/schemas/Property"
+
+    Property:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        element_id:
+          type: string
+          format: uuid
+        key:
+          type: string
+        value:
+          type: string
+        source:
+          type: string
+        collected_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+
+    ElementInput:
+      type: object
+      required: [source_id, type]
+      properties:
+        source_id:
+          type: string
+        type:
+          type: string
+          description: ArchiMate 3.2 element type
+        name:
+          type: string
+        documentation:
+          type: string
+
+    ElementUpdateInput:
+      type: object
+      required: [type, version]
+      properties:
+        type:
+          type: string
+        name:
+          type: string
+        documentation:
+          type: string
+        version:
+          type: integer
+
+    ElementPage:
+      $ref: "#/components/schemas/PageOfElement"
+
+    PageOfElement:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Element"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    # ── Relationships ──
+
+    Relationship:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        workspace_id:
+          type: string
+          format: uuid
+        source_id:
+          type: string
+        type:
+          type: string
+          description: ArchiMate 3.2 relationship type (e.g. CompositionRelationship, ServingRelationship)
+        source_element:
+          type: string
+          format: uuid
+          description: ID of the source element
+        target_element:
+          type: string
+          format: uuid
+          description: ID of the target element
+        name:
+          type: string
+        documentation:
+          type: string
+        access_type:
+          type: string
+          description: For AccessRelationship — read, write, readWrite, unspecified
+        is_directed:
+          type: boolean
+        modifier:
+          type: string
+        version:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    RelationshipInput:
+      type: object
+      required: [source_id, type, source_element, target_element]
+      properties:
+        source_id:
+          type: string
+        type:
+          type: string
+        source_element:
+          type: string
+          format: uuid
+        target_element:
+          type: string
+          format: uuid
+        name:
+          type: string
+        documentation:
+          type: string
+
+    RelationshipUpdateInput:
+      type: object
+      required: [type, source_element, target_element, version]
+      properties:
+        type:
+          type: string
+        source_element:
+          type: string
+          format: uuid
+        target_element:
+          type: string
+          format: uuid
+        name:
+          type: string
+        documentation:
+          type: string
+        version:
+          type: integer
+
+    RelationshipPage:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Relationship"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    # ── Diagrams ──
+
+    Diagram:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        workspace_id:
+          type: string
+          format: uuid
+        source_id:
+          type: string
+        name:
+          type: string
+        documentation:
+          type: string
+        layout:
+          type: object
+          description: ArchiMate diagram layout data (JSON)
+          additionalProperties: true
+        version:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    DiagramInput:
+      type: object
+      required: [source_id]
+      properties:
+        source_id:
+          type: string
+        name:
+          type: string
+        documentation:
+          type: string
+        layout:
+          type: object
+          additionalProperties: true
+
+    DiagramUpdateInput:
+      type: object
+      required: [version]
+      properties:
+        name:
+          type: string
+        documentation:
+          type: string
+        layout:
+          type: object
+          additionalProperties: true
+        version:
+          type: integer
+
+    DiagramRender:
+      type: object
+      description: Resolved diagram with element and connection data for rendering
+      additionalProperties: true
+
+    DiagramPage:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Diagram"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    # ── Folders ──
+
+    FolderNode:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          type: string
+          enum: [folder, diagram]
+        children:
+          type: array
+          items:
+            $ref: "#/components/schemas/FolderNode"
+
+    # ── Saved Views ──
+
+    SavedView:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        workspace_id:
+          type: string
+          format: uuid
+        view_type:
+          type: string
+          description: Identifies which automatic view this state belongs to
+        name:
+          type: string
+        filters:
+          type: object
+          description: Arbitrary filter state for the view (JSON)
+          additionalProperties: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    SavedViewInput:
+      type: object
+      required: [view_type, name]
+      properties:
+        view_type:
+          type: string
+        name:
+          type: string
+        filters:
+          type: object
+          additionalProperties: true
+
+    SavedViewUpdateInput:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        filters:
+          type: object
+          additionalProperties: true
+
+    SavedViewPage:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/SavedView"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    # ── Viewers ──
+
+    ViewDescriptor:
+      type: object
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        layer:
+          type: string
+
+    TreeNode:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          type: string
+        children:
+          type: array
+          items:
+            $ref: "#/components/schemas/TreeNode"
+
+    Graph:
+      type: object
+      properties:
+        nodes:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        edges:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+
+    # ── Snapshots ──
+
+    Snapshot:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        workspace_id:
+          type: string
+          format: uuid
+        label:
+          type: string
+        trigger:
+          type: string
+          enum: [manual, import, restore]
+        user_id:
+          type: string
+        user_email:
+          type: string
+          format: email
+        created_at:
+          type: string
+          format: date-time
+
+    SnapshotPage:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Snapshot"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    # ── Import / Export ──
+
+    ImportResult:
+      type: object
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+        elements:
+          type: integer
+        relationships:
+          type: integer
+        diagrams:
+          type: integer
+        folders:
+          type: integer
+        property_definitions:
+          type: integer
+
+    ImportPreview:
+      type: object
+      description: Diff of what would change if the import were applied
+      additionalProperties: true
+
+    # ── Events ──
+
+    AuditEvent:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        workspace_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+        user_email:
+          type: string
+          format: email
+        action:
+          type: string
+          enum:
+            - create
+            - update
+            - delete
+            - import
+            - add_member
+            - remove_member
+            - update_member_role
+            - create_snapshot
+            - restore_snapshot
+        entity_type:
+          type: string
+          enum:
+            - element
+            - relationship
+            - diagram
+            - workspace
+            - member
+            - snapshot
+            - saved_view
+        entity_id:
+          type: string
+        entity_name:
+          type: string
+        meta:
+          type: object
+          additionalProperties: true
+        created_at:
+          type: string
+          format: date-time
+
+    EventPage:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/AuditEvent"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+# Global security: all operations require cookie auth unless overridden with security: []
+security:
+  - cookieAuth: []

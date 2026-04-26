@@ -18,4 +18,5 @@ require (
 	github.com/bmatcuk/doublestar/v4 v4.6.1 // indirect
 	github.com/casbin/govaluate v1.3.0 // indirect
 	github.com/go-jose/go-jose/v4 v4.1.4 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
