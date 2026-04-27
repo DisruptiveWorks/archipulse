@@ -220,7 +220,7 @@
   <div class="px-2 pt-3 pb-1">
     <div class="text-[10px] font-bold tracking-[0.8px] uppercase text-muted-foreground px-2 mb-1">ArchiMate Editor</div>
     {#each [
-      { path: '/ws/' + wsId + '/editor', label: 'Editor', icon: '✎' },
+      { path: '/ws/' + wsId + '/editor', label: 'Model Editor', icon: '✎' },
       { path: '/ws/' + wsId + '/diagrams', label: 'Diagram List', icon: '⊟' },
     ] as item}
       {@const active = loc === item.path || loc.startsWith(item.path + '/')}

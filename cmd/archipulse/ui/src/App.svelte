@@ -15,7 +15,7 @@
   import Login from './routes/Login.svelte';
   import DiagramList from './routes/DiagramList.svelte';
   import DiagramViewer from './routes/DiagramViewer.svelte';
-  import EditorPlaceholder from './routes/EditorPlaceholder.svelte';
+  import ModelEditor from './routes/ModelEditor.svelte';
   import WorkspaceSettings from './routes/WorkspaceSettings.svelte';
   import WorkspaceHistory from './routes/WorkspaceHistory.svelte';
   import SavedViewLoader from './components/views/SavedViewLoader.svelte';
@@ -33,7 +33,7 @@
     '/login': Login,
     '/': Home,
     '/ws/:wsId': WorkspaceOverview,
-    '/ws/:wsId/editor': EditorPlaceholder,
+    '/ws/:wsId/editor': ModelEditor,
     '/ws/:wsId/diagrams': DiagramList,
     '/ws/:wsId/diagrams/:diagId': DiagramList,
     '/ws/:wsId/view/:viewName': ViewRouter,
