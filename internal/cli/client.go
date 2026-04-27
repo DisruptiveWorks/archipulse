@@ -59,7 +59,9 @@ func (c *Client) DoMultipart(path, field string, content io.Reader) (*http.Respo
 	if _, err := io.Copy(fw, content); err != nil {
 		return nil, fmt.Errorf("write content: %w", err)
 	}
-	w.Close()
+	if err := w.Close(); err != nil {
+		return nil, fmt.Errorf("close multipart: %w", err)
+	}
 	req, err := http.NewRequest(http.MethodPost, c.server+"/api/v1"+path, &buf)
 	if err != nil {
 		return nil, fmt.Errorf("build request: %w", err)
