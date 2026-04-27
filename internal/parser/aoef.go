@@ -272,9 +272,13 @@ func (m *aoefModel) toModel() *Model {
 	}
 
 	for _, r := range m.Relationships {
+		relType := r.Type
+		if relType != "" && !strings.HasSuffix(relType, "Relationship") {
+			relType += "Relationship"
+		}
 		rel := Relationship{
 			ID:             r.ID,
-			Type:           r.Type,
+			Type:           relType,
 			Source:         r.Source,
 			Target:         r.Target,
 			Name:           firstLang(r.Names, ""),
