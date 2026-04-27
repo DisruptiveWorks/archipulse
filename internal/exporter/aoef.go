@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"sort"
+	"strings"
 
 	"github.com/DisruptiveWorks/archipulse/internal/parser"
 )
@@ -253,7 +254,7 @@ func toAOEFModel(m *parser.Model) *aoefModel {
 		for i, r := range m.Relationships {
 			rel := aoefRelationship{
 				ID:             r.ID,
-				Type:           r.Type,
+				Type:           strings.TrimSuffix(r.Type, "Relationship"),
 				Source:         r.Source,
 				Target:         r.Target,
 				AccessType:     r.AccessType,
