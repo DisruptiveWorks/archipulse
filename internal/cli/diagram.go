@@ -65,7 +65,7 @@ func diagramList(args []string) error {
 	}
 
 	path := fmt.Sprintf("/workspaces/%s/diagrams?page=%d&limit=%d", *wsID, *page, *limit)
-	resp, err := client.do(http.MethodGet, path, nil)
+	resp, err := client.Do(http.MethodGet, path, nil)
 	if err != nil {
 		return err
 	}
@@ -116,7 +116,7 @@ func diagramGet(id string, args []string) error {
 		return err
 	}
 
-	resp, err := client.do(http.MethodGet, fmt.Sprintf("/workspaces/%s/diagrams/%s", *wsID, id), nil)
+	resp, err := client.Do(http.MethodGet, fmt.Sprintf("/workspaces/%s/diagrams/%s", *wsID, id), nil)
 	if err != nil {
 		return err
 	}

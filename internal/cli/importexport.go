@@ -117,7 +117,7 @@ func RunExport(args []string) error {
 		return err
 	}
 
-	resp, err := client.do(http.MethodGet, "/workspaces/"+*wsID+"/export/aoef", nil)
+	resp, err := client.Do(http.MethodGet, "/workspaces/"+*wsID+"/export/aoef", nil)
 	if err != nil {
 		return err
 	}
