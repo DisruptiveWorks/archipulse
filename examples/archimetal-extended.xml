@@ -3743,6 +3743,63 @@
     <relationship identifier="id-3c25d67261064ea28e199fe9a0b85f85" xsi:type="Triggering" source="id-53efc358b55540f0a4d75652777c457d" target="id-0c7864041e1546d38b8f0cef3bb638ab"></relationship>
     <relationship identifier="id-646d97276df34c37b377c908186bd107" xsi:type="Triggering" source="id-185e92e049434c4f954cc9b68957879f" target="id-53efc358b55540f0a4d75652777c457d"></relationship>
     <relationship identifier="id-f3bf5f25f60e4c89b7f6b9de305ff28c" xsi:type="Triggering" source="id-fc034ab99bfa4b9e9ae7f51fa8de905f" target="id-c93b9d430cd2423b95c52c610e12f720"></relationship>
+    <relationship identifier="id-fix-ts-0001" xsi:type="Realization" source="id-ext-amt-nd-dmz-053" target="id-ext-amt-ts-otn-066"></relationship>
+    <relationship identifier="id-fix-ts-0002" xsi:type="Serving" source="id-ext-amt-sw-sfc-035" target="id-4e06ee45db904a88aa46e9dce611528e"></relationship>
+    <relationship identifier="id-fix-ts-0003" xsi:type="Composition" source="id-ext-amt-nd-az-050" target="id-ext-amt-sw-sfc-035"></relationship>
+    <relationship identifier="id-fix-ts-0004" xsi:type="Serving" source="id-ext-amt-sw-opc-032" target="id-5538d8de4e6c4918a62221922988c957"></relationship>
+    <relationship identifier="id-fix-ts-0005" xsi:type="Serving" source="id-ext-amt-sw-opc-032" target="id-ext-amt-app-mes-001"></relationship>
+    <relationship identifier="id-fix-ts-0006" xsi:type="Composition" source="id-ext-amt-nd-dc-051" target="id-ext-amt-sw-opc-032"></relationship>
+    <relationship identifier="id-fix-ts-0007" xsi:type="Serving" source="id-ext-amt-sw-pis-033" target="id-ext-amt-app-iot-015"></relationship>
+    <relationship identifier="id-fix-ts-0008" xsi:type="Composition" source="id-ext-amt-nd-edg-052" target="id-ext-amt-sw-pis-033"></relationship>
+    <relationship identifier="id-fix-ts-0009" xsi:type="Composition" source="id-ext-amt-nd-dc-051" target="id-ext-amt-sw-pis-033"></relationship>
+    <relationship identifier="id-fix-ts-0010" xsi:type="Serving" source="id-ext-amt-sw-tcr-045" target="id-ext-amt-app-plm-006"></relationship>
+    <relationship identifier="id-fix-ts-0011" xsi:type="Composition" source="id-ext-amt-nd-dc-051" target="id-ext-amt-sw-tcr-045"></relationship>
+    <relationship identifier="id-fix-ts-0012" xsi:type="Serving" source="id-ext-amt-sw-mxm-040" target="id-ext-amt-app-cmm-004"></relationship>
+    <relationship identifier="id-fix-ts-0013" xsi:type="Composition" source="id-ext-amt-nd-dc-051" target="id-ext-amt-sw-mxm-040"></relationship>
+    <relationship identifier="id-fix-ts-0014" xsi:type="Serving" source="id-ext-amt-sw-pbi-039" target="id-ext-amt-app-bi-011"></relationship>
+    <relationship identifier="id-fix-ts-0015" xsi:type="Serving" source="id-ext-amt-sw-sbo-038" target="id-2a8eb6786915456d92df41a8b9349314"></relationship>
+    <relationship identifier="id-fix-ts-0016" xsi:type="Composition" source="id-ext-amt-nd-az-050" target="id-ext-amt-sw-pbi-039"></relationship>
+    <relationship identifier="id-fix-ts-0017" xsi:type="Realization" source="id-ext-amt-nd-edg-052" target="id-ext-amt-ts-his-065"></relationship>
+    <relationship identifier="id-fix-ts-0018" xsi:type="Composition" source="id-ext-amt-nd-edg-052" target="id-ext-amt-sw-pfn-044"></relationship>
+    <relationship identifier="id-fix-ts-0019" xsi:type="Composition" source="id-ext-amt-nd-dc-051" target="id-ext-amt-sw-sbo-038"></relationship>
+    <relationship identifier="id-fix-ts-0020" xsi:type="Serving" source="id-ext-amt-sw-mls-042" target="id-b67b02752ebc4b929c9a9fc76211cff9"></relationship>
+    <relationship identifier="id-fix-ts-0021" xsi:type="Serving" source="id-ext-amt-nd-edg-052" target="id-ext-amt-app-ems-009"></relationship>
+    <relationship identifier="id-fix-ts-0022" xsi:type="Serving" source="id-ext-amt-nd-az-050" target="id-ext-amt-app-ehs-016"></relationship>
+    <relationship identifier="id-fix-ts-0023" xsi:type="Serving" source="id-ext-amt-nd-dc-051" target="id-ext-amt-app-dms-014"></relationship>
+    <relationship identifier="id-fix-ts-0024" xsi:type="Serving" source="id-ext-amt-nd-az-050" target="id-ext-amt-app-cup-013"></relationship>
+    <relationship identifier="id-fix-ts-0025" xsi:type="Serving" source="id-ext-amt-nd-az-050" target="id-ext-amt-app-sup-012"></relationship>
+    <relationship identifier="id-fix-ts-0026" xsi:type="Serving" source="id-ext-amt-sw-odb-048" target="id-ext-amt-app-trx-017"></relationship>
+    <relationship identifier="id-fix-ts-0027" xsi:type="Serving" source="id-ext-amt-sw-opc-032" target="id-ext-amt-app-trx-017"></relationship>
+    <relationship identifier="id-fix-ts-0028" xsi:type="Serving" source="id-ext-amt-sw-odb-048" target="id-ext-amt-app-lms-002"></relationship>
+    <relationship identifier="id-fix-ts-0029" xsi:type="Serving" source="id-ext-amt-sw-odb-048" target="id-ext-amt-app-qms-003"></relationship>
+    <relationship identifier="id-fix-ts-0030" xsi:type="Realization" source="id-ext-amt-nd-az-050" target="id-ext-amt-ts-siem-067"></relationship>
+    <relationship identifier="id-fix-ts-0031" xsi:type="Composition" source="id-ext-amt-nd-dc-051" target="id-ext-amt-sw-sql-034"></relationship>
+    <relationship identifier="id-fix-ts-0032" xsi:type="Composition" source="id-ext-amt-nd-dc-051" target="id-ext-amt-sw-odb-048"></relationship>
+    <relationship identifier="id-fix-ts-0033" xsi:type="Serving" source="id-ext-amt-sw-sql-034" target="id-ext-amt-app-tms-007"></relationship>
+    <relationship identifier="id-fix-ts-0034" xsi:type="Serving" source="id-ext-amt-sw-odb-048" target="id-ext-amt-app-wms-008"></relationship>
+    <relationship identifier="id-fix-ts-0035" xsi:type="Serving" source="id-ext-amt-sw-s4h-030" target="id-ext-amt-app-scm-005"></relationship>
+    <relationship identifier="id-fix-ts-0036" xsi:type="Composition" source="id-ext-amt-nd-dc-051" target="id-ext-amt-sw-mls-042"></relationship>
+    <relationship identifier="id-fix-ts-0037" xsi:type="Realization" source="id-ext-amt-nd-dc-051" target="id-ext-amt-ts-bak-064"></relationship>
+    <relationship identifier="id-fix-ts-0038" xsi:type="Realization" source="id-ext-amt-nd-dc-051" target="id-ext-amt-ts-sto-063"></relationship>
+    <relationship identifier="id-fix-ts-0039" xsi:type="Realization" source="id-ext-amt-nd-az-050" target="id-ext-amt-ts-apigw-062"></relationship>
+    <relationship identifier="id-fix-ts-0040" xsi:type="Realization" source="id-ext-amt-nd-az-050" target="id-ext-amt-ts-mon-061"></relationship>
+    <relationship identifier="id-fix-ts-0041" xsi:type="Realization" source="id-ext-amt-nd-az-050" target="id-ext-amt-ts-aad-060"></relationship>
+    <relationship identifier="id-fix-ts-0042" xsi:type="Composition" source="id-ext-amt-nd-az-050" target="id-ext-amt-sw-aad-047"></relationship>
+    <relationship identifier="id-fix-ts-0043" xsi:type="Composition" source="id-ext-amt-nd-dc-051" target="id-ext-amt-sw-ocs-043"></relationship>
+    <relationship identifier="id-fix-ts-0044" xsi:type="Composition" source="id-ext-amt-nd-dc-051" target="id-ext-amt-sw-vmw-036"></relationship>
+    <relationship identifier="id-fix-ts-0045" xsi:type="Composition" source="id-ext-amt-nd-edg-052" target="id-ext-amt-sw-api-049"></relationship>
+    <relationship identifier="id-fix-ts-0046" xsi:type="Serving" source="id-ext-amt-sw-s4h-030" target="id-c728f7f622be468380062354ffbf4f57"></relationship>
+    <relationship identifier="id-fix-ts-0047" xsi:type="Serving" source="id-ext-amt-sw-s4h-030" target="id-927db0f85d244a08b92e4925eb053d2b"></relationship>
+    <relationship identifier="id-fix-ts-0048" xsi:type="Serving" source="id-ext-amt-sw-s4h-030" target="id-2eec1a4a343142c09574a74d773e2224"></relationship>
+    <relationship identifier="id-fix-ts-0049" xsi:type="Serving" source="id-ext-amt-sw-s4h-030" target="id-a9c72e1cb5344e3ab7a8a7bc8271776d"></relationship>
+    <relationship identifier="id-fix-ts-0050" xsi:type="Serving" source="id-ext-amt-sw-s4h-030" target="id-df71ee7baba64cfbb35bcd00ed36040c"></relationship>
+    <relationship identifier="id-fix-ts-0051" xsi:type="Serving" source="id-ext-amt-sw-s4h-030" target="id-3eb0685faebf42cfa81567c6a4e7db24"></relationship>
+    <relationship identifier="id-fix-ts-0052" xsi:type="Serving" source="id-ext-amt-sw-s4h-030" target="id-021e6ea0d09f433f92532777a5980497"></relationship>
+    <relationship identifier="id-fix-ts-0053" xsi:type="Composition" source="id-ext-amt-sw-hdb-031" target="id-ext-amt-sw-s4h-030"></relationship>
+    <relationship identifier="id-fix-ts-0054" xsi:type="Composition" source="id-ext-amt-nd-dc-051" target="id-ext-amt-sw-hdb-031"></relationship>
+    <relationship identifier="id-fix-ts-0055" xsi:type="Serving" source="id-ext-amt-sw-hdb-031" target="id-c728f7f622be468380062354ffbf4f57"></relationship>
+    <relationship identifier="id-fix-ts-0056" xsi:type="Serving" source="id-ext-amt-sw-sfs-046" target="id-ext-amt-app-hcm-010"></relationship>
+    <relationship identifier="id-fix-ts-0057" xsi:type="Composition" source="id-ext-amt-nd-az-050" target="id-ext-amt-sw-sfs-046"></relationship>
   </relationships>
   <organizations>
     <item>

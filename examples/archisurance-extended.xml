@@ -2312,6 +2312,45 @@
     <relationship identifier="id-655" xsi:type="Triggering" source="id-651" target="id-564"></relationship>
     <relationship identifier="id-934" xsi:type="Triggering" source="id-903" target="id-909"></relationship>
     <relationship identifier="id-732" xsi:type="Triggering" source="id-650" target="id-721"></relationship>
+    <relationship identifier="id-fix-ts-0001" xsi:type="Realization" source="id-ext-ais-nd-az-051" target="id-ext-ais-ts-siem-065"></relationship>
+    <relationship identifier="id-fix-ts-0002" xsi:type="Composition" source="id-ext-ais-nd-az-051" target="id-ext-ais-sw-sfc-039"></relationship>
+    <relationship identifier="id-fix-ts-0003" xsi:type="Serving" source="id-ext-ais-sw-sfc-039" target="id-1393"></relationship>
+    <relationship identifier="id-fix-ts-0004" xsi:type="Composition" source="id-ext-ais-nd-az-051" target="id-ext-ais-sw-gwp-038"></relationship>
+    <relationship identifier="id-fix-ts-0005" xsi:type="Serving" source="id-ext-ais-sw-gwp-038" target="id-ext-ais-gw-bc-003"></relationship>
+    <relationship identifier="id-fix-ts-0006" xsi:type="Composition" source="id-ext-ais-nd-az-051" target="id-ext-ais-sw-aad-040"></relationship>
+    <relationship identifier="id-fix-ts-0007" xsi:type="Serving" source="id-ext-ais-sw-gwp-038" target="id-ext-ais-gw-cc-002"></relationship>
+    <relationship identifier="id-fix-ts-0008" xsi:type="Serving" source="id-ext-ais-sw-gwp-038" target="id-ext-ais-gw-pc-001"></relationship>
+    <relationship identifier="id-fix-ts-0009" xsi:type="Serving" source="id-ext-ais-sw-mls-044" target="id-ext-ais-hub-011"></relationship>
+    <relationship identifier="id-fix-ts-0010" xsi:type="Composition" source="id-ext-ais-nd-pri-050" target="id-ext-ais-sw-mls-044"></relationship>
+    <relationship identifier="id-fix-ts-0011" xsi:type="Serving" source="id-ext-ais-sw-els-033" target="id-ext-ais-fraud-005"></relationship>
+    <relationship identifier="id-fix-ts-0012" xsi:type="Composition" source="id-ext-ais-nd-az-051" target="id-ext-ais-sw-els-033"></relationship>
+    <relationship identifier="id-fix-ts-0013" xsi:type="Serving" source="id-ext-ais-sw-spk-041" target="id-ext-ais-dw-006"></relationship>
+    <relationship identifier="id-fix-ts-0014" xsi:type="Serving" source="id-ext-ais-sw-spk-041" target="id-ext-ais-rpt-007"></relationship>
+    <relationship identifier="id-fix-ts-0015" xsi:type="Composition" source="id-ext-ais-nd-az-051" target="id-ext-ais-sw-spk-041"></relationship>
+    <relationship identifier="id-fix-ts-0016" xsi:type="Realization" source="id-ext-ais-nd-pri-050" target="id-ext-ais-ts-log-066"></relationship>
+    <relationship identifier="id-fix-ts-0017" xsi:type="Realization" source="id-ext-ais-nd-pri-050" target="id-ext-ais-ts-bak-064"></relationship>
+    <relationship identifier="id-fix-ts-0018" xsi:type="Serving" source="id-ext-ais-sw-rhl-035" target="id-861"></relationship>
+    <relationship identifier="id-fix-ts-0019" xsi:type="Composition" source="id-ext-ais-nd-pri-050" target="id-ext-ais-sw-jbs-031"></relationship>
+    <relationship identifier="id-fix-ts-0020" xsi:type="Realization" source="id-ext-ais-nd-az-051" target="id-ext-ais-ts-cdn-063"></relationship>
+    <relationship identifier="id-fix-ts-0021" xsi:type="Realization" source="id-ext-ais-nd-az-051" target="id-ext-ais-ts-apigw-062"></relationship>
+    <relationship identifier="id-fix-ts-0022" xsi:type="Serving" source="id-ext-ais-sw-jbs-031" target="id-1399"></relationship>
+    <relationship identifier="id-fix-ts-0023" xsi:type="Composition" source="id-ext-ais-nd-pri-050" target="id-ext-ais-sw-pgs-034"></relationship>
+    <relationship identifier="id-fix-ts-0024" xsi:type="Realization" source="id-ext-ais-nd-az-051" target="id-ext-ais-ts-mon-061"></relationship>
+    <relationship identifier="id-fix-ts-0025" xsi:type="Serving" source="id-ext-ais-sw-rhl-035" target="id-867"></relationship>
+    <relationship identifier="id-fix-ts-0026" xsi:type="Composition" source="id-ext-ais-nd-pri-050" target="id-ext-ais-sw-rhl-035"></relationship>
+    <relationship identifier="id-fix-ts-0027" xsi:type="Composition" source="id-ext-ais-nd-pri-050" target="id-ext-ais-sw-vmw-036"></relationship>
+    <relationship identifier="id-fix-ts-0028" xsi:type="Realization" source="id-ext-ais-nd-az-051" target="id-ext-ais-ts-id-060"></relationship>
+    <relationship identifier="id-fix-ts-0029" xsi:type="Serving" source="id-ext-ais-sw-pgs-034" target="id-849"></relationship>
+    <relationship identifier="id-fix-ts-0030" xsi:type="Composition" source="id-ext-ais-nd-pri-050" target="id-ext-ais-sw-ocs-043"></relationship>
+    <relationship identifier="id-fix-ts-0031" xsi:type="Composition" source="id-ext-ais-nd-pri-050" target="id-ext-ais-sw-kfk-032"></relationship>
+    <relationship identifier="id-fix-ts-0032" xsi:type="Serving" source="id-ext-ais-nd-az-051" target="id-ext-ais-imd-009"></relationship>
+    <relationship identifier="id-fix-ts-0033" xsi:type="Serving" source="id-ext-ais-nd-az-051" target="id-1800"></relationship>
+    <relationship identifier="id-fix-ts-0034" xsi:type="Serving" source="id-ext-ais-nd-az-051" target="id-ext-ais-ss-008"></relationship>
+    <relationship identifier="id-fix-ts-0035" xsi:type="Serving" source="id-ext-ais-nd-az-051" target="id-ext-ais-mob-010"></relationship>
+    <relationship identifier="id-fix-ts-0036" xsi:type="Composition" source="id-ext-ais-nd-pri-050" target="id-ext-ais-sw-ora-030"></relationship>
+    <relationship identifier="id-fix-ts-0037" xsi:type="Serving" source="id-ext-ais-sw-ora-030" target="id-855"></relationship>
+    <relationship identifier="id-fix-ts-0038" xsi:type="Serving" source="id-ext-ais-sw-ora-030" target="id-867"></relationship>
+    <relationship identifier="id-fix-ts-0039" xsi:type="Serving" source="id-ext-ais-sw-ora-030" target="id-861"></relationship>
   </relationships>
   <organizations>
     <item>
