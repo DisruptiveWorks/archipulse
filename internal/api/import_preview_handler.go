@@ -27,12 +27,23 @@ type PreviewCategory struct {
 	Details   []PreviewItem `json:"details"` // only added + modified items
 }
 
+// RelViolationInfo describes one structural rule violation found in an imported model.
+type RelViolationInfo struct {
+	RelationshipID string `json:"relationship_id"`
+	RelType        string `json:"rel_type"`
+	SourceType     string `json:"source_type"`
+	TargetType     string `json:"target_type"`
+	Rule           string `json:"rule"`
+	Description    string `json:"description"`
+}
+
 // ImportPreview is the full diff returned by the preview endpoint.
 type ImportPreview struct {
-	Elements            PreviewCategory `json:"elements"`
-	Relationships       PreviewCategory `json:"relationships"`
-	Diagrams            PreviewCategory `json:"diagrams"`
-	PropertyDefinitions PreviewCategory `json:"property_definitions"`
+	Elements            PreviewCategory    `json:"elements"`
+	Relationships       PreviewCategory    `json:"relationships"`
+	Diagrams            PreviewCategory    `json:"diagrams"`
+	PropertyDefinitions PreviewCategory    `json:"property_definitions"`
+	RelViolations       []RelViolationInfo `json:"rel_violations,omitempty"`
 }
 
 func (h *importHandler) previewImport(w http.ResponseWriter, r *http.Request) {
@@ -107,7 +118,35 @@ func buildImportPreview(db *sql.DB, wsID uuid.UUID, m *parser.Model) (*ImportPre
 	if err != nil {
 		return nil, err
 	}
+	preview.RelViolations = buildRelViolations(m)
 	return preview, nil
+}
+
+// buildRelViolations validates ArchiMate structural rules for all relationships
+// in the model and returns a list of non-fatal violations.
+func buildRelViolations(m *parser.Model) []RelViolationInfo {
+	// Build source_id → type map from the incoming elements.
+	typeOf := make(map[string]string, len(m.Elements))
+	for _, e := range m.Elements {
+		typeOf[e.ID] = e.Type
+	}
+
+	var violations []RelViolationInfo
+	for _, r := range m.Relationships {
+		srcType := typeOf[r.Source]
+		tgtType := typeOf[r.Target]
+		for _, v := range parser.ValidateRelationship(srcType, tgtType, r.Type) {
+			violations = append(violations, RelViolationInfo{
+				RelationshipID: r.ID,
+				RelType:        r.Type,
+				SourceType:     srcType,
+				TargetType:     tgtType,
+				Rule:           v.Rule,
+				Description:    v.Description,
+			})
+		}
+	}
+	return violations
 }
 
 // diffElements compares incoming elements against the workspace DB.

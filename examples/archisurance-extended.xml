@@ -1691,50 +1691,11 @@
     <relationship identifier="id-81b9d07c" xsi:type="Aggregation" source="id-1546" target="id-352"></relationship>
     <relationship identifier="id-814" xsi:type="Aggregation" source="id-675" target="id-673"></relationship>
     <relationship identifier="id-1386" xsi:type="Assignment" source="id-275" target="id-514"></relationship>
-    <relationship identifier="id-ext-ais-r-0137" xsi:type="Assignment" source="id-ext-ais-ts-siem-065" target="id-ext-ais-nd-az-051"></relationship>
     <relationship identifier="id-772" xsi:type="Assignment" source="id-733" target="id-721"></relationship>
     <relationship identifier="id-1388" xsi:type="Assignment" source="id-514" target="id-556"></relationship>
     <relationship identifier="id-1381" xsi:type="Assignment" source="id-1337" target="id-1368"></relationship>
-    <relationship identifier="id-ext-ais-r-0105" xsi:type="Assignment" source="id-ext-ais-sw-sfc-039" target="id-ext-ais-nd-az-051"></relationship>
-    <relationship identifier="id-ext-ais-r-0104" xsi:type="Assignment" source="id-1393" target="id-ext-ais-sw-sfc-039"></relationship>
-    <relationship identifier="id-ext-ais-r-0103" xsi:type="Assignment" source="id-ext-ais-sw-gwp-038" target="id-ext-ais-nd-az-051"></relationship>
-    <relationship identifier="id-ext-ais-r-0102" xsi:type="Assignment" source="id-ext-ais-gw-bc-003" target="id-ext-ais-sw-gwp-038"></relationship>
-    <relationship identifier="id-ext-ais-r-0139" xsi:type="Assignment" source="id-ext-ais-sw-aad-040" target="id-ext-ais-nd-az-051"></relationship>
-    <relationship identifier="id-ext-ais-r-0101" xsi:type="Assignment" source="id-ext-ais-gw-cc-002" target="id-ext-ais-sw-gwp-038"></relationship>
-    <relationship identifier="id-ext-ais-r-0100" xsi:type="Assignment" source="id-ext-ais-gw-pc-001" target="id-ext-ais-sw-gwp-038"></relationship>
-    <relationship identifier="id-ext-ais-r-0114" xsi:type="Assignment" source="id-ext-ais-hub-011" target="id-ext-ais-sw-mls-044"></relationship>
-    <relationship identifier="id-ext-ais-r-0115" xsi:type="Assignment" source="id-ext-ais-sw-mls-044" target="id-ext-ais-nd-pri-050"></relationship>
-    <relationship identifier="id-ext-ais-r-0116" xsi:type="Assignment" source="id-ext-ais-fraud-005" target="id-ext-ais-sw-els-033"></relationship>
-    <relationship identifier="id-ext-ais-r-0117" xsi:type="Assignment" source="id-ext-ais-sw-els-033" target="id-ext-ais-nd-az-051"></relationship>
-    <relationship identifier="id-ext-ais-r-0118" xsi:type="Assignment" source="id-ext-ais-dw-006" target="id-ext-ais-sw-spk-041"></relationship>
-    <relationship identifier="id-ext-ais-r-0119" xsi:type="Assignment" source="id-ext-ais-rpt-007" target="id-ext-ais-sw-spk-041"></relationship>
-    <relationship identifier="id-ext-ais-r-0120" xsi:type="Assignment" source="id-ext-ais-sw-spk-041" target="id-ext-ais-nd-az-051"></relationship>
-    <relationship identifier="id-ext-ais-r-0138" xsi:type="Assignment" source="id-ext-ais-ts-log-066" target="id-ext-ais-nd-pri-050"></relationship>
     <relationship identifier="id-774" xsi:type="Assignment" source="id-514" target="id-612"></relationship>
-    <relationship identifier="id-ext-ais-r-0136" xsi:type="Assignment" source="id-ext-ais-ts-bak-064" target="id-ext-ais-nd-pri-050"></relationship>
-    <relationship identifier="id-ext-ais-r-0121" xsi:type="Assignment" source="id-861" target="id-ext-ais-sw-rhl-035"></relationship>
-    <relationship identifier="id-ext-ais-r-0113" xsi:type="Assignment" source="id-ext-ais-sw-jbs-031" target="id-ext-ais-nd-pri-050"></relationship>
-    <relationship identifier="id-ext-ais-r-0135" xsi:type="Assignment" source="id-ext-ais-ts-cdn-063" target="id-ext-ais-nd-az-051"></relationship>
-    <relationship identifier="id-ext-ais-r-0134" xsi:type="Assignment" source="id-ext-ais-ts-apigw-062" target="id-ext-ais-nd-az-051"></relationship>
-    <relationship identifier="id-ext-ais-r-0112" xsi:type="Assignment" source="id-1399" target="id-ext-ais-sw-jbs-031"></relationship>
-    <relationship identifier="id-ext-ais-r-0111" xsi:type="Assignment" source="id-ext-ais-sw-pgs-034" target="id-ext-ais-nd-pri-050"></relationship>
     <relationship identifier="id-4a214d41" xsi:type="Assignment" source="id-740" target="id-722"></relationship>
-    <relationship identifier="id-ext-ais-r-0133" xsi:type="Assignment" source="id-ext-ais-ts-mon-061" target="id-ext-ais-nd-az-051"></relationship>
-    <relationship identifier="id-ext-ais-r-0122" xsi:type="Assignment" source="id-867" target="id-ext-ais-sw-rhl-035"></relationship>
-    <relationship identifier="id-ext-ais-r-0123" xsi:type="Assignment" source="id-ext-ais-sw-rhl-035" target="id-ext-ais-nd-pri-050"></relationship>
-    <relationship identifier="id-ext-ais-r-0124" xsi:type="Assignment" source="id-ext-ais-sw-vmw-036" target="id-ext-ais-nd-pri-050"></relationship>
-    <relationship identifier="id-ext-ais-r-0132" xsi:type="Assignment" source="id-ext-ais-ts-id-060" target="id-ext-ais-nd-az-051"></relationship>
-    <relationship identifier="id-ext-ais-r-0110" xsi:type="Assignment" source="id-849" target="id-ext-ais-sw-pgs-034"></relationship>
-    <relationship identifier="id-ext-ais-r-0130" xsi:type="Assignment" source="id-ext-ais-sw-ocs-043" target="id-ext-ais-nd-pri-050"></relationship>
-    <relationship identifier="id-ext-ais-r-0129" xsi:type="Assignment" source="id-ext-ais-sw-kfk-032" target="id-ext-ais-nd-pri-050"></relationship>
-    <relationship identifier="id-ext-ais-r-0128" xsi:type="Assignment" source="id-ext-ais-imd-009" target="id-ext-ais-nd-az-051"></relationship>
-    <relationship identifier="id-ext-ais-r-0125" xsi:type="Assignment" source="id-1800" target="id-ext-ais-nd-az-051"></relationship>
-    <relationship identifier="id-ext-ais-r-0126" xsi:type="Assignment" source="id-ext-ais-ss-008" target="id-ext-ais-nd-az-051"></relationship>
-    <relationship identifier="id-ext-ais-r-0127" xsi:type="Assignment" source="id-ext-ais-mob-010" target="id-ext-ais-nd-az-051"></relationship>
-    <relationship identifier="id-ext-ais-r-0109" xsi:type="Assignment" source="id-ext-ais-sw-ora-030" target="id-ext-ais-nd-pri-050"></relationship>
-    <relationship identifier="id-ext-ais-r-0108" xsi:type="Assignment" source="id-855" target="id-ext-ais-sw-ora-030"></relationship>
-    <relationship identifier="id-ext-ais-r-0107" xsi:type="Assignment" source="id-867" target="id-ext-ais-sw-ora-030"></relationship>
-    <relationship identifier="id-ext-ais-r-0106" xsi:type="Assignment" source="id-861" target="id-ext-ais-sw-ora-030"></relationship>
     <relationship identifier="id-a2243077" xsi:type="Association" source="id-282" target="id-1536"></relationship>
     <relationship identifier="id-dd9c00de" xsi:type="Association" source="id-1101" target="id-1882"></relationship>
     <relationship identifier="id-ec3fef51" xsi:type="Association" source="id-992" target="id-1089"></relationship>
