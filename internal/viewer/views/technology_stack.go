@@ -101,7 +101,9 @@ func TechnologyStack(db *sql.DB, workspaceID uuid.UUID) (*TechStackData, error) 
 		return nil, err
 	}
 
-	// 3. App → Tech relationships (Assignment / Realization).
+	// 3. App ↔ Tech relationships.
+	// Serving (Tech→App) and Composition (Tech→Tech→App chain handled via direct links)
+	// are the correct ArchiMate types; Assignment/Realization kept for legacy models.
 	relRows, err := db.Query(`
 		SELECT DISTINCT
 		    CASE
@@ -116,7 +118,12 @@ func TechnologyStack(db *sql.DB, workspaceID uuid.UUID) (*TechStackData, error) 
 		JOIN elements src ON src.workspace_id = $1 AND src.source_id = r.source_element
 		JOIN elements tgt ON tgt.workspace_id = $1 AND tgt.source_id = r.target_element
 		WHERE r.workspace_id = $1
-		  AND r.type IN ('Assignment','AssignmentRelationship','Realization','RealizationRelationship')
+		  AND r.type IN (
+		      'Assignment','AssignmentRelationship',
+		      'Realization','RealizationRelationship',
+		      'Serving','ServingRelationship',
+		      'Composition','CompositionRelationship'
+		  )
 		  AND (
 		      (src.layer = 'Application' AND tgt.layer = 'Technology')
 		   OR (src.layer = 'Technology'  AND tgt.layer = 'Application')
