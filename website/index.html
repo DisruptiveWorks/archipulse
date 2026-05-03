@@ -540,7 +540,7 @@
 <section id="hero">
   <div class="hero-badge fade-up">
     <span class="hero-badge-dot"></span>
-    Pre-Alpha · Early Development
+    Open Source · Self-Hosted · Apache 2.0
   </div>
 
   <h1 class="fade-up delay-1">
@@ -683,7 +683,12 @@
     <div class="feature-card">
       <div class="feature-icon">↔</div>
       <h3>Open &amp; Integrable</h3>
-      <p>Import and export AOEF XML or AJX at any time. Compatible with Archi, archimate-editor, BiZZdesign, Sparx EA. Full REST API. Self-hosted.</p>
+      <p>Import and export AOEF XML at any time. Compatible with Archi, archimate-editor, BiZZdesign, Sparx EA. Full REST API. Self-hosted.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">⌘</div>
+      <h3>CLI &amp; AI Integration</h3>
+      <p><code>archipulse</code> CLI for scripting and automation. MCP server (<code>archipulse mcp</code>) connects ArchiPulse directly to Claude or any MCP-compatible AI agent.</p>
     </div>
   </div>
 </section>
@@ -707,7 +712,7 @@
     <div class="step">
       <div class="step-num">2</div>
       <div class="step-content">
-        <h3>Upload AOEF or AJX</h3>
+        <h3>Upload AOEF</h3>
         <p>ArchiPulse parses the model and stores it in PostgreSQL — one row per element, relationship, and diagram. XSD validated. No transformation magic.</p>
       </div>
     </div>
@@ -751,49 +756,38 @@
 
   <div class="roadmap">
     <div class="roadmap-version done">
-      <div class="version-tag">v0.1 – v0.5 <span class="tag-done">· Done</span></div>
-      <h3>Foundation &amp; UI</h3>
+      <div class="version-tag">v0.1 – v0.6 <span class="tag-done">· Done</span></div>
+      <h3>Foundation &amp; Platform</h3>
       <ul>
-        <li>AOEF &amp; AJX parser + XSD validation</li>
+        <li>AOEF parser + XSD validation</li>
         <li>PostgreSQL schema (AOEF as tables)</li>
-        <li>Workspace, element, relationship CRUD API</li>
-        <li>Optimistic locking &amp; export</li>
+        <li>Full CRUD API with optimistic locking</li>
+        <li>Multi-user auth (JWT + OIDC)</li>
         <li>Embedded SPA (Svelte 5 + Vite 6)</li>
-        <li>Application Landscape, Capability Tree</li>
-        <li>Dependency Graph (XY Flow)</li>
-        <li>Application Dashboard + EAM views</li>
-        <li>Corporate Light theme</li>
+        <li>EAM views: Landscape, Capability Tree, Tech Stack, Dashboard</li>
+        <li>Import preview (semantic diff)</li>
+        <li>Model Editor, Saved Views, Audit Log</li>
+        <li>CLI + MCP server (AI agent integration)</li>
         <li>Docker Compose setup</li>
       </ul>
     </div>
     <div class="roadmap-version current">
-      <div class="version-tag">v0.6 <span class="tag-current">· In progress</span></div>
+      <div class="version-tag">v0.7 <span class="tag-current">· In progress</span></div>
       <h3>Analysis</h3>
       <ul>
         <li>Capability Gap Analysis (coverage heatmap)</li>
-        <li>Technology Stack view</li>
         <li>Interface Catalogue</li>
-      </ul>
-    </div>
-    <div class="roadmap-version next">
-      <div class="version-tag">v0.7</div>
-      <h3>Enrichment Pipeline</h3>
-      <ul>
-        <li>Catalog storage &amp; API</li>
-        <li>Extractor plugin system</li>
-        <li>Mapper engine</li>
-        <li>First-party extractors: AWS, CSV/Excel</li>
-        <li>Semantic diff UI</li>
+        <li>User management UI (invitations, password reset)</li>
       </ul>
     </div>
     <div class="roadmap-version next">
       <div class="version-tag">v1.0</div>
-      <h3>Stable Platform</h3>
+      <h3>Production Ready</h3>
       <ul>
-        <li>Stable REST API</li>
-        <li>Multi-user auth &amp; governance</li>
         <li>Helm chart for Kubernetes</li>
         <li>Full documentation site</li>
+        <li>Extractor library (AWS, Azure, Confluence, Jira)</li>
+        <li>Hosted SaaS &amp; enterprise support</li>
       </ul>
     </div>
   </div>
@@ -821,22 +815,12 @@
     <div class="contribute-card">
       <div class="label">Frontend</div>
       <h4>Web Interface</h4>
-      <p>Svelte 5 components, graph visualization, and UX improvements for the EAM analytical views.</p>
-    </div>
-    <div class="contribute-card">
-      <div class="label">Database</div>
-      <h4>PostgreSQL Schema</h4>
-      <p>Migrations for the AOEF-as-tables schema. The heart of the platform's simplicity and portability.</p>
-    </div>
-    <div class="contribute-card">
-      <div class="label">Parser</div>
-      <h4>AOEF / AJX Parser</h4>
-      <p>The Go parser is the first critical piece. If you know ArchiMate's Open Exchange Format, start here.</p>
+      <p>New views, UX improvements, and accessibility. Svelte 5 — easy to pick up if you know modern JS.</p>
     </div>
     <div class="contribute-card">
       <div class="label">Docs</div>
       <h4>Documentation</h4>
-      <p>Architecture decisions, guides, and examples. Clear docs lower the barrier for every future contributor.</p>
+      <p>Deployment guides, usage tutorials, and worked examples. Clear docs lower the barrier for every user and contributor.</p>
     </div>
   </div>
 
