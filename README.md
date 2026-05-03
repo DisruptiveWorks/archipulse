@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="website/logo.svg" width="72" alt="ArchiPulse logo" />
+
 # ArchiPulse
 
 **Enterprise Architecture models without vendor lock-in.**
@@ -21,10 +23,6 @@ Built on ArchiMate · Powered by Go · PostgreSQL · Open Source
 ---
 
 > **Try it:** [demo.archipulse.org](https://demo.archipulse.org) — pre-loaded with the ArchiSurance example model. No sign-up required.
-
----
-
-> **Note:** ArchiPulse is in early development (pre-alpha). The API and data model are not yet stable. We welcome contributors and early adopters who want to shape the direction of the project.
 
 ---
 
@@ -53,7 +51,7 @@ ArchiPulse works alongside the tools architects already use — **Archi**, **arc
 - [Architecture](#architecture)
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
-- [Support & Sponsorship](#support--sponsorship)
+- [Support](#support)
 - [License](#license)
 
 ---
@@ -70,7 +68,7 @@ ArchiPulse works alongside the tools architects already use — **Archi**, **arc
 **Viewer & Navigation**
 - Static viewer — faithful reproduction of ArchiMate views as designed
 - EAM views — pre-defined analytical views (capability maps, application landscapes, technology radars) generated from SQL
-- Graph explorer — Cytoscape.js with visual filters or direct SQL for ad-hoc queries
+- Graph explorer — interactive graph with visual filters for ad-hoc dependency analysis
 
 **Enrichment Pipeline**
 - Connect real-world resource catalogs (AWS, Confluence, Excel, custom sources) to your ArchiMate workspace
@@ -79,10 +77,14 @@ ArchiPulse works alongside the tools architects already use — **Archi**, **arc
 - Community-contributed extractor library — one extractor works across all organizations
 
 **Open & Integrable**
-- Import and export any workspace as valid AOEF XML or AJX (ArchiMate JSON Exchange)
+- Import and export any workspace as valid AOEF XML — round-trip compatible with any AOEF-compliant tool
 - Full REST API — every operation available programmatically
 - Self-hosted — your data stays in your infrastructure
 - Compatible with Archi, archimate-editor, BiZZdesign, Sparx EA, and any AOEF-compliant tool
+
+**CLI & AI Integration**
+- `archipulse` CLI — manage workspaces, elements, relationships, diagrams, and import/export from the terminal
+- MCP server (`archipulse mcp`) — connect ArchiPulse directly to Claude or any MCP-compatible AI agent; query models, run EAM views, and create or update elements through natural language
 
 ---
 
@@ -91,8 +93,14 @@ ArchiPulse works alongside the tools architects already use — **Archi**, **arc
 ```mermaid
 flowchart TD
     Tools["ArchiMate editors\nArchi · archimate-editor · any AOEF tool"]
-    -->|"AOEF / AJX upload"| AP["ArchiPulse\nWorkspace Manager"]
+    -->|"AOEF upload"| AP["ArchiPulse\nWorkspace Manager"]
     AP --> PG[(PostgreSQL\nAOEF as tables)]
+
+    CLI["archipulse CLI\nimport · export · workspace · element"]
+    --> AP
+
+    AI["AI agents · Claude\narchipulse mcp"]
+    --> AP
 
     Src["External sources\nAWS · Confluence · Excel"]
     --> Ext["Extraction Engine\nExtractor → Mapper"]
@@ -101,15 +109,24 @@ flowchart TD
     PG --> SV["Static viewer\nmodel as designed"]
     PG --> EAM["EAM views\nSQL analytical queries"]
     PG --> GE["Graph explorer\nCytoscape.js"]
-    PG -->|"AOEF / AJX export"| Tools
+    PG -->|"AOEF export"| Tools
 ```
 
-1. Architects model in their preferred tool and **upload AOEF or AJX** to ArchiPulse
+1. Architects model in their preferred tool and **upload AOEF** to ArchiPulse
 2. ArchiPulse parses the model and stores it in **PostgreSQL** — one row per element, relationship, and diagram
 3. Multiple architects can **edit the workspace directly** via the web interface or API — all changes are immediately visible
 4. The **enrichment pipeline** pulls from external sources and maps resources to ArchiMate elements in the workspace
 5. The **viewer** renders static diagrams, generates EAM analytical views, and provides an interactive graph explorer
 6. Any workspace can be **exported back to AOEF** — importable into any compliant tool at any time
+
+---
+
+## Demo
+
+<!-- Replace VIDEO_ID with the YouTube video ID once the demo is published -->
+<!-- [![ArchiPulse Demo](https://img.youtube.com/vi/VIDEO_ID/maxresdefault.jpg)](https://www.youtube.com/watch?v=VIDEO_ID) -->
+
+> Demo video coming soon. In the meantime, try the [live demo](https://demo.archipulse.org) — no sign-up required.
 
 ---
 
@@ -123,13 +140,26 @@ flowchart TD
 
 [![Application Landscape Map](website/screenshots/landscape.png)](website/screenshots/landscape.png)
 
-**Application Dependency Graph** — interactive graph of application integrations with XY Flow.
+**Application Dependency Graph** — interactive graph of application integrations.
 
 [![Application Dependency Graph](website/screenshots/dependency-graph.png)](website/screenshots/dependency-graph.png)
 
 **Capability Tree** — hierarchical capability model with collapsible levels.
 
 [![Capability Tree](website/screenshots/capability-tree.png)](website/screenshots/capability-tree.png)
+
+<!-- Additional screenshots — add image files to website/screenshots/ and uncomment -->
+<!-- **Technology Stack** — application to infrastructure mapping matrix. -->
+<!-- [![Technology Stack](website/screenshots/tech-stack.png)](website/screenshots/tech-stack.png) -->
+
+<!-- **Saved Views** — bookmarked analytical views with filter state. -->
+<!-- [![Saved Views](website/screenshots/saved-views.png)](website/screenshots/saved-views.png) -->
+
+<!-- **Model Editor** — create and update elements and relationships from the web UI. -->
+<!-- [![Model Editor](website/screenshots/model-editor.png)](website/screenshots/model-editor.png) -->
+
+<!-- **Snapshots** — workspace baselines for point-in-time comparison. -->
+<!-- [![Snapshots](website/screenshots/snapshots.png)](website/screenshots/snapshots.png) -->
 
 ---
 
@@ -196,9 +226,8 @@ ArchiPulse ships with the **ArchiSurance** example model from The Open Group so 
 
 | Format | Import | Export | Notes |
 |---|---|---|---|
-| ArchiMate Open Exchange Format (AOEF) | ✅ v0.1 | ✅ v0.1 | Official Open Group standard · XSD validated |
-| AJX (ArchiMate JSON Exchange) | ✅ v0.1 | ✅ v0.1 | Compact JSON format · Git-friendly |
-| CSV | 🔜 v0.3 | ✅ v0.1 | Catalog export for manual workflows |
+| ArchiMate Open Exchange Format (AOEF) | ✅ | ✅ | Official Open Group standard · XSD validated |
+| CSV | 🔜 | ✅ | Catalog export for manual workflows |
 | Archi native (`.archimate`) | 📋 Backlog | — | Via community contribution |
 
 ---
@@ -218,16 +247,25 @@ archipulse/
 │       ├── ui/           # Svelte 5 + Vite 6 frontend
 │       │   └── src/      # Components, routes, lib
 │       ├── embed.go      # //go:embed ui/dist
-│       └── main.go
+│       └── main.go       # serve · migrate · seed · CLI · MCP entry points
 ├── internal/
-│   ├── parser/           # AOEF and AJX parsers
-│   ├── workspace/        # Workspace manager and CRUD
+│   ├── parser/           # AOEF parser with ArchiMate structural validation
+│   ├── exporter/         # AOEF export (SELECT → XML)
+│   ├── workspace/        # Workspace CRUD
+│   ├── element/          # Element CRUD
+│   ├── relationship/     # Relationship CRUD
+│   ├── diagram/          # Diagram CRUD
 │   ├── viewer/           # EAM view generation (SQL queries)
 │   │   └── views/        # Individual view implementations
-│   └── api/              # REST API handlers
+│   ├── api/              # REST API handlers
+│   ├── auth/             # JWT + OIDC authentication
+│   ├── audit/            # Audit log / workspace events
+│   ├── cli/              # archipulse CLI commands
+│   ├── mcpserver/        # MCP server (AI agent integration)
+│   ├── savedviews/       # Saved views with filter state
+│   └── snapshot/         # Workspace snapshots / baselines
 ├── migrations/           # PostgreSQL migrations
-├── examples/             # Sample ArchiMate models (ArchiSurance)
-└── tests/                # Integration tests
+└── examples/             # Sample ArchiMate models (ArchiSurance, ArchiMetal)
 ```
 
 ---
@@ -235,46 +273,56 @@ archipulse/
 ## Roadmap
 
 ### v0.1 — Foundation ✅
-- [x] AOEF and AJX parser with semantic validation
+- [x] AOEF parser with ArchiMate structural validation
 - [x] PostgreSQL schema (AOEF as tables)
 - [x] Workspace, element, relationship, diagram CRUD API
 - [x] Optimistic locking on all editable resources
-- [x] AOEF and AJX export
+- [x] AOEF export (round-trip compatible)
 - [x] CI pipeline and test suite
 
 ### v0.2 — Viewer & Navigation ✅
 - [x] Embedded SPA frontend (single binary, no runtime deps)
+- [x] Static AOEF viewer — faithful reproduction of ArchiMate diagrams
 - [x] EAM views: Element Catalogue, Application Catalogue, Application Landscape, Technology Catalogue
-- [x] Application Dependency Graph (Cytoscape.js)
+- [x] Application Dependency Graph
 - [x] Capability Tree view
 - [x] Docker Compose setup
 
 ### v0.3 — EAM Views ✅
-- [x] Integration Map view (application integration topology)
-- [x] Capability Tree rebuilt with Cytoscape dagre LR + tooltips
-- [x] Application node sub-type differentiation
+- [x] Integration Map (application integration topology)
+- [x] Process–Application matrix
+- [x] Capability Landscape
+- [x] Technology Catalogue
 
 ### v0.4 — Frontend ✅
 - [x] Svelte 5 + Vite 6 component-based frontend
-- [x] Cytoscape as npm dependency
-
-### v0.5 — UI & UX ✅
 - [x] Corporate Light theme — professional enterprise UI
 - [x] Application Dashboard with lifecycle/criticality charts
-- [x] Application Dependency Graph rebuilt with XY Flow
-- [x] Table View shared route for catalogue drill-downs
-- [x] Component-based views architecture
+- [x] Application Dependency Graph (interactive, filterable)
 
-### v0.6 — Analysis _(in progress)_
-- [ ] Capability Gap Analysis (coverage heatmap)
-- [ ] Technology Stack view (app → infrastructure mapping)
+### v0.5 — Collaboration ✅
+- [x] Import preview — two-step semantic diff before confirming any import
+- [x] Model Editor — create and update elements and relationships from the web UI
+- [x] Saved views — bookmark analytical views with filter state
+- [x] Audit log — per-workspace event history
+
+### v0.6 — Platform ✅
+- [x] Stable, paginated REST API
+- [x] Multi-user authentication (JWT + OIDC)
+- [x] `archipulse` CLI — workspaces, elements, relationships, diagrams, import/export
+- [x] MCP server — AI agent integration via stdio (`archipulse mcp`)
+- [x] Technology Stack view (app → infrastructure matrix)
+
+### v0.7 — Analysis _(in progress)_
+- [ ] Capability Gap Analysis (capability coverage heatmap)
 - [ ] Interface Catalogue
+- [ ] User management UI (invitations, roles, password reset)
 
-### v1.0 — Stable Platform
-- [ ] Stable REST API
-- [ ] Multi-user authentication and governance levels
+### v1.0 — Production Ready
 - [ ] Helm chart for Kubernetes deployment
 - [ ] Full documentation site at archipulse.org
+- [ ] Extractor library (AWS, Azure, Confluence, ServiceNow, Jira)
+- [ ] Hosted SaaS and enterprise support
 
 > The roadmap is managed publicly via [GitHub Milestones](https://github.com/DisruptiveWorks/archipulse/milestones). Community input is welcome in [Discussions](https://github.com/DisruptiveWorks/archipulse/discussions).
 
@@ -282,15 +330,14 @@ archipulse/
 
 ## Contributing
 
-ArchiPulse is in early development and contributions of all kinds are welcome.
+Contributions of all kinds are welcome.
 
-Especially impactful at this stage:
+Especially impactful right now:
 
-- **AOEF/AJX parser** — the Go parser is the first critical piece
-- **PostgreSQL schema** — migrations for the AOEF-as-tables schema
 - **Extractors** — connectors for data sources your organization uses (AWS, Azure, Jira, Confluence, ServiceNow...)
-- **EAM view queries** — SQL queries that generate meaningful analytical views
-- **Web frontend** — Cytoscape.js graph explorer and static viewer
+- **EAM view queries** — SQL queries that generate meaningful analytical views from ArchiMate models
+- **Web frontend** — new views, UX improvements, accessibility
+- **Documentation** — deployment guides, usage tutorials, worked examples
 
 Please read [CONTRIBUTING.md](./CONTRIBUTING.md) to get started.
 
@@ -298,16 +345,21 @@ Good entry points: [`good first issue`](https://github.com/DisruptiveWorks/archi
 
 ---
 
-## Support & Sponsorship
+## Support
 
-ArchiPulse is developed and maintained by [Disruptive Works](https://github.com/DisruptiveWorks) and released free and open source under the Apache 2.0 license.
+ArchiPulse is developed and maintained by [Disruptive Works](https://disruptive-works.com) and released free and open source under the Apache 2.0 license.
 
-Ways to support the project:
+**Self-hosted** — free forever. Clone the repo, run Docker Compose, and own your data completely.
+
+**Hosted SaaS** _(coming soon)_ — a fully managed ArchiPulse instance with no infrastructure to manage. Join the waitlist at [archipulse.org](https://archipulse.org).
+
+**Enterprise support** _(coming soon)_ — dedicated onboarding, private deployments, SLA-backed support, and custom extractor development. If you're interested, reach out early at [hello@disruptive-works.com](mailto:hello@disruptive-works.com).
+
+Other ways to support the project:
 
 - **Star the repository** — helps with visibility
 - **Report issues and suggest features** — your feedback shapes the roadmap
 - **Contribute code, documentation, or extractors** — see [CONTRIBUTING.md](./CONTRIBUTING.md)
-- **Sponsor** — if your organization wants to support sustained development, reach out at [archipulse.org](https://archipulse.org) or open a [Discussion](https://github.com/DisruptiveWorks/archipulse/discussions)
 
 ---
 
