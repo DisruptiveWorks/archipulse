@@ -544,22 +544,21 @@
   </div>
 
   <h1 class="fade-up delay-1">
-    Enterprise Architecture<br/>
-    <span class="accent">without lock-in.</span>
+    Describe your architecture.<br/>
+    <span class="accent">AI builds the model.</span>
   </h1>
 
   <p class="hero-sub fade-up delay-2">
-    ArchiPulse stores, visualizes, and analyzes your <strong>ArchiMate models</strong> in a self-hosted web platform.
-    Your architecture is not a static file — it's <strong>living, collaborative data</strong>.
+    ArchiPulse is an <strong>AI-native Enterprise Architecture platform</strong> — connect your AI agent via MCP and let it create, query, and manage ArchiMate models. Every model is stored relationally, exportable as AOEF, and <strong>fully interoperable</strong> with Archi, BiZZdesign, and Sparx EA.
   </p>
 
   <div class="hero-actions fade-up delay-3">
-    <a href="https://github.com/DisruptiveWorks/archipulse" class="btn-primary" target="_blank">
+    <a href="https://demo.archipulse.org" class="btn-primary" target="_blank">
+      Live Demo →
+    </a>
+    <a href="https://github.com/DisruptiveWorks/archipulse" class="btn-secondary" target="_blank">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
       View on GitHub
-    </a>
-    <a href="https://demo.archipulse.org" class="btn-secondary" target="_blank">
-      Live Demo →
     </a>
   </div>
 
@@ -629,19 +628,19 @@
 <!-- ── Problem ───────────────────────────────────────────────────────── -->
 <section>
   <div class="section-label">The problem</div>
-  <h2>EA tools are either academic or proprietary.</h2>
-  <p class="section-intro">Most tools force you to choose between an obtuse ontology stack or an expensive closed platform. ArchiPulse takes a third path.</p>
+  <h2>EA tools are expensive, closed, and manual.</h2>
+  <p class="section-intro">Most platforms lock your data in proprietary formats, charge per seat, and still require architects to model everything by hand. ArchiPulse takes a different path.</p>
 
   <div class="two-col">
     <div class="col-card">
       <div class="col-tag bad">The old way</div>
-      <h3>Vendor lock-in or academic overkill</h3>
-      <p>Proprietary formats, expensive licenses, and data you can't query. Or the other extreme: OWL ontologies, Protégé, and SPARQL queries that only academics can read.</p>
+      <h3>Proprietary, expensive, and static</h3>
+      <p>Vendor lock-in, six-figure licenses, and architecture data you can't query or export freely. Models that live in a single tool and die when the license expires.</p>
     </div>
     <div class="col-card">
       <div class="col-tag good">ArchiPulse</div>
-      <h3>AOEF directly as PostgreSQL tables</h3>
-      <p>The ArchiMate Open Exchange Format becomes the data model itself. Export is a SELECT. Import is an INSERT. Collaboration is database-native. No custom metamodel, no vendor dependency.</p>
+      <h3>Open, relational, AI-operable</h3>
+      <p>AOEF mapped directly to PostgreSQL — export is a SELECT, import is an INSERT. Connect an AI agent via MCP and let it build and query models for you. Your data stays yours, forever exportable to any AOEF-compliant tool.</p>
     </div>
   </div>
 </section>
@@ -656,39 +655,34 @@
 
   <div class="features-grid">
     <div class="feature-card">
+      <div class="feature-icon">⌘</div>
+      <h3>AI-Native via MCP</h3>
+      <p>Connect Claude or any MCP-compatible agent to ArchiPulse. The AI creates workspaces, models elements and relationships, queries views, and exports AOEF — all through natural language.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">↔</div>
+      <h3>AOEF Interoperability</h3>
+      <p>Import and export valid AOEF XML at any time. Full roundtrip with Archi, archimate-editor, BiZZdesign, and Sparx EA. Your models are never trapped.</p>
+    </div>
+    <div class="feature-card">
       <div class="feature-icon">⚙</div>
       <h3>Collaborative Repository</h3>
       <p>Multiple architects edit the same workspace simultaneously. Optimistic locking prevents silent overwrites. Conflicts shown with author and timestamp.</p>
     </div>
     <div class="feature-card">
       <div class="feature-icon">⚡</div>
-      <h3>Semantic Diff</h3>
-      <p>Upload an AOEF file and review element-by-element what changed and who changed it. Your model's history, readable at a glance.</p>
+      <h3>Import Preview</h3>
+      <p>Upload an AOEF file and review element-by-element what would change before committing. No surprises, no accidental overwrites.</p>
     </div>
     <div class="feature-card">
       <div class="feature-icon">◈</div>
       <h3>EAM Analytical Views</h3>
-      <p>Application Dashboard, Application Landscape Map, Capability Tree, Technology Catalogue — pre-defined views generated from your model data.</p>
+      <p>Application Dashboard, Landscape Map, Capability Tree, Technology Stack, Dependency Graph — pre-defined views generated automatically from your model data.</p>
     </div>
     <div class="feature-card">
-      <div class="feature-icon">⬡</div>
-      <h3>Dependency Graph</h3>
-      <p>Interactive application dependency graph powered by XY Flow. Visualize integrations, pan and zoom, filter by lifecycle and type.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">⤢</div>
-      <h3>Enrichment Pipeline</h3>
-      <p>Connect real-world resource catalogs — AWS, Confluence, Excel, custom sources — to your ArchiMate workspace. Community-contributed extractors.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">↔</div>
-      <h3>Open &amp; Integrable</h3>
-      <p>Import and export AOEF XML at any time. Compatible with Archi, archimate-editor, BiZZdesign, Sparx EA. Full REST API. Self-hosted.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">⌘</div>
-      <h3>CLI &amp; AI Integration</h3>
-      <p><code>archipulse</code> CLI for scripting and automation. MCP server (<code>archipulse mcp</code>) connects ArchiPulse directly to Claude or any MCP-compatible AI agent.</p>
+      <div class="feature-icon">⊞</div>
+      <h3>Model Editor</h3>
+      <p>Create and update elements and relationships directly from the web UI. No file upload required — edit your model live and see changes immediately.</p>
     </div>
   </div>
 </section>
@@ -698,36 +692,36 @@
 <!-- ── How it works ───────────────────────────────────────────────────── -->
 <section id="how-it-works">
   <div class="section-label">How it works</div>
-  <h2>One insight. Radical simplicity.</h2>
-  <p class="section-intro">The ArchiMate Open Exchange Format already defines what entities exist. Map them directly to PostgreSQL tables — and everything else becomes trivial.</p>
+  <h2>Two ways in. One model out.</h2>
+  <p class="section-intro">Start from an existing AOEF file or let an AI agent build the model from scratch — the result is the same: a persistent, queryable, interoperable ArchiMate repository.</p>
 
   <div class="steps">
     <div class="step">
       <div class="step-num">1</div>
       <div class="step-content">
-        <h3>Model in your preferred tool</h3>
-        <p>Use Archi, archimate-editor, or any AOEF-compatible tool. ArchiPulse works alongside what you already have — it doesn't replace it.</p>
+        <h3>Bring your model — or describe it</h3>
+        <p>Upload an AOEF file from Archi, BiZZdesign, or any compatible tool. Or connect Claude (or any MCP agent) and describe your system in natural language — the AI creates elements, relationships, and diagrams directly.</p>
       </div>
     </div>
     <div class="step">
       <div class="step-num">2</div>
       <div class="step-content">
-        <h3>Upload AOEF</h3>
-        <p>ArchiPulse parses the model and stores it in PostgreSQL — one row per element, relationship, and diagram. XSD validated. No transformation magic.</p>
+        <h3>Stored in PostgreSQL, structured as AOEF</h3>
+        <p>Every element, relationship, and diagram lives in a relational database — one row per concept. Queryable, versioned, and always exportable. No proprietary format, no lock-in.</p>
       </div>
     </div>
     <div class="step">
       <div class="step-num">3</div>
       <div class="step-content">
-        <h3>Collaborate and enrich</h3>
-        <p>Multiple architects edit the same workspace directly via the web interface or REST API. The enrichment pipeline pulls from external sources and maps resources to ArchiMate elements.</p>
+        <h3>Explore, collaborate, and analyze</h3>
+        <p>Multiple architects edit the same workspace simultaneously. Explore through EAM analytical views, dependency graphs, and capability trees — all generated automatically from your model data.</p>
       </div>
     </div>
     <div class="step">
       <div class="step-num">4</div>
       <div class="step-content">
-        <h3>Explore, analyze, export</h3>
-        <p>EAM analytical views, interactive dependency graphs, capability trees. Export back to AOEF at any time — importable in any compliant tool.</p>
+        <h3>Export and round-trip</h3>
+        <p>Export valid AOEF at any time and open it in Archi, Sparx EA, or any compliant tool. Your architecture travels with you — no conversion, no data loss.</p>
       </div>
     </div>
   </div>
@@ -834,8 +828,8 @@
 <!-- ── CTA ────────────────────────────────────────────────────────────── -->
 <section id="cta">
   <div class="section-label">Get started</div>
-  <h2>Your architecture deserves better than a static file.</h2>
-  <p class="section-intro">ArchiPulse is free, open source, and self-hosted. Apache 2.0. Your data stays in your infrastructure.</p>
+  <h2>Let AI build your enterprise architecture.</h2>
+  <p class="section-intro">ArchiPulse is free, open source, and self-hosted. Connect your AI agent, describe your systems, and have a queryable ArchiMate repository in minutes.</p>
   <div class="hero-actions">
     <a href="https://github.com/DisruptiveWorks/archipulse" class="btn-primary" target="_blank">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
@@ -846,12 +840,12 @@
 </section>
 
 <footer>
-  <span>© 2026 <a href="https://github.com/DisruptiveWorks" target="_blank">Disruptive Works</a> · Apache 2.0</span>
+  <span>© 2026 <a href="https://disruptive-works.com" target="_blank">Disruptive Works</a> · Built by Victor Soria, CTO · Apache 2.0</span>
   <div class="footer-links">
     <a href="https://github.com/DisruptiveWorks/archipulse" target="_blank">GitHub</a>
     <a href="https://github.com/DisruptiveWorks/archipulse/blob/main/LICENSE" target="_blank">License</a>
-    <a href="https://github.com/DisruptiveWorks/archipulse/blob/main/SECURITY.md" target="_blank">Security</a>
     <a href="https://github.com/DisruptiveWorks/archipulse/discussions" target="_blank">Discussions</a>
+    <a href="mailto:hello@disruptive-works.com">Contact</a>
   </div>
   <span>ArchiMate® is a trademark of The Open Group. ArchiPulse is not affiliated with The Open Group.</span>
 </footer>
