@@ -6,6 +6,7 @@
 
 **Enterprise Architecture models without vendor lock-in.**
 **Publish your ArchiMate models and explore, analyze and navigate them from a self-hosted web platform.**
+**Or skip the modeling tool — describe your system to an AI agent and let it build the model for you.**
 
 Built on ArchiMate · Powered by Go · PostgreSQL · Open Source
 
@@ -35,6 +36,8 @@ Most EA tools today fall into one of two traps: too academic (OWL ontologies, Pr
 The result: your architecture is not a static file but **living, collaborative data** — queryable, enrichable, versioned by baseline, and always exportable back to any AOEF-compliant tool.
 
 ArchiPulse works alongside the tools architects already use — **Archi**, **archimate-editor**, or any AOEF-compatible tool. It adds the collaborative repository, the analytical layer, and the enrichment pipeline on top.
+
+It also ships an **MCP server** (`archipulse mcp`) that lets any MCP-compatible AI agent — Claude, or others — operate the repository directly: create workspaces, model elements and relationships, query analytical views, and export AOEF, all through natural language. No file uploads, no manual modeling required.
 
 ---
 
