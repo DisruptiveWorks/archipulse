@@ -94,10 +94,13 @@ func LoadModel(db *sql.DB, workspaceID uuid.UUID) (*parser.Model, error) {
 		return nil, fmt.Errorf("load diagrams: %w", err)
 	}
 
-	// Load model identifier.
+	// Load model identifier — fall back to a deterministic value when absent.
 	var modelIdentifier string
 	_ = db.QueryRow(`SELECT COALESCE(model_identifier, '') FROM workspaces WHERE id = $1`,
 		workspaceID).Scan(&modelIdentifier)
+	if modelIdentifier == "" {
+		modelIdentifier = "id-" + workspaceID.String()
+	}
 
 	m := &parser.Model{Identifier: modelIdentifier, Name: ws.Name}
 
@@ -172,6 +175,14 @@ func LoadModel(db *sql.DB, workspaceID uuid.UUID) (*parser.Model, error) {
 		return nil, err
 	}
 
+	// Build a UUID → source_id map for resolving relationship references created
+	// by the MCP server (which stores element UUIDs in source_element/target_element
+	// rather than the ArchiMate source_id used by AOEF-imported workspaces).
+	uuidToSourceID := make(map[string]string, len(elems))
+	for _, e := range elems {
+		uuidToSourceID[e.ID.String()] = e.SourceID
+	}
+
 	// --- Elements ---
 	for _, e := range elems {
 		m.Elements = append(m.Elements, parser.Element{
@@ -217,11 +228,19 @@ func LoadModel(db *sql.DB, workspaceID uuid.UUID) (*parser.Model, error) {
 
 	// --- Relationships ---
 	for _, r := range rels {
+		src := r.SourceElement
+		if mapped, ok := uuidToSourceID[src]; ok {
+			src = mapped
+		}
+		tgt := r.TargetElement
+		if mapped, ok := uuidToSourceID[tgt]; ok {
+			tgt = mapped
+		}
 		m.Relationships = append(m.Relationships, parser.Relationship{
 			ID:            r.SourceID,
 			Type:          r.Type,
-			Source:        r.SourceElement,
-			Target:        r.TargetElement,
+			Source:        src,
+			Target:        tgt,
 			Name:          r.Name,
 			Documentation: r.Documentation,
 			AccessType:    r.AccessType,
