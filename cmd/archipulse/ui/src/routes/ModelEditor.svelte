@@ -70,7 +70,10 @@
   let relSearch      = '';
   let activeRelType  = '';  // '' = all
 
-  $: elementsById = Object.fromEntries(elements.map(e => [e.source_id, e]));
+  $: elementsById = Object.fromEntries([
+    ...elements.map(e => [e.id, e]),
+    ...elements.filter(e => e.source_id).map(e => [e.source_id, e]),
+  ]);
 
   $: relTypes = [...new Set(relationships.map(r => r.type))].sort();
 
