@@ -29,6 +29,24 @@ type relResponse struct {
 	Violations []parser.RelationshipViolation `json:"violations,omitempty"`
 }
 
+// resolveElementRef translates a UUID element reference to its ArchiMate source_id.
+// If ref is already a source_id (not a valid UUID) it is returned unchanged.
+// Falls back to ref itself when the UUID is not found in the workspace.
+func resolveElementRef(db *sql.DB, workspaceID uuid.UUID, ref string) string {
+	id, err := uuid.Parse(ref)
+	if err != nil {
+		return ref
+	}
+	var sourceID string
+	if err := db.QueryRow(
+		`SELECT source_id FROM elements WHERE id = $1 AND workspace_id = $2`,
+		id, workspaceID,
+	).Scan(&sourceID); err != nil || sourceID == "" {
+		return ref
+	}
+	return sourceID
+}
+
 // elementTypesBySourceIDs returns a source_id→type map for the given IDs in a workspace.
 func (h *relationshipHandler) elementTypesBySourceIDs(wsID uuid.UUID, sourceIDs []string) (map[string]string, error) {
 	rows, err := h.db.Query(
@@ -115,6 +133,8 @@ func (h *relationshipHandler) create(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, errorf("source_id, type, source_element and target_element are required"))
 		return
 	}
+	body.SourceElement = resolveElementRef(h.db, wsID, body.SourceElement)
+	body.TargetElement = resolveElementRef(h.db, wsID, body.TargetElement)
 	rel, err := h.store.Create(wsID, body.SourceID, body.Type, body.SourceElement, body.TargetElement, body.Name, body.Documentation)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, err)
@@ -151,6 +171,9 @@ func (h *relationshipHandler) update(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, err)
 		return
 	}
+	wsID, _ := uuid.Parse(chi.URLParam(r, "wsID"))
+	body.SourceElement = resolveElementRef(h.db, wsID, body.SourceElement)
+	body.TargetElement = resolveElementRef(h.db, wsID, body.TargetElement)
 	rel, err := h.store.Update(id, body.Type, body.SourceElement, body.TargetElement, body.Name, body.Documentation, body.Version)
 	if errors.Is(err, relationship.ErrNotFound) {
 		respondError(w, http.StatusNotFound, err)
@@ -164,7 +187,6 @@ func (h *relationshipHandler) update(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusInternalServerError, err)
 		return
 	}
-	wsID, _ := uuid.Parse(chi.URLParam(r, "wsID"))
 	if claims := auth.ClaimsFromCtx(r.Context()); claims != nil && h.audit != nil {
 		_ = h.audit.Record(audit.RecordParams{
 			WorkspaceID: wsID, UserID: claims.UserID, UserEmail: claims.Email,
