@@ -35,6 +35,11 @@ func (h *workspaceHandler) list(w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusOK, wss)
 }
 
+type workspaceResponse struct {
+	*workspace.Workspace
+	CallerRole string `json:"caller_role,omitempty"`
+}
+
 func (h *workspaceHandler) get(w http.ResponseWriter, r *http.Request) {
 	id, err := parseUUID(r, "id")
 	if err != nil {
@@ -50,7 +55,13 @@ func (h *workspaceHandler) get(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusInternalServerError, err)
 		return
 	}
-	respondJSON(w, http.StatusOK, ws)
+	resp := workspaceResponse{Workspace: ws}
+	if claims := auth.ClaimsFromCtx(r.Context()); claims != nil {
+		if role, err := h.svc.Enforcer.WorkspaceRole(claims.UserID, id.String()); err == nil {
+			resp.CallerRole = role
+		}
+	}
+	respondJSON(w, http.StatusOK, resp)
 }
 
 func (h *workspaceHandler) create(w http.ResponseWriter, r *http.Request) {

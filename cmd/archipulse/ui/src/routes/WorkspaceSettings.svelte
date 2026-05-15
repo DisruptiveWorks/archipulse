@@ -4,40 +4,36 @@
   import { api } from '../lib/api.js';
   import { user } from '../lib/auth.js';
 
-  export let params = {};
+  const { params = {} } = $props();
 
-  $: wsId = params.wsId;
+  const wsId = $derived(params.wsId);
 
   // ── Tabs ──────────────────────────────────────────────────────────────────
-  let tab = 'members'; // 'general' | 'members'
+  let tab = $state('members');
 
   // ── Workspace general ─────────────────────────────────────────────────────
-  let ws = null;
-  let wsLoading = true;
-  let wsSaving = false;
-  let wsError = null;
-  let wsSuccess = false;
-  let wsForm = { name: '', purpose: '', description: '' };
+  let ws          = $state(null);
+  let wsLoading   = $state(true);
+  let wsSaving    = $state(false);
+  let wsError     = $state(null);
+  let wsSuccess   = $state(false);
+  let wsForm      = $state({ name: '', purpose: '', description: '' });
 
   const PURPOSES = ['as-is', 'to-be', 'initiative', 'other'];
 
   // ── Members ───────────────────────────────────────────────────────────────
-  let members = [];
-  let membersLoading = true;
-  let membersError = null;
+  let members        = $state([]);
+  let membersLoading = $state(true);
+  let membersError   = $state(null);
 
-  // Add member form
-  let addEmail = '';
-  let addRole = 'viewer';
-  let addSearching = false;
-  let addError = null;
-  let addSuccess = false;
+  let addEmail     = $state('');
+  let addRole      = $state('viewer');
+  let addSearching = $state(false);
+  let addError     = $state(null);
+  let addSuccess   = $state(false);
 
-  // Inline role updating
-  let updatingRole = {}; // userId → true while in flight
-
-  // Removing
-  let removingMember = {}; // userId → true while in flight
+  let updatingRole   = $state({});
+  let removingMember = $state({});
 
   // ── Load ──────────────────────────────────────────────────────────────────
   onMount(async () => {
@@ -109,9 +105,7 @@
     try {
       await api.put('/workspaces/' + wsId + '/members/' + member.user_id, { role: newRole });
       member.role = newRole;
-      members = [...members];
     } catch (e) {
-      // silently revert — reload to sync
       await loadMembers();
     }
     updatingRole[member.user_id] = false;
@@ -138,17 +132,16 @@
     viewer: 'bg-gray-100 text-gray-600 border-gray-200',
   };
 
-  $: currentUserId = $user?.id;
-  $: myRole = members.find(m => m.user_id === currentUserId)?.role;
-  $: canManage = $user?.org_role === 'admin' || myRole === 'owner';
-  $: isOwner = myRole === 'owner';
+  const currentUserId = $derived($user?.id);
+  const canManage     = $derived($user?.org_role === 'admin' || ws?.caller_role === 'owner');
+  const isOwner       = $derived(ws?.caller_role === 'owner');
 
   // ── Delete workspace ──────────────────────────────────────────────────────
-  let deleteConfirm = '';
-  let deleting = false;
-  let deleteError = null;
+  let deleteConfirm = $state('');
+  let deleting      = $state(false);
+  let deleteError   = $state(null);
 
-  $: deleteReady = ws && deleteConfirm.trim() === ws.name.trim();
+  const deleteReady = $derived(ws && deleteConfirm.trim() === ws.name.trim());
 
   async function deleteWorkspace() {
     if (!deleteReady || deleting) return;
@@ -176,7 +169,7 @@
       <button
         class="px-4 py-2 text-[13px] font-medium border-b-2 transition-colors -mb-px
           {tab === key ? 'border-primary text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'}"
-        on:click={() => tab = key}
+        onclick={() => tab = key}
       >{label}</button>
     {/each}
   </div>
@@ -222,7 +215,7 @@
                     <select
                       class="text-[12px] border border-border rounded-md px-2 py-1 bg-background cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary"
                       value={member.role}
-                      on:change={e => updateRole(member, e.target.value)}
+                      onchange={e => updateRole(member, e.target.value)}
                     >
                       {#each ROLES as r}
                         <option value={r}>{ROLE_LABELS[r]}</option>
@@ -241,7 +234,7 @@
                 <button
                   class="text-muted-foreground hover:text-destructive transition-colors ml-1 disabled:opacity-40"
                   disabled={removingMember[member.user_id]}
-                  on:click={() => removeMember(member)}
+                  onclick={() => removeMember(member)}
                   title="Remove member"
                 >
                   {#if removingMember[member.user_id]}
@@ -268,7 +261,7 @@
               type="email"
               placeholder="user@example.com"
               bind:value={addEmail}
-              on:keydown={e => e.key === 'Enter' && addMember()}
+              onkeydown={e => e.key === 'Enter' && addMember()}
             />
             <select
               class="text-[13px] border border-border rounded-md px-2 py-1.5 bg-background focus:outline-none focus:ring-1 focus:ring-primary"
@@ -281,7 +274,7 @@
             <button
               class="px-3 py-1.5 bg-primary text-primary-foreground text-[13px] font-medium rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50"
               disabled={addSearching || !addEmail.trim()}
-              on:click={addMember}
+              onclick={addMember}
             >
               {addSearching ? '…' : 'Add'}
             </button>
@@ -353,7 +346,7 @@
             <button
               class="px-4 py-1.5 bg-primary text-primary-foreground text-[13px] font-medium rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50"
               disabled={wsSaving}
-              on:click={saveGeneral}
+              onclick={saveGeneral}
             >
               {wsSaving ? 'Saving…' : 'Save changes'}
             </button>
@@ -418,7 +411,7 @@
                       ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90'
                       : 'bg-muted text-muted-foreground cursor-not-allowed opacity-50'}"
                   disabled={!deleteReady || deleting}
-                  on:click={deleteWorkspace}
+                  onclick={deleteWorkspace}
                 >
                   {deleting ? 'Deleting…' : 'Delete workspace'}
                 </button>
