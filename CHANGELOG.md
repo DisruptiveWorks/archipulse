@@ -10,8 +10,53 @@ ArchiPulse uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Planned
-- Capability Gap Analysis view
-- Technology Stack view
+- Capability Gap Analysis view (coverage heatmap)
+- Interface Catalogue
+- User Management UI (invitations, password reset, roles)
+
+---
+
+## [0.6.0] — 2026-06-23
+
+### Added — AI-native via MCP
+- MCP server (`archipulse mcp`) — 25+ tools so AI agents can create, query and export complete architecture models in natural language. Compatible with Claude Desktop and any MCP-compatible client.
+- Model Editor — two-tab UI to create and edit elements and relationships directly from the web.
+- Structural validation — enforces ArchiMate 3.2 relationship rules at write time.
+
+### Added — Collaboration & governance
+- Workspace RBAC — owner/member/viewer roles enforced on all scoped endpoints.
+- Workspace settings UI with owner-only danger zone (delete workspace).
+- Audit log — per-workspace event history with async event bus.
+- Snapshots — point-in-time baselines of model state.
+- OIDC role mapping for multi-user auth via JWT + OIDC.
+
+### Added — Model lifecycle
+- Import preview — semantic diff (added/changed/removed) before applying changes.
+- Full AOEF round-trip — properties, multilang, viewpoints, model metadata, XSD-compliant section order.
+- Saved views — bookmark filtered analytical views; update saved view from current filters.
+
+### Added — New EAM views
+- Application Landscape Map — L1/L2 capability grid with coloured app chips.
+- Capability Landscape with detail panel.
+- Process–Application Usage matrix.
+- Technology Stack matrix.
+
+### Added — API & tooling
+- CLI (`archipulse login/context/workspace/element/relationship/diagram/import/export`) with named contexts via `~/.archipulse/config.yaml`.
+- Pagination on all list endpoints.
+- `GET /health` with version injected via `ldflags`.
+
+### Changed
+- README and website repositioned around AI-native EA and AOEF interoperability.
+- Enriched example models (archimetal-extended, archisurance-extended).
+- Workspace access middleware — consistent `{wsID}` path parameter.
+
+### Removed
+- AJX (JSON) interchange format — OEF (XML) is now the single interchange format.
+
+### Upgrade notes
+- Migrate to OEF (XML) if you were using AJX (JSON).
+- Apply database migrations before starting v0.6 (RBAC tables, snapshots, audit log).
 
 ---
 
@@ -93,7 +138,8 @@ ArchiPulse uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
-[Unreleased]: https://github.com/DisruptiveWorks/archipulse/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/DisruptiveWorks/archipulse/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/DisruptiveWorks/archipulse/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/DisruptiveWorks/archipulse/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/DisruptiveWorks/archipulse/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/DisruptiveWorks/archipulse/compare/v0.2.0...v0.3.0
