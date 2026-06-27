@@ -38,3 +38,9 @@ go.work.sum
 # UI build artifacts
 cmd/archipulse/ui/dist/
 cmd/archipulse/ui/node_modules/
+
+# Defensive: never commit raw camera/phone captures to the public website folder.
+# Use website/screenshots/ for intentional, named assets only.
+website/IMG_*
+website/*.HEIC
+website/*.heic
