@@ -20,6 +20,13 @@
     demoMode = cfg.demo_mode ?? false;
     demoEmail = cfg.demo_email ?? '';
     demoPassword = cfg.demo_password ?? '';
+
+    const hashParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
+    const searchParams = new URLSearchParams(window.location.search);
+    const tryParam = hashParams.get('try') || searchParams.get('try');
+    if (demoMode && tryParam === 'demo') {
+      await loginAsDemo();
+    }
   });
 
   async function handleSubmit(e) {
