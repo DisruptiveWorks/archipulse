@@ -10,6 +10,8 @@
 
 Built on ArchiMate · Powered by Go · PostgreSQL · Open Source
 
+[![Try the live demo](https://img.shields.io/badge/▶%20Try%20the%20live%20demo-E85D3A?style=for-the-badge&logoColor=white)](https://demo.archipulse.org/#/login?try=demo)
+
 [![Build](https://img.shields.io/github/actions/workflow/status/DisruptiveWorks/archipulse/ci.yml?branch=main&style=flat-square)](https://github.com/DisruptiveWorks/archipulse/actions)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue?style=flat-square)](./LICENSE)
 [![Go Version](https://img.shields.io/badge/go-1.24%2B-00ADD8?style=flat-square&logo=go)](https://go.dev)
@@ -17,13 +19,13 @@ Built on ArchiMate · Powered by Go · PostgreSQL · Open Source
 [![ArchiMate](https://img.shields.io/badge/ArchiMate-3.2-orange?style=flat-square)](https://www.opengroup.org/archimate-forum)
 [![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen?style=flat-square)](./CONTRIBUTING.md)
 
-[Live Demo](https://demo.archipulse.org) · [Getting Started](#getting-started) · [Features](#features) · [How It Works](#how-it-works) · [Roadmap](#roadmap) · [Contributing](#contributing) · [Support](#support)
+[Live Demo](https://demo.archipulse.org/#/login?try=demo) · [Getting Started](#getting-started) · [Features](#features) · [How It Works](#how-it-works) · [Roadmap](#roadmap) · [Contributing](#contributing) · [Support](#support)
 
 </div>
 
 ---
 
-> **Try it:** [demo.archipulse.org](https://demo.archipulse.org) — pre-loaded with the ArchiSurance example model. No sign-up required.
+> **Try it:** [demo.archipulse.org](https://demo.archipulse.org/#/login?try=demo) — pre-loaded with ArchiSurance and ArchiMetal example models. One click, no sign-up required.
 
 ---
 
@@ -129,7 +131,7 @@ flowchart TD
 <!-- Replace VIDEO_ID with the YouTube video ID once the demo is published -->
 <!-- [![ArchiPulse Demo](https://img.youtube.com/vi/VIDEO_ID/maxresdefault.jpg)](https://www.youtube.com/watch?v=VIDEO_ID) -->
 
-> Demo video coming soon. In the meantime, try the [live demo](https://demo.archipulse.org) — no sign-up required.
+> Demo video coming soon. In the meantime, try the [live demo](https://demo.archipulse.org/#/login?try=demo) — one click, no sign-up required.
 
 ---
 
