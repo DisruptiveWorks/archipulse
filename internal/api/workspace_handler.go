@@ -64,6 +64,11 @@ func (h *workspaceHandler) get(w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusOK, resp)
 }
 
+// demoUserWorkspaceQuota caps how many workspaces the shared public-demo
+// user can own concurrently. Prevents pollution of the demo instance from
+// viral traffic. TODO(#102): replace with proper plans/quotas system.
+const demoUserWorkspaceQuota = 5
+
 func (h *workspaceHandler) create(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		Name        string `json:"name"`
@@ -78,13 +83,30 @@ func (h *workspaceHandler) create(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, errorf("name and purpose are required"))
 		return
 	}
+
+	// Enforce demo user workspace quota (see #102 for planned refactor).
+	claims := auth.ClaimsFromCtx(r.Context())
+	if claims != nil && h.svc.Cfg.DemoMode && claims.Email == h.svc.Cfg.DemoEmail {
+		n, err := h.store.CountOwnedByUser(claims.UserID)
+		if err != nil {
+			respondError(w, http.StatusInternalServerError, err)
+			return
+		}
+		if n >= demoUserWorkspaceQuota {
+			respondError(w, http.StatusTooManyRequests, errorf(
+				"demo limit reached (%d workspaces). Deploy your own instance for unlimited workspaces — star us on GitHub: https://github.com/DisruptiveWorks/archipulse",
+				demoUserWorkspaceQuota))
+			return
+		}
+	}
+
 	ws, err := h.store.Create(body.Name, body.Purpose, body.Description)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, err)
 		return
 	}
 	// Seed the creating user as workspace owner.
-	if claims := auth.ClaimsFromCtx(r.Context()); claims != nil {
+	if claims != nil {
 		_ = h.svc.Enforcer.SeedOwner(ws.ID.String(), claims.UserID)
 	}
 	respondJSON(w, http.StatusCreated, ws)
