@@ -89,6 +89,21 @@ func (s *Store) ListForUser(userID string, isAdmin bool) ([]Workspace, error) {
 	return out, rows.Err()
 }
 
+// CountOwnedByUser returns the number of workspaces where the user has the
+// 'owner' role. Used by handlers that need to enforce per-user quotas
+// (e.g. the demo user workspace limit). See issue #102 for the planned
+// refactor to a proper plans/quotas system.
+func (s *Store) CountOwnedByUser(userID string) (int, error) {
+	var n int
+	err := s.db.QueryRow(`
+		SELECT COUNT(*) FROM workspace_members
+		WHERE  user_id = $1 AND role = 'owner'`, userID).Scan(&n)
+	if err != nil {
+		return 0, fmt.Errorf("count workspaces owned by user: %w", err)
+	}
+	return n, nil
+}
+
 // Get returns a single workspace by ID.
 func (s *Store) Get(id uuid.UUID) (*Workspace, error) {
 	var w Workspace
