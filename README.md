@@ -12,7 +12,9 @@ Built on ArchiMate · Powered by Go · PostgreSQL · Open Source
 
 [![Try the live demo](https://img.shields.io/badge/▶%20Try%20the%20live%20demo-E85D3A?style=for-the-badge&logoColor=white)](https://demo.archipulse.org/#/login?try=demo)
 
-[![Watch the demo — 2 minutes](https://img.youtube.com/vi/TjIFE7yhzrg/maxresdefault.jpg)](https://youtu.be/TjIFE7yhzrg)
+<video src="https://github.com/user-attachments/assets/1641c716-96f5-4298-b855-ea62d30636b3" controls muted playsinline width="800"></video>
+
+<sub>Also on <a href="https://youtu.be/TjIFE7yhzrg">YouTube</a> — 2 minutes.</sub>
 
 [![Build](https://img.shields.io/github/actions/workflow/status/DisruptiveWorks/archipulse/ci.yml?branch=main&style=flat-square)](https://github.com/DisruptiveWorks/archipulse/actions)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue?style=flat-square)](./LICENSE)
