@@ -12,6 +12,8 @@ Built on ArchiMate · Powered by Go · PostgreSQL · Open Source
 
 [![Try the live demo](https://img.shields.io/badge/▶%20Try%20the%20live%20demo-E85D3A?style=for-the-badge&logoColor=white)](https://demo.archipulse.org/#/login?try=demo)
 
+[![Watch the demo — 2 minutes](https://img.youtube.com/vi/TjIFE7yhzrg/maxresdefault.jpg)](https://youtu.be/TjIFE7yhzrg)
+
 [![Build](https://img.shields.io/github/actions/workflow/status/DisruptiveWorks/archipulse/ci.yml?branch=main&style=flat-square)](https://github.com/DisruptiveWorks/archipulse/actions)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue?style=flat-square)](./LICENSE)
 [![Go Version](https://img.shields.io/badge/go-1.24%2B-00ADD8?style=flat-square&logo=go)](https://go.dev)
@@ -131,7 +133,7 @@ flowchart TD
 <!-- Replace VIDEO_ID with the YouTube video ID once the demo is published -->
 <!-- [![ArchiPulse Demo](https://img.youtube.com/vi/VIDEO_ID/maxresdefault.jpg)](https://www.youtube.com/watch?v=VIDEO_ID) -->
 
-> Demo video coming soon. In the meantime, try the [live demo](https://demo.archipulse.org/#/login?try=demo) — one click, no sign-up required.
+> **Watch the 2-minute demo:** https://youtu.be/TjIFE7yhzrg — or try the [live demo](https://demo.archipulse.org/#/login?try=demo) yourself, one click, no sign-up required.
 
 ---
 
